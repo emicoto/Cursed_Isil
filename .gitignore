@@ -14,3 +14,10 @@ swiftshader
 locales
 credits.html
 *.dll
+nw.dll
+node.dll
+libEGL.dll
+libGLESv2.dll
+nw_elf.dll
+vk_swiftshader.dll
+vulkan-1.dll

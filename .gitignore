@@ -13,4 +13,4 @@ pnacl
 swiftshader
 locales
 credits.html
-nw.dll
+*.dll

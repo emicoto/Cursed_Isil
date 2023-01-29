@@ -96,15 +96,12 @@ window.getKeyByValue = function (object, value) {
 	);
 };
 
-window.getByPath = function (obj, path) {
+window.setByPath = function (obj, path) {
 	const pathArray = path.split(".");
 	const last = pathArray.pop();
 	for (let i = 0; i < pathArray.length; i++) {
-		try {
-			obj = obj[pathArray[i]];
-		} catch (error) {
-			console.log("path not found", path, obj, error);
-		}
+		if (!obj[pathArray[i]]) obj[pathArray[i]] = {};
+		obj = obj[pathArray[i]];
 	}
 	if (!obj[last]) {
 		obj[last] = {};

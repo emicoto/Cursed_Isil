@@ -193,20 +193,22 @@ hasroom.forEach((spot) => {
 		}
 
 		//创建有名字的房间
-		if (roomName[room]) {
+		else if (roomName[room]) {
 			FMA[id][room] = new Spots([spot.id, room, [roomName[room], room], "room"]);
 		}
 
 		//创建剩余房间
-		switch (id) {
-			case "ClassBuildingR1":
-			case "ClassBuildingR2":
-				FMA[id][room] = new Spots([spot.id, room, ["教室|" + room, "Classroom|" + room], "room"]);
-				break;
+		else {
+			switch (id) {
+				case "ClassBuildingR1":
+				case "ClassBuildingR2":
+					FMA[id][room] = new Spots([spot.id, room, ["教室|" + room, "Classroom|" + room], "room"]);
+					break;
 
-			case "Dormitory":
-				FMA[id][room] = new Spots([spot.id, room, ["宿舍|" + room, "Dormitory|" + room], "room"]);
-				break;
+				case "Dormitory":
+					FMA[id][room] = new Spots([spot.id, room, ["宿舍|" + room, "Dormitory|" + room], "room"]);
+					break;
+			}
 		}
 
 		//设置房间内部的物品

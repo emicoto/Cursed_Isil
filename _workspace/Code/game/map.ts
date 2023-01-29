@@ -68,7 +68,7 @@ export interface Spots extends GameMap {
 
 	rooms?: string[]; //房间id
 	locked?: boolean; //是否上锁
-	opentime?: {
+	openhour?: {
 		//开放时间
 		weekday: number[] | "allday";
 		open: number;
@@ -382,7 +382,7 @@ export class Spots extends GameMap {
 		if (type.has("room")) {
 			parent = GameMap.getParentGroup("spot", boardId);
 			if (parent?.spotType) type = (parent.spotType + "|" + type) as spotType;
-			boardId = boardId.split(".")[0];
+			boardId = parent?.boardId || boardId;
 		} else {
 			parent = GameMap.getParentGroup("board", boardId);
 		}
@@ -486,8 +486,8 @@ export class Spots extends GameMap {
 		return this;
 	}
 	//设置开放时间
-	Opentime(weekday: number[] | "allday", open: number, close: number) {
-		this.opentime = {
+	OpenHour(weekday: number[] | "allday", open: number, close: number) {
+		this.openhour = {
 			weekday: weekday,
 			open: open,
 			close: close,

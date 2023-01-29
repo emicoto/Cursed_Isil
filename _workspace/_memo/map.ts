@@ -32,7 +32,7 @@ export interface TownMap extends Maps {
 
 export interface Spots extends Maps {
 	rooms?: string[];
-	opentime?: {
+	openhour?: {
 		weekday: number[] | "allday";
 		open: number;
 		close: number;
@@ -235,8 +235,8 @@ export class Spots extends Maps {
 		this.rooms = rooms;
 		return this;
 	}
-	Opentime(weekday: number[] | "allday", open: number, close: number) {
-		this.opentime = {
+	OpenHour(weekday: number[] | "allday", open: number, close: number) {
+		this.openhour = {
 			weekday: weekday,
 			open: open,
 			close: close,

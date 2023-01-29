@@ -1123,7 +1123,7 @@
 	      parent = GameMap.getParentGroup("spot", boardId);
 	      if (parent == null ? void 0 : parent.spotType)
 	        type = parent.spotType + "|" + type;
-	      boardId = boardId.split(".")[0];
+	      boardId = (parent == null ? void 0 : parent.boardId) || boardId;
 	    } else {
 	      parent = GameMap.getParentGroup("board", boardId);
 	    }
@@ -1215,8 +1215,8 @@
 	    this.rooms = rooms;
 	    return this;
 	  }
-	  Opentime(weekday, open, close) {
-	    this.opentime = {
+	  OpenHour(weekday, open, close) {
+	    this.openhour = {
 	      weekday,
 	      open,
 	      close
@@ -1640,18 +1640,18 @@
 	  spot.rooms.forEach((room) => {
 	    if (worldMap$1.CommonSpots[room]) {
 	      FMA[id][room] = GameMap.copy(worldMap$1.CommonSpots[room], spot.id, room);
-	    }
-	    if (roomName[room]) {
+	    } else if (roomName[room]) {
 	      FMA[id][room] = new Spots([spot.id, room, [roomName[room], room], "room"]);
-	    }
-	    switch (id) {
-	      case "ClassBuildingR1":
-	      case "ClassBuildingR2":
-	        FMA[id][room] = new Spots([spot.id, room, ["\u6559\u5BA4|" + room, "Classroom|" + room], "room"]);
-	        break;
-	      case "Dormitory":
-	        FMA[id][room] = new Spots([spot.id, room, ["\u5BBF\u820D|" + room, "Dormitory|" + room], "room"]);
-	        break;
+	    } else {
+	      switch (id) {
+	        case "ClassBuildingR1":
+	        case "ClassBuildingR2":
+	          FMA[id][room] = new Spots([spot.id, room, ["\u6559\u5BA4|" + room, "Classroom|" + room], "room"]);
+	          break;
+	        case "Dormitory":
+	          FMA[id][room] = new Spots([spot.id, room, ["\u5BBF\u820D|" + room, "Dormitory|" + room], "room"]);
+	          break;
+	      }
 	    }
 	    setAcademyRoom(id, room);
 	  });

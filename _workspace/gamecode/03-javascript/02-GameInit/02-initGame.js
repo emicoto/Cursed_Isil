@@ -108,8 +108,8 @@ game.init = function () {
 	V.lastLocation = null;
 
 	//当前地点详情
-	V.location = F.iniLocation("Academy.Dormitory.S303");
-	V.location.chara = ["Isil", "Ayres"];
+	//V.location = F.iniLocation("Academy.Dormitory.S303");
+	//V.location.chara = ["Isil", "Ayres"];
 };
 
 game.start = function (skip) {
@@ -146,6 +146,64 @@ game.start = function (skip) {
 	if (T.newbie) {
 		for (let i in V.chara) {
 			V.chara[i].initExp().initVirginity();
+		}
+	}
+};
+
+F.initGameData = function () {
+	const initBoards = (path) => {
+		const data = GameMap.get(path);
+		for (const [key, values] of Object.entries(data)) {
+			if (values instanceof Boards) {
+				getByPath(V.mapdata, values.mapId);
+				initBoards(values.mapId);
+			}
+			if (values instanceof Spots) {
+				initSpots(values.mapId);
+			}
+		}
+	};
+	const initSpots = (path) => {
+		const data = GameMap.get(path);
+		for (const [key, values] of Object.entries(data)) {
+			if (values instanceof Spots) {
+				const spot = getByPath(V.mapdata, values.mapId);
+				spot.visited = 0;
+				spot.explore = 0;
+
+				if (values.tags.has("上锁", "私人")) {
+					spot.locked = 1;
+				}
+
+				initSpots(values.mapId);
+			}
+			if (values instanceof Rooms) {
+				initRoom(values.mapId);
+			}
+		}
+	};
+	const initRoom = (path) => {
+		const data = GameMap.get(path);
+		const room = getByPath(V.mapdata, path);
+		room.visited = 0;
+		room.explore = 0;
+
+		if (data.tags.has("上锁", "私人")) {
+			room.locked = 1;
+		}
+
+		for (const [key, values] of Object.entries(data)) {
+			if (values instanceof Rooms) {
+				getByPath(V.mapdata, values.mapId);
+				initRoom(values.mapId);
+			}
+		}
+	};
+
+	for (const [boardkey, boards] of Object.entries(worldMap)) {
+		if (boards instanceof Boards) {
+			V.mapdata[boardkey] = {};
+			initBoards(boards.mapId);
 		}
 	}
 };

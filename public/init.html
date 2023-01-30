@@ -22,7 +22,6 @@
         watcher
             .on('change', (path) => {
                 console.log(`File ${path} has been changed`);
-                buildSugarCube();
                 App.console.log('reloading');
                 setTimeout(() => { App.nw.Window.get().reload() }, 1000);
             });

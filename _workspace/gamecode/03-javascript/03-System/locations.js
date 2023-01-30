@@ -119,7 +119,7 @@ F.createLocationLink = function () {
 	const spots = [];
 	console.log(list);
 
-	list.forEach((item) => {
+	for (const item of list) {
 		//console.log(item);
 		const id = item[0];
 		const locdata = GameMap.get(id);
@@ -132,13 +132,14 @@ F.createLocationLink = function () {
 			locdata.tags.has("封闭", "异空间") ||
 			(typeof item[2]?.has === "function" && item[2].has("secretAre", "inaccesible"))
 		) {
-			return;
+			continue;
 		}
-
 		//如果是锁着的私室，就不会出现在列表中。
-		if (locdata.visitCond && !locdata.visitCond()) return;
+		if (locdata.visitCond && !locdata.visitCond()) {
+			continue;
+		}
 		if (locdata.tags.containsAll("私人", "上锁") && squaredata.locked) {
-			return;
+			continue;
 		}
 
 		if (item[1].has && item[1].has("isRoom", "isEntry")) {
@@ -146,7 +147,7 @@ F.createLocationLink = function () {
 		} else {
 			spots.push([item[0], Math.floor(findPath(T.map, V.location.pos, item[1]).length * 1.2 + 0.5)]);
 		}
-	});
+	}
 
 	//按移动时间排序
 	spots.sort((a, b) => a[1] - b[1]);

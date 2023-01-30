@@ -1,1 +1,0 @@
-start public\index.html

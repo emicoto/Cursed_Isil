@@ -91,319 +91,375 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 <style id="style-ui" type="text/css">#ui-dialog-body.settings [id|=setting-body]>div:first-child{display:table;width:100%}#ui-dialog-body.settings [id|=setting-label]{display:table-cell;padding:.4em 2em .4em 0}#ui-dialog-body.settings [id|=setting-label]+div{display:table-cell;min-width:8em;text-align:right;vertical-align:middle;white-space:nowrap}#ui-dialog-body.list{padding:0}#ui-dialog-body.list ul{margin:0;padding:0;list-style:none;border:1px solid transparent}#ui-dialog-body.list li{margin:0}#ui-dialog-body.list li:not(:first-child){border-top:1px solid #444}#ui-dialog-body.list li a{display:block;padding:.25em .75em;border:1px solid transparent;color:#eee;text-decoration:none}#ui-dialog-body.list li a:hover{background-color:#333;border-color:#eee}#ui-dialog-body.saves{padding:0 0 1px}#ui-dialog-body.saves>:not(:first-child){border-top:1px solid #444}#ui-dialog-body.saves table{border-spacing:0;width:100%}#ui-dialog-body.saves tr:not(:first-child){border-top:1px solid #444}#ui-dialog-body.saves td{padding:.33em .33em}#ui-dialog-body.saves td:first-child{min-width:1.5em;text-align:center}#ui-dialog-body.saves td:nth-child(3){line-height:1.2}#ui-dialog-body.saves td:last-child{text-align:right}#ui-dialog-body.saves .empty{color:#999;speak:none;text-align:center;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}#ui-dialog-body.saves .datestamp{font-size:75%;margin-left:1em}#ui-dialog-body.saves ul.buttons li{padding:.4em}#ui-dialog-body.saves ul.buttons>li+li>button{margin-left:.2em}#ui-dialog-body.saves ul.buttons li:last-child{float:right}#ui-dialog-body.settings div[id|=header-body]{margin:1em 0}#ui-dialog-body.settings div[id|=header-body]:first-child{margin-top:0}#ui-dialog-body.settings div[id|=header-body]:not(:first-child){border-top:1px solid #444;padding-top:1em}#ui-dialog-body.settings div[id|=header-body]>*{margin:0}#ui-dialog-body.settings h2[id|=header-heading]{font-size:1.375em}#ui-dialog-body.settings p[id|=header-desc],#ui-dialog-body.settings p[id|=setting-desc]{font-size:87.5%;margin:0 0 0 .5em}#ui-dialog-body.settings div[id|=setting-body]+div[id|=setting-body]{margin:1em 0}#ui-dialog-body.settings [id|=setting-control]{white-space:nowrap}#ui-dialog-body.settings button[id|=setting-control]{color:#eee;background-color:transparent;border:1px solid #444;padding:.4em}#ui-dialog-body.settings button[id|=setting-control]:hover{background-color:#333;border-color:#eee}#ui-dialog-body.settings button[id|=setting-control].enabled{background-color:#282;border-color:#4a4}#ui-dialog-body.settings button[id|=setting-control].enabled:hover{background-color:#4a4;border-color:#6c6}#ui-dialog-body.list a,#ui-dialog-body.settings span[id|=setting-input]{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}#ui-dialog-body.saves button[id=saves-clear]:before,#ui-dialog-body.saves button[id=saves-export]:before,#ui-dialog-body.saves button[id=saves-import]:before,#ui-dialog-body.settings button[id|=setting-control].enabled:after,#ui-dialog-body.settings button[id|=setting-control]:after{font-family:tme-fa-icons!important;font-style:normal;font-weight:900;font-variant:normal;line-height:1;speak:never;text-rendering:auto;text-transform:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}#ui-dialog-body.saves button[id=saves-export]:before{content:"\e829\00a0"}#ui-dialog-body.saves button[id=saves-import]:before{content:"\e82a\00a0"}#ui-dialog-body.saves button[id=saves-clear]:before{content:"\e827\00a0"}#ui-dialog-body.settings button[id|=setting-control]:after{content:"\00a0\00a0\e830"}#ui-dialog-body.settings button[id|=setting-control].enabled:after{content:"\00a0\00a0\e831"}</style>
 <style id="style-ui-bar" type="text/css">#story{margin-left:20em;-webkit-transition:margin-left .2s ease-in;-o-transition:margin-left .2s ease-in;transition:margin-left .2s ease-in}#ui-bar.stowed~#story{margin-left:4.5em}@media screen and (max-width:1136px){#story{margin-left:19em}#ui-bar.stowed~#story{margin-left:3.5em}}@media screen and (max-width:768px){#story{margin-left:3.5em}}#ui-bar{position:fixed;z-index:50;top:0;left:0;width:17.5em;height:100%;margin:0;padding:0;-webkit-transition:left .2s ease-in;-o-transition:left .2s ease-in;transition:left .2s ease-in}#ui-bar.stowed{left:-15.5em}#ui-bar-tray{position:absolute;top:.2em;left:0;right:0}#ui-bar-body{height:90%;height:calc(100% - 2.5em);margin:2.5em 0;padding:0 1.5em}#ui-bar.stowed #ui-bar-body,#ui-bar.stowed #ui-bar-history{visibility:hidden;-webkit-transition:visibility .2s step-end;-o-transition:visibility .2s step-end;transition:visibility .2s step-end}@media (prefers-reduced-motion:reduce){#story{-webkit-transition:margin-left 0s;-o-transition:margin-left 0s;transition:margin-left 0s}#ui-bar{-webkit-transition:left 0s;-o-transition:left 0s;transition:left 0s}}#ui-bar{background-color:#222;border-right:1px solid #444;text-align:center}#ui-bar a{text-decoration:none}#ui-bar hr{border-color:#444}#ui-bar-history [id|=history],#ui-bar-toggle{font-size:1.2em;line-height:inherit;color:#eee;background-color:transparent;border:1px solid #444}#ui-bar-toggle{display:block;position:absolute;top:0;right:0;border-right:none;padding:.3em .45em .25em}#ui-bar.stowed #ui-bar-toggle{padding:.3em .35em .25em .55em}#ui-bar-toggle:hover{background-color:#444;border-color:#eee}#ui-bar-history{margin:0 auto}#ui-bar-history [id|=history]{padding:.2em .45em .35em}#ui-bar-history #history-jumpto{padding:.2em .665em .35em}#ui-bar-history [id|=history]:not(:first-child){margin-left:1.2em}#ui-bar-history [id|=history]:hover{background-color:#444;border-color:#eee}#ui-bar-history [id|=history]:disabled{color:#444;background-color:transparent;border-color:#444}#ui-bar-body{line-height:1.5;overflow:auto}#ui-bar-body>:not(:first-child){margin-top:2em}#story-title{margin:0;font-size:162.5%}#story-author{margin-top:2em;font-weight:700}#menu ul{margin:1em 0 0;padding:0;list-style:none;border:1px solid #444}#menu ul:empty{display:none}#menu li{margin:0}#menu li:not(:first-child){border-top:1px solid #444}#menu li a{display:block;padding:.25em .75em;border:1px solid transparent;color:#eee;text-transform:uppercase}#menu li a:hover{background-color:#444;border-color:#eee}#menu a,#ui-bar-history [id|=history],#ui-bar-toggle{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}#menu-core li[id|=menu-item] a:before,#ui-bar-history [id|=history],#ui-bar-toggle:before{font-family:tme-fa-icons!important;font-style:normal;font-weight:900;font-variant:normal;line-height:1;speak:never;text-rendering:auto;text-transform:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}#ui-bar-toggle:before{content:"\e81d"}#ui-bar.stowed #ui-bar-toggle:before{content:"\e81e"}#menu-item-saves a:before{content:"\e82b\00a0"}#menu-item-settings a:before{content:"\e82d\00a0"}#menu-item-restart a:before{content:"\e82c\00a0"}#menu-item-share a:before{content:"\e82f\00a0"}</style>
 <style id="style-ui-debug" type="text/css">#debug-bar{background-color:#222;border-left:1px solid #444;border-top:1px solid #444;bottom:0;margin:0;max-height:75%;padding:.5em;position:fixed;right:0;z-index:99900}#debug-bar>div:not([id])+div{margin-top:.5em}#debug-bar>div>label{margin-right:.5em}#debug-bar>div>input[type=text]{min-width:0;width:8em}#debug-bar>div>select{width:15em}#debug-bar-toggle{color:#eee;background-color:#222;border:1px solid #444;height:101%;height:calc(100% + 1px);left:-2em;left:calc(-2em - 1px);position:absolute;top:-1px;width:2em}#debug-bar-toggle:hover{background-color:#333;border-color:#eee}#debug-bar-hint{bottom:.175em;font-size:4.5em;opacity:.33;pointer-events:none;position:fixed;right:.6em;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;white-space:nowrap}#debug-bar-watch{background-color:#222;border-left:1px solid #444;border-top:1px solid #444;bottom:102%;bottom:calc(100% + 1px);font-size:.9em;left:-1px;max-height:650%;max-height:65vh;position:absolute;overflow-x:hidden;overflow-y:scroll;right:0;z-index:99800}#debug-bar-watch[hidden]{display:none}#debug-bar-watch div{color:#999;font-style:italic;margin:1em auto;text-align:center}#debug-bar-watch table{width:100%}#debug-bar-watch tr:nth-child(2n){background-color:rgba(127,127,127,.15)}#debug-bar-watch td{padding:.2em 0}#debug-bar-watch td:first-child+td{padding:.2em .3em .2em .1em}#debug-bar-watch .watch-delete{background-color:transparent;border:none;color:#c00}#debug-bar-watch-all,#debug-bar-watch-none{margin-left:.5em}#debug-bar-views-toggle,#debug-bar-watch-toggle{color:#eee;background-color:transparent;border:1px solid #444;margin-right:1em;padding:.4em}#debug-bar-views-toggle:hover,#debug-bar-watch-toggle:hover{background-color:#333;border-color:#eee}#debug-bar-watch:not([hidden])~div #debug-bar-watch-toggle,html[data-debug-view] #debug-bar-views-toggle{background-color:#282;border-color:#4a4}#debug-bar-watch:not([hidden])~div #debug-bar-watch-toggle:hover,html[data-debug-view] #debug-bar-views-toggle:hover{background-color:#4a4;border-color:#6c6}#debug-bar-hint:after,#debug-bar-toggle:before,#debug-bar-views-toggle:after,#debug-bar-watch .watch-delete:before,#debug-bar-watch-add:before,#debug-bar-watch-all:before,#debug-bar-watch-none:before,#debug-bar-watch-toggle:after{font-family:tme-fa-icons!important;font-style:normal;font-weight:900;font-variant:normal;line-height:1;speak:never;text-rendering:auto;text-transform:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}#debug-bar-toggle:before{content:"\e838"}#debug-bar-hint:after{content:"\e838\202f\e822"}#debug-bar-watch .watch-delete:before{content:"\e804"}#debug-bar-watch-add:before{content:"\e805"}#debug-bar-watch-all:before{content:"\e83a"}#debug-bar-watch-none:before{content:"\e827"}#debug-bar-views-toggle:after,#debug-bar-watch-toggle:after{content:"\00a0\00a0\e830"}#debug-bar-watch:not([hidden])~div #debug-bar-watch-toggle:after,html[data-debug-view] #debug-bar-views-toggle:after{content:"\00a0\00a0\e831"}html[data-debug-view] .debug{padding:.25em;background-color:#234}html[data-debug-view] .debug[title]{cursor:help}html[data-debug-view] .debug.block{display:inline-block;vertical-align:middle}html[data-debug-view] .debug.invalid{text-decoration:line-through}html[data-debug-view] .debug.hidden,html[data-debug-view] .debug.hidden .debug{background-color:#555}html:not([data-debug-view]) .debug.hidden{display:none}html[data-debug-view] .debug[data-name][data-type].nonvoid:after,html[data-debug-view] .debug[data-name][data-type]:before{background-color:rgba(0,0,0,.25);font-family:monospace,monospace;white-space:pre}html[data-debug-view] .debug[data-name][data-type]:before{content:attr(data-name)}html[data-debug-view] .debug[data-name][data-type|=macro]:before{content:"<<" attr(data-name) ">>"}html[data-debug-view] .debug[data-name][data-type|=macro].nonvoid:after{content:"<</" attr(data-name) ">>"}html[data-debug-view] .debug[data-name][data-type|=html]:before{content:"<" attr(data-name) ">"}html[data-debug-view] .debug[data-name][data-type|=html].nonvoid:after{content:"</" attr(data-name) ">"}html[data-debug-view] .debug[data-name][data-type]:not(:empty):before{margin-right:.25em}html[data-debug-view] .debug[data-name][data-type].nonvoid:not(:empty):after{margin-left:.25em}html[data-debug-view] .debug[data-name][data-type|=special],html[data-debug-view] .debug[data-name][data-type|=special]:before{display:block}</style>
-<script id="script-module-0_utils" type="text/javascript">;(function () {
-	'use strict';
+<script id="script-module-0_utils" type="text/javascript">'use strict';
 
-	function isObject(props) {
-	  return Object.prototype.toString.call(props) === "[object Object]";
-	}
-	function inrange(x, min, max) {
-	  return x >= min && x <= max;
-	}
-	function ensureIsArray(x, check = false) {
-	  if (check)
-	    x = ensure(x, []);
-	  if (Array.isArray(x))
-	    return x;
-	  return [x];
-	}
-	function ensure(x, y) {
-	  return x == void 0 ? y : x;
-	}
-	function between(x, min, max) {
-	  return x > min && x < max;
-	}
-	function random(min, max) {
-	  if (!max) {
-	    max = min;
-	    min = 0;
-	  }
-	  return Math.floor(Math.random() * (max - min + 1) + min);
-	}
-	function fixed(int, a) {
-	  if (!a)
-	    a = 2;
-	  return parseFloat(int.toFixed(a));
-	}
-	function maybe(arr) {
-	  let txt;
-	  arr.forEach((v, i) => {
-	    if (random(100) < v[1])
-	      txt = v[0];
-	  });
-	  if (!txt) {
-	    return arr[0][0];
-	  }
-	  return txt;
-	}
-	function compares(key) {
-	  return function(m, n) {
-	    let a = m[key];
-	    let b = n[key];
-	    return b - a;
-	  };
-	}
-	function roll(times, max) {
-	  if (!times)
-	    times = 1;
-	  if (!max)
-	    max = 6;
-	  let re;
-	  re = {
-	    roll: [],
-	    result: 0,
-	    bonus: 0
-	  };
-	  for (let i = 0; i < times; i++) {
-	    let r = random(1, max);
-	    re.roll[i] = r;
-	    re.result += r;
-	    if (r == max)
-	      re.bonus++;
-	  }
-	  re.roll = re.roll.join();
-	  return re;
-	}
-	function isValid(props) {
-	  const type = typeof props;
-	  const isArray = Array.isArray(props);
-	  if (props === void 0 || props === null)
-	    return false;
-	  if (isArray) {
-	    return props.length > 0;
-	  }
-	  if (type == "object") {
-	    return JSON.stringify(props) !== "{}";
-	  }
-	  return true;
-	}
-	function CtoF(c) {
-	  return c * 1.8 + 32;
-	}
-	function groupmatch(value, ...table) {
-	  return table.includes(value);
-	}
-	function draw(array) {
-	  var a = array.length;
-	  return array[random(0, a)];
-	}
-	function sum(obj) {
-	  let sum2 = 0;
-	  for (var el in obj) {
-	    if (obj.hasOwnProperty(el)) {
-	      sum2 += parseFloat(obj[el]);
-	    }
-	  }
-	  return sum2;
-	}
-	function findkey(data, value, compare = (a, b) => a === b) {
-	  return Object.keys(data).find((k) => compare(data[k], value));
-	}
-	function swap(arr, a, b) {
-	  let c = arr[a];
-	  let d = arr[b];
-	  arr[b] = c;
-	  arr[a] = d;
-	  return arr;
-	}
-	function arrShift(arr, n) {
-	  if (Math.abs(n) > arr.length)
-	    n = n % arr.length;
-	  return arr.slice(-n).concat(arr.slice(0, -n));
-	}
-	function clone(obj) {
-	  var copy;
-	  if (null == obj || "object" != typeof obj)
-	    return obj;
-	  if (obj instanceof Date) {
-	    copy = new Date();
-	    copy.setTime(obj.getTime());
-	    return copy;
-	  }
-	  if (obj instanceof Array) {
-	    copy = [];
-	    for (var i = 0, len = obj.length; i < len; i++) {
-	      copy[i] = clone(obj[i]);
-	    }
-	    return copy;
-	  }
-	  if (obj instanceof Function) {
-	    copy = function() {
-	      return obj.apply(this, arguments);
-	    };
-	    return copy;
-	  }
-	  if (obj instanceof Object) {
-	    copy = {};
-	    for (var attr in obj) {
-	      if (obj.hasOwnProperty(attr))
-	        copy[attr] = clone(obj[attr]);
-	    }
-	    return copy;
-	  }
-	  throw new Error("Unable to copy obj as type isn't supported " + obj.constructor.name);
-	}
-	function download(content, fileName, contentType) {
-	  var a = document.createElement("a");
-	  var file = new Blob([content], { type: contentType });
-	  a.href = URL.createObjectURL(file);
-	  a.download = fileName;
-	  a.click();
-	}
-	function countArray(arr, element) {
-	  return arr.reduce((count, subarr) => count + (subarr.includes(element) ? 1 : 0), 0);
-	}
-	Object.defineProperties(window, {
-	  isObject: { value: isObject },
-	  inrange: { value: inrange },
-	  ensureIsArray: { value: ensureIsArray },
-	  ensure: { value: ensure },
-	  between: { value: between },
-	  random: { value: random },
-	  fixed: { value: fixed },
-	  maybe: { value: maybe },
-	  compares: { value: compares },
-	  roll: { value: roll },
-	  isValid: { value: isValid },
-	  groupmatch: { value: groupmatch },
-	  draw: { value: draw },
-	  sum: { value: sum },
-	  findkey: { value: findkey },
-	  swap: { value: swap },
-	  arrshift: { value: arrShift },
-	  clone: { value: clone },
-	  CtoF: { value: CtoF },
-	  download: { value: download },
-	  countArray: { value: countArray }
-	});
+var os = require('os');
+var fs = require('fs');
+var path = require('path');
 
-	class SelectCase {
-	  constructor() {
-	    this.arr = [];
-	    this.defaultresult = "";
-	    this.condtype = "";
-	  }
-	  case(cond, result) {
-	    this.check(cond);
-	    this.arr.push({ cond, result });
-	    return this;
-	  }
-	  else(result) {
-	    this.defaultresult = result;
-	    return this;
-	  }
-	  caseMatch(cond, result) {
-	    const Cond = {
-	      c: cond,
-	      isMatch: true
-	    };
-	    this.arr.push({ Cond, result });
-	    return this;
-	  }
-	  has(pick) {
-	    for (const element of this.arr) {
-	      const { cond, result } = element;
-	      const type = this.type(cond);
-	      if (type == "number[]") {
-	        if (pick >= cond[0] && pick <= cond[1])
-	          return result;
-	      }
-	      if (type == "string[]") {
-	        if (cond.includes(pick))
-	          return result;
-	      }
-	      if (type == "string" || type == "number") {
-	        if (pick === cond)
-	          return result;
-	      }
-	      if (type == "matchmode") {
-	        if (cond.c.includes(pick))
-	          return result;
-	      }
-	    }
-	    return this.defaultresult;
-	  }
-	  isLT(pick) {
-	    for (const element of this.arr) {
-	      const { cond, result } = element;
-	      const type = this.type(cond);
-	      if (type !== "number")
-	        throw new Error("cannot compare types other than numbers");
-	      if (pick < cond)
-	        return result;
-	    }
-	    return this.defaultresult;
-	  }
-	  isGT(pick) {
-	    for (const element of this.arr) {
-	      const { cond, result } = element;
-	      const type = this.type(cond);
-	      if (type !== "number")
-	        throw new Error("cannot compare types other than numbers");
-	      if (pick > cond)
-	        return result;
-	    }
-	    return this.defaultresult;
-	  }
-	  isLTE(pick) {
-	    for (const element of this.arr) {
-	      const { cond, result } = element;
-	      const type = this.type(cond);
-	      if (type !== "number")
-	        throw new Error("cannot compare types other than numbers");
-	      if (pick <= cond)
-	        return result;
-	    }
-	    return this.defaultresult;
-	  }
-	  isGTE(pick) {
-	    for (const element of this.arr) {
-	      const { cond, result } = element;
-	      const type = this.type(cond);
-	      if (type !== "number")
-	        throw new Error("cannot compare types other than numbers");
-	      if (pick >= cond)
-	        return result;
-	    }
-	    return this.defaultresult;
-	  }
-	  check(cond) {
-	    const check = this.type(cond).replace("[]", "");
-	    if (!this.condtype)
-	      this.condtype = check;
-	    else if (this.condtype !== check)
-	      throw new Error("number and string cannot be compare at same time");
-	  }
-	  type(cond) {
-	    if (Array.isArray(cond)) {
-	      switch (typeof cond[0]) {
-	        case "number":
-	          if (cond.length !== 2)
-	            throw new Error("number case must be [number, number]");
-	          return "number[]";
-	        case "string":
-	          return "string[]";
-	        case "object":
-	          if (cond == null ? void 0 : cond.isMatch)
-	            return "matchmode";
-	        default:
-	          throw new Error("selectcase only accept string or number");
-	      }
-	    }
-	    if (typeof cond === "string")
-	      return "string";
-	    if (typeof cond === "number")
-	      return "number";
-	    throw new Error("selectcase only accept string or number");
-	  }
-	}
-	Object.defineProperties(window, {
-	  SelectCase: { value: Object.freeze(SelectCase) }
-	});
+function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
-	console.log("utils");
+var os__default = /*#__PURE__*/_interopDefaultLegacy(os);
+var fs__default = /*#__PURE__*/_interopDefaultLegacy(fs);
+var path__default = /*#__PURE__*/_interopDefaultLegacy(path);
 
-})();</script>
+function isObject(props) {
+  return Object.prototype.toString.call(props) === "[object Object]";
+}
+function inrange(x, min, max) {
+  return x >= min && x <= max;
+}
+function ensureIsArray(x, check = false) {
+  if (check)
+    x = ensure(x, []);
+  if (Array.isArray(x))
+    return x;
+  return [x];
+}
+function ensure(x, y) {
+  return x == void 0 ? y : x;
+}
+function between(x, min, max) {
+  return x > min && x < max;
+}
+function random(min, max) {
+  if (!max) {
+    max = min;
+    min = 0;
+  }
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+function fixed(int, a) {
+  if (!a)
+    a = 2;
+  return parseFloat(int.toFixed(a));
+}
+function maybe(arr) {
+  let txt;
+  arr.forEach((v, i) => {
+    if (random(100) < v[1])
+      txt = v[0];
+  });
+  if (!txt) {
+    return arr[0][0];
+  }
+  return txt;
+}
+function compares(key) {
+  return function(m, n) {
+    let a = m[key];
+    let b = n[key];
+    return b - a;
+  };
+}
+function roll(times, max) {
+  if (!times)
+    times = 1;
+  if (!max)
+    max = 6;
+  let re;
+  re = {
+    roll: [],
+    result: 0,
+    bonus: 0
+  };
+  for (let i = 0; i < times; i++) {
+    let r = random(1, max);
+    re.roll[i] = r;
+    re.result += r;
+    if (r == max)
+      re.bonus++;
+  }
+  re.roll = re.roll.join();
+  return re;
+}
+function isValid(props) {
+  const type = typeof props;
+  const isArray = Array.isArray(props);
+  if (props === void 0 || props === null)
+    return false;
+  if (isArray) {
+    return props.length > 0;
+  }
+  if (type == "object") {
+    return JSON.stringify(props) !== "{}";
+  }
+  return true;
+}
+function CtoF(c) {
+  return c * 1.8 + 32;
+}
+function groupmatch(value, ...table) {
+  return table.includes(value);
+}
+function draw(array) {
+  var a = array.length;
+  return array[random(0, a)];
+}
+function sum(obj) {
+  let sum2 = 0;
+  for (var el in obj) {
+    if (obj.hasOwnProperty(el)) {
+      sum2 += parseFloat(obj[el]);
+    }
+  }
+  return sum2;
+}
+function findkey(data, value, compare = (a, b) => a === b) {
+  return Object.keys(data).find((k) => compare(data[k], value));
+}
+function swap(arr, a, b) {
+  let c = arr[a];
+  let d = arr[b];
+  arr[b] = c;
+  arr[a] = d;
+  return arr;
+}
+function arrShift(arr, n) {
+  if (Math.abs(n) > arr.length)
+    n = n % arr.length;
+  return arr.slice(-n).concat(arr.slice(0, -n));
+}
+function clone(obj) {
+  var copy;
+  if (null == obj || "object" != typeof obj)
+    return obj;
+  if (obj instanceof Date) {
+    copy = new Date();
+    copy.setTime(obj.getTime());
+    return copy;
+  }
+  if (obj instanceof Array) {
+    copy = [];
+    for (var i = 0, len = obj.length; i < len; i++) {
+      copy[i] = clone(obj[i]);
+    }
+    return copy;
+  }
+  if (obj instanceof Function) {
+    copy = function() {
+      return obj.apply(this, arguments);
+    };
+    return copy;
+  }
+  if (obj instanceof Object) {
+    copy = {};
+    for (var attr in obj) {
+      if (obj.hasOwnProperty(attr))
+        copy[attr] = clone(obj[attr]);
+    }
+    return copy;
+  }
+  throw new Error("Unable to copy obj as type isn't supported " + obj.constructor.name);
+}
+function download(content, fileName, contentType) {
+  var a = document.createElement("a");
+  var file = new Blob([content], { type: contentType });
+  a.href = URL.createObjectURL(file);
+  a.download = fileName;
+  a.click();
+}
+function countArray(arr, element) {
+  return arr.reduce((count, subarr) => count + (subarr.includes(element) ? 1 : 0), 0);
+}
+function setVByPath(obj, path, value) {
+  if (typeof path === "string")
+    path = path.split(".");
+  if (path.length > 1) {
+    const p = path.shift();
+    if (obj[p] === void 0)
+      obj[p] = {};
+    setVByPath(obj[p], path, value);
+  } else
+    obj[path[0]] = value;
+  return obj;
+}
+function getByPath(obj, path) {
+  const pathArray = path.split(".");
+  const first = pathArray.shift();
+  if (obj[first] === void 0)
+    obj[first] = {};
+  if (pathArray.length === 0)
+    return obj[first];
+  return getByPath(obj[first], pathArray.join("."));
+}
+function getKeyByValue(object, value) {
+  const findArray = (arr, val) => {
+    return arr.find((item) => typeof item.includes === "function" && item.includes(val));
+  };
+  return Object.keys(object).find(
+    (key) => object[key] === value || object[key].includes(value) || Array.isArray(object[key]) && (object[key].includes(value) || findArray(object[key], value))
+  );
+}
+function setByPath(obj, path) {
+  const pathArray = path.split(".");
+  const last = pathArray.pop();
+  for (let i = 0; i < pathArray.length; i++) {
+    if (!obj[pathArray[i]])
+      obj[pathArray[i]] = {};
+    obj = obj[pathArray[i]];
+  }
+  if (!obj[last]) {
+    obj[last] = {};
+  }
+  return obj[last];
+}
+Object.defineProperties(window, {
+  isObject: { value: isObject },
+  inrange: { value: inrange },
+  ensureIsArray: { value: ensureIsArray },
+  ensure: { value: ensure },
+  between: { value: between },
+  random: { value: random },
+  fixed: { value: fixed },
+  maybe: { value: maybe },
+  compares: { value: compares },
+  roll: { value: roll },
+  isValid: { value: isValid },
+  groupmatch: { value: groupmatch },
+  draw: { value: draw },
+  sum: { value: sum },
+  findkey: { value: findkey },
+  swap: { value: swap },
+  arrshift: { value: arrShift },
+  clone: { value: clone },
+  CtoF: { value: CtoF },
+  download: { value: download },
+  countArray: { value: countArray },
+  setVByPath: { value: setVByPath },
+  getByPath: { value: getByPath },
+  getKeyByValue: { value: getKeyByValue },
+  setByPath: { value: setByPath }
+});
+
+class SelectCase {
+  constructor() {
+    this.arr = [];
+    this.defaultresult = "";
+    this.condtype = "";
+  }
+  case(cond, result) {
+    this.check(cond);
+    this.arr.push({ cond, result });
+    return this;
+  }
+  else(result) {
+    this.defaultresult = result;
+    return this;
+  }
+  caseMatch(cond, result) {
+    const Cond = {
+      c: cond,
+      isMatch: true
+    };
+    this.arr.push({ Cond, result });
+    return this;
+  }
+  has(pick) {
+    for (const element of this.arr) {
+      const { cond, result } = element;
+      const type = this.type(cond);
+      if (type == "number[]") {
+        if (pick >= cond[0] && pick <= cond[1])
+          return result;
+      }
+      if (type == "string[]") {
+        if (cond.includes(pick))
+          return result;
+      }
+      if (type == "string" || type == "number") {
+        if (pick === cond)
+          return result;
+      }
+      if (type == "matchmode") {
+        if (cond.c.includes(pick))
+          return result;
+      }
+    }
+    return this.defaultresult;
+  }
+  isLT(pick) {
+    for (const element of this.arr) {
+      const { cond, result } = element;
+      const type = this.type(cond);
+      if (type !== "number")
+        throw new Error("cannot compare types other than numbers");
+      if (pick < cond)
+        return result;
+    }
+    return this.defaultresult;
+  }
+  isGT(pick) {
+    for (const element of this.arr) {
+      const { cond, result } = element;
+      const type = this.type(cond);
+      if (type !== "number")
+        throw new Error("cannot compare types other than numbers");
+      if (pick > cond)
+        return result;
+    }
+    return this.defaultresult;
+  }
+  isLTE(pick) {
+    for (const element of this.arr) {
+      const { cond, result } = element;
+      const type = this.type(cond);
+      if (type !== "number")
+        throw new Error("cannot compare types other than numbers");
+      if (pick <= cond)
+        return result;
+    }
+    return this.defaultresult;
+  }
+  isGTE(pick) {
+    for (const element of this.arr) {
+      const { cond, result } = element;
+      const type = this.type(cond);
+      if (type !== "number")
+        throw new Error("cannot compare types other than numbers");
+      if (pick >= cond)
+        return result;
+    }
+    return this.defaultresult;
+  }
+  check(cond) {
+    const check = this.type(cond).replace("[]", "");
+    if (!this.condtype)
+      this.condtype = check;
+    else if (this.condtype !== check)
+      throw new Error("number and string cannot be compare at same time");
+  }
+  type(cond) {
+    if (Array.isArray(cond)) {
+      switch (typeof cond[0]) {
+        case "number":
+          if (cond.length !== 2)
+            throw new Error("number case must be [number, number]");
+          return "number[]";
+        case "string":
+          return "string[]";
+        case "object":
+          if (cond == null ? void 0 : cond.isMatch)
+            return "matchmode";
+        default:
+          throw new Error("selectcase only accept string or number");
+      }
+    }
+    if (typeof cond === "string")
+      return "string";
+    if (typeof cond === "number")
+      return "number";
+    throw new Error("selectcase only accept string or number");
+  }
+}
+Object.defineProperties(window, {
+  SelectCase: { value: Object.freeze(SelectCase) }
+});
+
+console.log(`It's running on ${os__default["default"].platform()} ${os__default["default"].arch()} ${os__default["default"].release()}`);
+console.log("the user is", os__default["default"].userInfo().username, "and the home directory is", os__default["default"].homedir());
+console.log("fs, path, child_process are loaded: ", fs__default["default"], path__default["default"]);
+console.log("running utils");</script>
 <script id="script-module-0_eslib" type="text/javascript">/*
     Concatenates one or more unique elements to the end of the base array
     and returns the result as a new array.  Elements which are arrays will
@@ -1492,8 +1548,12 @@ Object.defineProperty(String.prototype, "readBracketedList", {
 		return names;
 	},
 });</script>
-<script id="script-module-1_game" type="text/javascript">;(function () {
+<script id="script-module-1_game" type="text/javascript">;(function (fs) {
 	'use strict';
+
+	function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+	var fs__default = /*#__PURE__*/_interopDefaultLegacy(fs);
 
 	function lan(txt, ...txts) {
 	  let CN, EN;
@@ -1552,21 +1612,87 @@ Object.defineProperty(String.prototype, "readBracketedList", {
 	});
 
 	class Item {
-	  static newId(categ) {
-	    const len = Db[categ].length;
-	    return `${categ}_${len}`;
+	  static newId(type, cate) {
+	    const len = Db[type].length;
+	    if (cate) {
+	      return `${type.toUpperCase()[0]}${cate}_${len}`;
+	    } else {
+	      return `${type}_${len}`;
+	    }
 	  }
-	  static new() {
+	  static new(name, des, type, cate = "") {
+	    getByPath(Db, type + cate ? `.${cate}` : "");
 	  }
-	  constructor(name, des, type) {
-	    this.id = Item.newId(type);
+	  constructor(name, des = name, type = "Items", cate = "") {
+	    this.id = Item.newId(type, cate);
 	    this.name = name;
 	    this.des = des;
 	    this.type = type;
+	    this.category = cate;
+	  }
+	  Price(num) {
+	    this.price = num;
+	    return this;
+	  }
+	  Durable(num) {
+	    this.durable = [num, num];
+	    return this;
+	  }
+	  Shop(...shops) {
+	    this.shop = shops;
+	    return this;
+	  }
+	  Tags(...tags) {
+	    this.tags = tags;
+	    return this;
+	  }
+	  Stats(...stats) {
+	    stats.forEach(([key, add]) => {
+	      this.stats[key] = add;
+	    });
+	    return this;
+	  }
+	  Effect(...palam) {
+	    palam.forEach(([key, t, a, m]) => {
+	      this.effect[key] = { t, a, m };
+	    });
+	    return this;
+	  }
+	}
+	class Clothes extends Item {
+	  constructor(cate, name, des, gender2 = "n") {
+	    super(name, des, "Clothes", cate);
+	    this.gender = gender2;
+	    this.uid = "0";
+	    this.tags = [];
+	    this.price = 0;
+	    this.color = [];
+	    this.cover = [];
+	    this.expose = 3;
+	    this.open = 3;
+	    this.allure = 0;
+	    this.defence = 0;
+	  }
+	  UID() {
+	    this.uid = random(1e5, 999999).toString();
+	    return this;
+	  }
+	  Color(colorcode, colorname) {
+	    this.color = [colorcode, colorname];
+	    return this;
+	  }
+	  Cover(...parts) {
+	    this.cover = parts;
+	    return this;
+	  }
+	  Set(key, value) {
+	    this[key] = value;
+	    return this;
 	  }
 	}
 	Object.defineProperties(window, {
-	  Item: { value: Item }
+	  Item: { value: Item },
+	  Clothes: { value: Clothes }
 	});
 
 	const _Creature = class {
@@ -2670,17 +2796,17 @@ Object.defineProperty(String.prototype, "readBracketedList", {
 	    if (parent == null ? void 0 : parent.boardType) {
 	      switch (parent.boardType) {
 	        case "forest":
-	          if (this.tags.includes("\u5BA4\u5916")) {
+	          if (this.tags.has("\u5BA4\u5916")) {
 	            this.tags.push("\u68EE\u6797");
 	          }
 	          break;
 	        case "ocean":
-	          if (this.tags.includes("\u5BA4\u5916")) {
+	          if (this.tags.has("\u5BA4\u5916")) {
 	            this.tags.push("\u6C34\u4E0B");
 	          }
 	          break;
 	        case "mountain":
-	          if (this.tags.includes("\u5BA4\u5916")) {
+	          if (this.tags.has("\u5BA4\u5916")) {
 	            this.tags.push("\u5C71\u5CB3");
 	          }
 	          break;
@@ -2692,12 +2818,12 @@ Object.defineProperty(String.prototype, "readBracketedList", {
 	          break;
 	        case "floatingIsland":
 	        case "field":
-	          if (this.tags.includes("\u5BA4\u5916")) {
+	          if (this.tags.has("\u5BA4\u5916")) {
 	            this.tags.push("\u5F00\u9614");
 	          }
 	          break;
 	        case "academy":
-	          if (!this.tags.includes("\u5F02\u7A7A\u95F4")) {
+	          if (!this.tags.has("\u5F02\u7A7A\u95F4")) {
 	            this.tags.push("\u9B54\u7F51");
 	          }
 	      }
@@ -3204,8 +3330,15 @@ Object.defineProperty(String.prototype, "readBracketedList", {
 	  }
 	});
 	console.log(lan("\u6E38\u620F\u5F00\u59CB", "game start"));
+	console.log("utils loaded, the game is", window.game);
+	console.log("package.json", fs__default["default"].readFileSync("./package.json", "utf8"));
+	console.log("config.json", fs__default["default"].readFileSync("./public/config.json", "utf8"));
+	$.getJSON("./config.json", function(data) {
+	  window.config = data;
+	  console.log("load config", data);
+	});
 
-})();</script>
+})(fs);</script>
 <script id="script-module-flags" type="text/javascript">//角色别暂存变量。退出调教模式or每日结算时会初始化
 D.tsv = [
 	//事件
@@ -3407,14 +3540,6 @@ D.skinlayer = [
 <script src="lib/clickLove.js"></script>
 <script src="lib/draganddrop.js"></script>
 <script src="lib/build.js"></script>
-<script>
-    var os = require('os');
-    console.log('running on ' + os.platform() + ' ' + os.arch() + ' ' + os.release() + ' ' + os.type());
-    console.log('node version ' + process.version);
-    var fs = require('fs');
-    console.log('package.json ' + fs.readFileSync('package.json', 'utf8'));
-    
-</script>
 </head>
 <body>
 	<div id="init-screen">
@@ -3428,6 +3553,7 @@ D.skinlayer = [
 setup.Path = "./public/"; // Running in a browser
 setup.ImagePath = setup.Path + "image/";
 setup.SoundPath = setup.Path + "sound/";
+setup.savePath = setup.Path + "save/";
 
 // volume slider, by chapel; for sugarcube 2
 // version 1.1 - modified by HiEv for SugarCube v2.28.0+
@@ -3488,14 +3614,10 @@ Macro.add("volume", {
 	},
 });
 
-window.saveToFile = function () {
+window.saveToFile = function (slot) {
 	const savedata = Save.serialize(V);
-	fs.writeFileSync("public/save/save.sav", savedata);
+	fs.writeFileSync(setup.savePath + `save${slot}.sav`, savedata);
 };
-
-if (!fs || !fs.existsSync || !os) {
-	console.log("node.js not supported");
-}
 
 window.SaveGame = function (slot, meta) {};
 
@@ -5021,6 +5143,9 @@ D.clothesheet = {
 /* twine-user-script #15: "gamedata.js" */
 D.race = ["human", "elvin", "deamon", "wolves", "drawf", "goblin", "catvinx", "centaur", "orc", "titan", "dracon"];
 
+D.basicneeds = ["health", "stamina", "sanity", "mana", "hydration", "nutrient", "dirty"];
+D.basicpalam = ["drug", "alcohol", "stress", "libido", "ecstacy", "cum", "milk"];
+
 D.base = {
 	health: "健康",
 	stamina: "体力",
@@ -5034,11 +5159,13 @@ D.base = {
 	drug: "药物",
 	alcohol: "酒精",
 	stress: "压力",
+	libido: "性欲",
+	esctacy: "快感",
+	cum: "射精",
+	milk: "喷乳",
 };
 
 D.palam = {
-	ecstacy: "快感", //判定射精（有丁）or潮吹（无丁）。
-
 	//受方palam
 	arousal: "欲情", //欲望值，根据累积flag升级欲望lv。指令执行成功时概率获得依存值。
 	surrend: "屈从", //根据累积flag升级顺从Lv。屈从palamlv累计到一定值时获得刻印。指令执行成功时概率获得服从值/支配值。
@@ -10250,7 +10377,7 @@ F.createLocationLink = function () {
 	const spots = [];
 	console.log(list);
 
-	list.forEach((item) => {
+	for (const item of list) {
 		//console.log(item);
 		const id = item[0];
 		const locdata = GameMap.get(id);
@@ -10263,13 +10390,14 @@ F.createLocationLink = function () {
 			locdata.tags.has("封闭", "异空间") ||
 			(typeof item[2]?.has === "function" && item[2].has("secretAre", "inaccesible"))
 		) {
-			return;
+			continue;
 		}
-
 		//如果是锁着的私室，就不会出现在列表中。
-		if (locdata.visitCond && !locdata.visitCond()) return;
+		if (locdata.visitCond && !locdata.visitCond()) {
+			continue;
+		}
 		if (locdata.tags.containsAll("私人", "上锁") && squaredata.locked) {
-			return;
+			continue;
 		}
 
 		if (item[1].has && item[1].has("isRoom", "isEntry")) {
@@ -10277,7 +10405,7 @@ F.createLocationLink = function () {
 		} else {
 			spots.push([item[0], Math.floor(findPath(T.map, V.location.pos, item[1]).length * 1.2 + 0.5)]);
 		}
-	});
+	}
 
 	//按移动时间排序
 	spots.sort((a, b) => a[1] - b[1]);
@@ -10504,14 +10632,7 @@ F.timeEffects = function (t, mode) {
 	//对不在场的角色进行时间经过处理。
 	//charas = F.getNoActiveChara()
 };
-/* twine-user-script #48: "Lib.js" */
-;(function () {
-	'use strict';
-
-	console.log("lib");
-
-})();
-/* twine-user-script #49: "UI.js" */
+/* twine-user-script #48: "UI.js" */
 ui.replace = function (label, html) {
 	new Wikifier(null, `<<replace #${label}>>${html}<</replace>>`);
 };
@@ -10522,7 +10643,7 @@ ui.delink = function () {
 	return "";
 };
 DefineMacroS("resetLink", ui.delink);
-/* twine-user-script #50: "condition.js" */
+/* twine-user-script #49: "condition.js" */
 cond.isClasstime = function () {
 	const date = V.date;
 	if (inrange(date.week, 1, 5)) {
@@ -10731,7 +10852,7 @@ cond.StallBusinessTime = function () {
 	if (V.date.week == 1) return cond.betweenTime(5.5, 16);
 	else return cond.betweenTime(13, 17);
 };
-/* twine-user-script #51: "getInfo.js" */
+/* twine-user-script #50: "getInfo.js" */
 function statsRank(v) {
 	const select = new SelectCase();
 	select
@@ -10875,7 +10996,7 @@ P.mutants = function (level) {
 	}
 	return txt;
 };
-/* twine-user-script #52: "getTime.js" */
+/* twine-user-script #51: "getTime.js" */
 const weeks = ["暗", "光", "火", "水", "木", "雷", "土"];
 const weekcolor = ["C770FF", "F9FEA8", "FF7447", "8FE1F9", "BFE83F", "E4FCFE", "E1C57A"];
 
@@ -10941,7 +11062,7 @@ F.timePhase = function () {
 
 	return select.has(h);
 };
-/* twine-user-script #53: "newutil.js" */
+/* twine-user-script #52: "newutil.js" */
 F.playtime = function () {
 	let time = V.gametime;
 
@@ -11027,32 +11148,7 @@ F.setActor = function (cid, tid, ...parts) {
 	else T.actPart = "hands";
 };
 DefineMacroS("setActor", F.setActor);
-
-window.getKeyByValue = function (object, value) {
-	const findArray = (arr, val) => {
-		return arr.find((item) => typeof item.includes === "function" && item.includes(val));
-	};
-	return Object.keys(object).find(
-		(key) =>
-			object[key] === value ||
-			object[key].includes(value) ||
-			(Array.isArray(object) && (object[key].includes(value) || findArray(object[key], value)))
-	);
-};
-
-window.setByPath = function (obj, path) {
-	const pathArray = path.split(".");
-	const last = pathArray.pop();
-	for (let i = 0; i < pathArray.length; i++) {
-		if (!obj[pathArray[i]]) obj[pathArray[i]] = {};
-		obj = obj[pathArray[i]];
-	}
-	if (!obj[last]) {
-		obj[last] = {};
-	}
-	return obj[last];
-};
-/* twine-user-script #54: "palamChange.js" */
+/* twine-user-script #53: "palamChange.js" */
 //根据温度变化，调整水分消耗速度。
 //设人体最佳适应温度为24℃，当温度高于最佳适应温度时，每3℃ 增加10%的水分消耗速度。
 F.hydrationLoseMult = function (currentTemp, bestTemp) {
@@ -11236,7 +11332,7 @@ F.levelMp = function (lv) {
 	let a = lv * lv * 10 + Math.pow(lv, 3);
 	return Math.floor(a / 10 + 0.5) * 10;
 };
-/* twine-user-script #55: "selection.js" */
+/* twine-user-script #54: "selection.js" */
 Macro.add("selection", {
 	tags: ["pick"],
 	handler: function () {
@@ -11423,7 +11519,7 @@ Macro.add("eventSelect", {
 		jQuery(this.output).wiki(html);
 	},
 });
-/* twine-user-script #56: "shortcut.js" */
+/* twine-user-script #55: "shortcut.js" */
 F.baseUp = function (chara, key, val) {
 	chara.base[key][0] += val;
 };
@@ -11499,7 +11595,7 @@ F.metToday = function (cid) {
 F.tentaclesNum = function () {
 	return V.cursedLord.abl.num + 2;
 };
-/* twine-user-script #57: "hover.js" */
+/* twine-user-script #56: "hover.js" */
 /* HoverTxt - Start */
 var HTIntervalID = 0;
 $(document).on(":passagerender", function (ev) {
@@ -11550,7 +11646,7 @@ function UpdateHoverTxt(Container) {
 	}
 }
 /* HoverTxt - End */
-/* twine-user-script #58: "mapeditor.js" */
+/* twine-user-script #57: "mapeditor.js" */
 window.confirmNewmap = function () {
 	T.mapsizeX = parseInt(T.mapsizeX);
 	T.mapsizeY = parseInt(T.mapsizeY);
@@ -11732,7 +11828,7 @@ window.showPathMap = function () {
 		}, i * 150);
 	});
 };
-/* twine-user-script #59: "textProcessor.js" */
+/* twine-user-script #58: "textProcessor.js" */
 /**
  *
  * @param {string} text
@@ -11979,7 +12075,7 @@ P.inTime = function (...args) {
 	}
 	return retxt;
 };
-/* twine-user-script #60: "Common.js" */
+/* twine-user-script #59: "Common.js" */
 /* 放松 */
 Action.set("Relax")
 	.Filter(() => {
@@ -12171,7 +12267,7 @@ Action.set("Mine")
 	.Order(() => {
 		return 0;
 	});
-/* twine-user-script #61: "Interaction.js" */
+/* twine-user-script #60: "Interaction.js" */
 /* 闲聊 */
 Action.set("Talk").Check(() => {
 	let rate = random(1, 100);
@@ -12267,7 +12363,7 @@ Action.set("AskMoney")
 Action.set("Payback").Filter(() => {
 	return pc == "Ayres" && player.wallet > target.flag.debt;
 });
-/* twine-user-script #62: "Items.js" */
+/* twine-user-script #61: "Items.js" */
 
 /* 跳蛋 */
 Action.set('Rotor')
@@ -12292,7 +12388,7 @@ Action.set('Vibrator')
      .Order(()=>{
          return 0
       })
-/* twine-user-script #63: "Magic.js" */
+/* twine-user-script #62: "Magic.js" */
 /* 静心咒 */
 Action.set("m0")
 	.Filter(() => {
@@ -12316,7 +12412,7 @@ Action.set("m1")
 	.Order(() => {
 		return 0;
 	});
-/* twine-user-script #64: "Main.js" */
+/* twine-user-script #63: "Main.js" */
 /* 交流 */
 Action.set("Interaction")
 	.Filter(() => {
@@ -12529,7 +12625,7 @@ Action.set("Other")
 	.Event(() => {
 		T.actionTypeFilter = "其他";
 	});
-/* twine-user-script #65: "Other.js" */
+/* twine-user-script #64: "Other.js" */
 //:: Action_Command_Option[script]
 /* 直播 */
 Action.set("Stream")
@@ -12591,7 +12687,7 @@ Action.set("GetNude")
 	.Order(() => {
 		return 0;
 	});
-/* twine-user-script #66: "Pose.js" */
+/* twine-user-script #65: "Pose.js" */
 //根据角色的动作状态，判断能否执行某些动作。
 //例如对方被捆绑中时，可选体位根据捆绑姿势受限。
 //:: Action_Pose_Option[script]
@@ -12663,7 +12759,7 @@ Action.set("pose11").Filter(() => {
 
 	return 1;
 });
-/* twine-user-script #67: "Reverse.js" */
+/* twine-user-script #66: "Reverse.js" */
 //:: Action_Reverse_Option[script]
 /* 口交 */
 Action.set("r0")
@@ -12700,7 +12796,7 @@ Action.set("r2")
 	.Order(() => {
 		return 0;
 	});
-/* twine-user-script #68: "System.js" */
+/* twine-user-script #67: "System.js" */
 //:: Action_Event[script]
 Action.set("reset")
 	.Filter(() => {
@@ -12777,7 +12873,7 @@ Action.set("stopTouch")
 		Flag.mode = 1;
 		//new Wikifier(null, `<<run P.flow(P.playerName()+'<<you>>把手从$target.name身上挪开了。',30,1)>>`)
 	});
-/* twine-user-script #69: "Tentacles.js" */
+/* twine-user-script #68: "Tentacles.js" */
 //:: Action_Tentacles_Option[script]
 /* 揉捏 */
 Action.set("x0")
@@ -12946,7 +13042,7 @@ Action.set("x13")
 	.Order(() => {
 		return 0;
 	});
-/* twine-user-script #70: "Touch.js" */
+/* twine-user-script #69: "Touch.js" */
 //:: Action_Touch_Option[script]
 
 /* 接吻 */
@@ -13126,7 +13222,7 @@ Action.set("t13")
 	.Order(() => {
 		return 0;
 	});
-/* twine-user-script #71: "RegistAllCom" */
+/* twine-user-script #70: "RegistAllCom" */
 //批处理多个指令。
 Com.init()
 
@@ -13200,7 +13296,7 @@ Com.globalCond = function(id){
 
     return true
 }
-/* twine-user-script #72: "Com_G1:Script" */
+/* twine-user-script #71: "Com_G1:Script" */
 /* 注册指令事件*/
 Com.set('G1')
     .Check(()=>{ 
@@ -13211,7 +13307,7 @@ Com.set('G1')
     })
 
 /* 事件文本，before执行前文本，after执行后文本，cancel执行取消时文本 */
-/* twine-user-script #73: "Com_G2:Script" */
+/* twine-user-script #72: "Com_G2:Script" */
 Com.set('G2')
     .Check(()=>{
         return random(1,100) <= target.mood + 10 && !target.state.contains('失声','失聪')
@@ -13219,12 +13315,12 @@ Com.set('G2')
     .Effect(()=>{
         Source[tc].favo += 10
     })
-/* twine-user-script #74: "Com_T4:Script" */
+/* twine-user-script #73: "Com_T4:Script" */
 Com.set('T4')
    .Filter(()=>{
         return target.gender !== 'female'
    })
-/* twine-user-script #75: "Com_T99:Script" */
+/* twine-user-script #74: "Com_T99:Script" */
 Com.set('T99')
    .Name(()=>{
         if(V.mode !== 'train'){
@@ -13268,7 +13364,7 @@ Com.set('T99')
             }
         }
    })
-/* twine-user-script #76: "Com_X1:Script" */
+/* twine-user-script #75: "Com_X1:Script" */
 Com.set('X1')
     .Check(()=>{
         //能跑进来时已经过滤掉的情况：非合意且对象具备抵抗能力
@@ -13291,7 +13387,7 @@ Com.set('X1')
         Chara.getexp(target, 'B', random(2));
     })
     .ForceAble()
-/* twine-user-script #77: "Com_X2:Script" */
+/* twine-user-script #76: "Com_X2:Script" */
 Com.set('X2')
     .Check(()=>{
         //能跑进来时已经过滤掉的情况：非合意且对象具备抵抗能力
@@ -13313,7 +13409,7 @@ Com.set('X2')
         Chara.getexp(target, '触手', random(3));
         Chara.getexp(target, 'B', random(2));
     })
-/* twine-user-script #78: "Kojo_Ayres_Regist" */
+/* twine-user-script #77: "Kojo_Ayres_Regist" */
 Kojo.set('Ayres')
     .Intro('出身不明的鬼人（？），在大贤者的推荐下来到奥兰尼亚第一魔法学院研究魔药学。')
     .Home('宿舍,S303')
@@ -13330,14 +13426,14 @@ Kojo.set('Ayres')
 
     //自定义动作
     .Action(0, {id:'Ayres_PotionExperience', name:'魔药研究', type:'G'})
-/* twine-user-script #79: "Kojo_Ayres_Actions_Option" */
+/* twine-user-script #78: "Kojo_Ayres_Actions_Option" */
 Action.kojo.Ayres = function(){
    Action.set('Ayres_PotionExperience')
       .Filter(()=>{
          return pc === 'Ayres' && V.location.name === '综合研究所'
       })
 }
-/* twine-user-script #80: "Kojo_Isil_Regist" */
+/* twine-user-script #79: "Kojo_Isil_Regist" */
 /* 代码区，用于注册角色颜色、额外的设定、flag信息等 */
 Kojo.set('Isil','#F9F570')
     //角色介绍
@@ -13395,14 +13491,14 @@ Kojo.set('Isil','#F9F570')
     .Action(0,{id:'Isil_MagicaResearch',name:'研究魔法',type:'G'})
     
 //自定义动作的设置
-/* twine-user-script #81: "Kojo_Isil_Actions_Option" */
+/* twine-user-script #80: "Kojo_Isil_Actions_Option" */
 Action.kojo.Isil = function(){
    Action.set('Isil_MagicaResearch')
       .Filter(()=>{
          return pc === 'Isil' && V.location.name === '魔法研究所'
       })
 }
-/* twine-user-script #82: "Kojo_Nanaly_Regist" */
+/* twine-user-script #81: "Kojo_Nanaly_Regist" */
 /* 纯代码区,用于注册角色信息 */
 /*注意：娜娜莉是姛，如果条件允许应当当玩家是女性/双性时才可攻略*/
 Kojo.set('Nanaly', '#66CCFF') //角色id与 名牌颜色
@@ -13414,7 +13510,7 @@ Kojo.set('Nanaly', '#66CCFF') //角色id与 名牌颜色
     //日程表填写顺序, 日程id(从0开始), [ '地点', [ 星期几 ], 起始时间,  结束时间,  滞留时长,  出现概率 ]
 
     .Event()
-/* twine-user-script #83: "startconfig.js" */
+/* twine-user-script #82: "startconfig.js" */
 game.version = "0.2.0";
 l10nStrings.errorTitle = game.version + " Error";
 console.log("Game Version:", game.version);
@@ -15101,6 +15197,7 @@ virginity.vagina, 自己的手指, 不明, 对初恋对象进行性幻想时用�
 Era the Cursed
 &lt;/div&gt;
 &lt;div id=&#39;gamesubtitle&#39;&gt;
+&lt;img src=&#39;./image/cursedEye.png&#39;&gt;
 - 伊希露的诅咒 -
 &lt;/div&gt;
 &lt;div id=&#39;gametitle_selection&#39;&gt;

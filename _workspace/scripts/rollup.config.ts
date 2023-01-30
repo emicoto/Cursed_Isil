@@ -47,16 +47,15 @@ export const configs: RollupOptions[] = [
 		plugins,
 		output: {
 			format: "iife",
-			file: "/_workspace/gamecode/03-javascript/Lib.js",
-			//sourcemap: "inline",
+			file: "public/lib/lib.js",
 		},
 	},
 	{
 		input: "_workspace/Code/utils/index.ts",
 		plugins,
 		output: {
-			format: "iife",
-			file: "/_workspace/modules/0-utils.js",
+			format: "commonjs",
+			file: "_workspace/modules/0-utils.js",
 		},
 	},
 

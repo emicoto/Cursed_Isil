@@ -1,5 +1,4 @@
 const { spawn } = require("child_process");
-const path = require("path");
 const _resolve = (...w) => path.resolve(nw.__dirname, `./`, ...w);
 const { platform, arch } = require("os");
 

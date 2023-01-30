@@ -20,9 +20,7 @@
     "dev": "tsx  ./_workspace/scripts/mybuild.ts --watch"
   },
   "devDependencies": {
-    "rollup-plugin-delete": "^2.0.0"
-  },
-  "dependencies": {
+    "rollup-plugin-delete": "^2.0.0",
     "@rollup/plugin-commonjs": "^22.0.2",
     "@rollup/plugin-multi-entry": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
@@ -49,7 +47,10 @@
     "rollup-plugin-serve": "^2.0.1",
     "tsx": "^3.9.0",
     "typescript": "^4.8.2",
-    "yauzl": "^2.10.0",
+    "yauzl": "^2.10.0"
+
+  },
+  "dependencies": {
     "chokidar": "^3.5.3"
   }
 }

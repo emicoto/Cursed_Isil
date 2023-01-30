@@ -1,6 +1,7 @@
 ﻿setup.Path = "./public/"; // Running in a browser
 setup.ImagePath = setup.Path + "image/";
 setup.SoundPath = setup.Path + "sound/";
+setup.savePath = setup.Path + "save/";
 
 // volume slider, by chapel; for sugarcube 2
 // version 1.1 - modified by HiEv for SugarCube v2.28.0+
@@ -61,14 +62,10 @@ Macro.add("volume", {
 	},
 });
 
-window.saveToFile = function () {
+window.saveToFile = function (slot) {
 	const savedata = Save.serialize(V);
-	fs.writeFileSync("public/save/save.sav", savedata);
+	fs.writeFileSync(setup.savePath + `save${slot}.sav`, savedata);
 };
-
-if (!fs || !fs.existsSync || !os) {
-	console.log("node.js not supported");
-}
 
 window.SaveGame = function (slot, meta) {};
 

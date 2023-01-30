@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>My App</title>
+    <link rel="stylesheet" href="css/main.css">
+    <script src="lib/build.js"></script>
+    <script>
+        var App
+
+        scbuild();
+        nwRestart();
+
+        const chokidar = require('chokidar');
+        console.log('nw version: ' + process.versions['node-webkit']);
+
+        const watcher = chokidar.watch('public', {
+            ignored: /(^|[\/\\])\../, // ignore dotfiles
+            persistent: true
+        });
+
+        watcher
+            .on('change', (path) => {
+                console.log(`File ${path} has been changed`);
+                buildSugarCube();
+                App.console.log('reloading');
+                setTimeout(() => { App.nw.Window.get().reload() }, 1000);
+            });
+
+    </script>
+</head>
+<body>
+    <div id="app">hello world</div>
+</body>
+</html>

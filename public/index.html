@@ -3406,12 +3406,14 @@ D.skinlayer = [
 <script src="lib/path.min.js"></script>
 <script src="lib/clickLove.js"></script>
 <script src="lib/draganddrop.js"></script>
+<script src="lib/build.js"></script>
 <script>
     var os = require('os');
     console.log('running on ' + os.platform() + ' ' + os.arch() + ' ' + os.release() + ' ' + os.type());
     console.log('node version ' + process.version);
     var fs = require('fs');
     console.log('package.json ' + fs.readFileSync('package.json', 'utf8'));
+    
 </script>
 </head>
 <body>
@@ -3422,8 +3424,8 @@ D.skinlayer = [
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<!-- UUID://1926DC5A-5199-4C1A-8E3D-5C68BC061323// --><tw-storydata name="Era the Cursed" startnode="11" creator="Tweego" creator-version="2.1.1+81d1d71" ifid="1926DC5A-5199-4C1A-8E3D-5C68BC061323" zoom="1" format="SugarCube" format-version="2.36.1" options="" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript">/* twine-user-script #1: "00-loadfirst.js" */
-setup.Path = ""; // Running in a browser
+	<!-- UUID://1926DC5A-5199-4C1A-8E3D-5C68BC061323// --><tw-storydata name="Era the Cursed" startnode="142" creator="Tweego" creator-version="2.1.1+81d1d71" ifid="1926DC5A-5199-4C1A-8E3D-5C68BC061323" zoom="1" format="SugarCube" format-version="2.36.1" options="" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript">/* twine-user-script #1: "00-loadfirst.js" */
+setup.Path = "./public/"; // Running in a browser
 setup.ImagePath = setup.Path + "image/";
 setup.SoundPath = setup.Path + "sound/";
 
@@ -3494,6 +3496,17 @@ window.saveToFile = function () {
 if (!fs || !fs.existsSync || !os) {
 	console.log("node.js not supported");
 }
+
+window.SaveGame = function (slot, meta) {};
+
+window.test = async function () {
+	try {
+		const dir = await fs.opendirSync("./");
+		for await (const dirent of dir) console.log(dirent.name);
+	} catch (err) {
+		console.error(err);
+	}
+};
 /* twine-user-script #2: "00-namespace.js" */
 /**
  * As part of my various refactors, I ended up introducing a bunch of
@@ -7877,7 +7890,7 @@ Chara.initGlobal = function () {
 	}
 };
 /* twine-user-script #32: "makeCharaSheet.js" */
-const initCSV = function (cid) {
+window.initCSV = function (cid) {
 	const _raw = Story.get(`CharaSheet_${cid}`).text.replace(/\n/g, "#L#").replace(/\s/g, "");
 	const raw = _raw.split("#L#");
 
@@ -7892,14 +7905,14 @@ const initCSV = function (cid) {
 		const arr = line.split(",");
 		//总之先初始化路径
 		let path = arr[0].split(".");
-
+		3;
 		//重复项目是array
 		const times = _raw.split(`#L#${arr[0]},`).length - 1;
 		let values = clearCommentFromArray(arr.splice(1));
 		if (values.length == 1) values = values[0];
 
-		if (times > 1) definePropertyFromPath(path, chara, values, "array");
-		else definePropertyFromPath(path, chara, values);
+		if (times > 1) setVByPathAndType(path, chara, values, "array");
+		else setVByPathAndType(path, chara, values);
 	}
 	return chara;
 };
@@ -7920,23 +7933,17 @@ const clearCommentFromArray = function (arr) {
 	return arr;
 };
 
-window.definePropertyFromPath = function (path, obj, value, type) {
-	let key = "obj";
-
+window.setVByPathAndType = function (path, obj, value, type) {
+	const last = path.pop();
 	for (let i = 0; i < path.length; i++) {
-		key += `['${path[i]}']`;
-
-		if (!eval(key) && i < path.length - 1) {
-			eval(`${key} = {}`);
-		} else if (!eval(key)) {
-			if (type == "array") {
-				eval(`${key} = []; ${key}.push(${JSON.stringify(value)})`);
-			} else {
-				eval(`${key} = ${JSON.stringify(value)};`);
-			}
-		} else if (type == "array" && i == path.length - 1) {
-			eval(`${key}.push(${JSON.stringify(value)})`);
-		}
+		if (!obj[path[i]]) obj[path[i]] = {};
+		obj = obj[path[i]];
+	}
+	if (type == "array") {
+		if (!obj[last]) obj[last] = [];
+		obj[last].push(value);
+	} else {
+		obj[last] = value;
 	}
 	return obj;
 };
@@ -10125,9 +10132,18 @@ F.charaEvent = function (cid) {
 //const { Maps } = require("Code/game/map");
 
 F.getLocationMsg = function (fullId) {
+	const data = GameMap.get(fullId);
+	if (!data) return `<span class="error'>Error: No spots data. ${fullId}."</span>`;
+
 	let title = `Msg_Spots_${fullId}`;
+
+	if (data.spotType.has("common")) {
+		let id = fullId.split(".").pop();
+		title = `Msg_Spots_CommonSpots_${id}`;
+	}
+
 	if (Story.has(title)) return Story.get(title).text;
-	else return `<span class="error'>Error: No message for ${fullId}."</span>`;
+	else return `<span class="error'>Error: No message found. title: ${title} id: ${fullId}. "</span>`;
 };
 
 //获取地点信息, boardId 为地图棋盘Id， path就是绝对id，
@@ -10168,13 +10184,18 @@ F.iniLocation = function (path) {
 		if (raw[item]) local[item] = clone(raw[item]);
 	});
 
+	//如果没有entry，就用父地图的entry
 	if (!entry) {
 		local.entry = parent.staticEntry || parent.id || boardId;
 	}
+
+	//地点名字的显示。如果有|，就用|分割，第一部分是判断用的名字，后面的是补充到显示上的名字
+	//这样的话，就能用比较简单的方式来判断角色所在建筑群组。比如"宿舍｜S303"，就能用"宿舍"来判断是否在宿舍内
 	local.name = name[0].split("|")[0];
 	local.printname = name[0].split("|").join("");
 	local.chara = [];
 
+	//如果是在家里，就更新成家里的摆设信息
 	if (Home || parent?.Home || topParent?.Home) {
 		local.atHome = true;
 		if (V.home.placement[roomId]) local.placement = Spots.countPlacement(V.home.placement[roomId].obj);
@@ -10189,6 +10210,7 @@ F.iniLocation = function (path) {
 		};
 	}
 
+	//获取地点的坐标，和在spots表中的id
 	let pos = { x: 0, y: 0 },
 		posId = spotId.split(".")[1] || spotId;
 	if (boardId !== "CommonSpots" && boardId !== "") {
@@ -10285,7 +10307,7 @@ F.travleTo = function (fullId) {
 
 F.DisplayMiniMap = function () {
 	//以玩家坐标为中心，在9x9的范围内显示周围地图。
-	const mapdata = GameMap.get(V.location.groupId);
+	const mapdata = GameMap.get(V.location.boardId);
 	const map = GameMap.getBoard(mapdata);
 	const pos = V.location.pos;
 	const size = 9;
@@ -11037,7 +11059,7 @@ F.hydrationLoseMult = function (currentTemp, bestTemp) {
 	let temp = currentTemp - bestTemp;
 	let mult = 1;
 	if (temp > 0) {
-		mult += (temp / 3) * 0.1;
+		mult = Math.pow(1.1, temp / 3);
 	}
 	return fixed(mult, 4);
 };
@@ -11102,9 +11124,9 @@ F.healthWarn = function (cid) {
 	const { flag } = C[cid];
 
 	let multip = 0;
-	let cond = ["stamina", "sanity", "mana", "hydration", "nutrient"];
+	let conds = ["stamina", "sanity", "mana", "hydration", "nutrient"];
 	let evalcond = "";
-	cond.forEach((key) => {
+	conds.forEach((key) => {
 		evalcond += `cond.baseLt(cid, "${key}", 0.05) && `;
 	});
 
@@ -13484,93 +13506,25 @@ Dlog.initTitle();
 &lt;&lt;else&gt;&gt;
     &lt;div class=&quot;error-view&quot;&gt;&lt;span class=&quot;error&quot;&gt;Error: 跳转失败。跳转目标：$event.exit&lt;/span&gt;&lt;/div&gt;
 &lt;&lt;/if&gt;&gt;
-&lt;&lt;/timed&gt;&gt;</tw-passagedata><tw-passagedata pid="9" name="StoryDisplayTitle" tags="" position="1100,100" size="100,100">Era the Cursed</tw-passagedata><tw-passagedata pid="10" name="StoryInit" tags="" position="1225,100" size="100,100">&lt;&lt;run 
-    game.init();
-    Chara.init(); 
-&gt;&gt;
-
-/*诅咒相关 */
-&lt;&lt;set $cursedLord= {
-    name:&#39;诅咒之触&#39;,
-    level: 0,
-    MP:0,
-    abl:{
-        len:0,
-        thick:0,
-        num:0,
-        form:0,
-        drug:0,
-        hypnos:0,
-        cum:0,
-        scale:0,
-    },
-    trait:[&#39;光滑&#39;],
-}&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="Start" tags="nosave, title" position="100,225" size="100,100">&lt;div id=&#39;gametitle&#39;&gt;
-Era the Cursed
-&lt;/div&gt;
-&lt;div id=&#39;gamesubtitle&#39;&gt;
-- 伊希露的诅咒 -
-&lt;/div&gt;
-&lt;div id=&#39;gametitle_selection&#39;&gt;
-&lt;&lt;link &#39;开始游戏&#39; &#39;Start1&#39;&gt;&gt;&lt;&lt;/link&gt;&gt;&lt;br&gt;
-&lt;&lt;link &#39;游戏设置&#39; &#39;Option&#39;&gt;&gt;&lt;&lt;/link&gt;&gt;&lt;br&gt;
-&lt;/div&gt;
-
-&lt;div id=&#39;footer&#39;&gt;
-开发者工具：
-&lt;&lt;link &#39;地图编辑器&#39; &#39;MapEditor&#39;&gt;&gt;&lt;&lt;/link&gt;&gt;
-　
-&lt;&lt;link &#39;口上编辑器&#39; &#39;KojoEditor&#39;&gt;&gt;&lt;&lt;/link&gt;&gt;
-　
-&lt;&lt;link &#39;获取口上模板&#39;&gt;&gt;&lt;&lt;run Action.output(&#39;kojo&#39;); Action.output(&#39;kojocounter&#39;)&gt;&gt;&lt;&lt;/link&gt;&gt;
-　
-&lt;&lt;link &#39;获取系统文模板&#39;&gt;&gt;&lt;&lt;run Action.output(&#39;msg&#39;)&gt;&gt;&lt;&lt;/link&gt;&gt;
-　
-&lt;&lt;link &#39;获取指令设置模板&#39;&gt;&gt;&lt;&lt;run Action.output(&#39;script&#39;)&gt;&gt;&lt;&lt;/link&gt;&gt;
-　
-&lt;&lt;link &#39;快速重启&#39;&gt;&gt;&lt;&lt;run Engine.restart()&gt;&gt;&lt;&lt;/link&gt;&gt;&lt;br&gt;
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="12" name="Option" tags="nosave, system" position="225,225" size="100,100">&lt;li&gt;总是显示主控角色名称 &lt;&lt;checkbox &#39;$system.alwaysShowPCName&#39; 0 1 autocheck&gt;&gt;&lt;/li&gt;
-&lt;li&gt;总是显示配合度检测  &lt;&lt;checkbox &#39;$system.showOrder&#39; 0 1 autocheck&gt;&gt;&lt;/li&gt;
-&lt;li title=&#39;推荐打开哦。&#39;&gt;指令模式下，如果存在PC口上则优先显示 &lt;&lt;checkbox &#39;$system.showPCKojo&#39; 0 1 autocheck&gt;&gt;&lt;/li&gt;
-
-&lt;&lt;link &#39;Back&#39; $lastsession&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="13" name="Start1" tags="nosave, nobar" position="350,225" size="100,100">游戏初始设定&lt;br&gt;
-&lt;&lt;dashline&gt;&gt;
-
-&lt;&lt;tips &#39;你&#39; &#39;curse&#39;&gt;&gt;：&lt;&lt;textbox &quot;$cursedLord.name&quot; $cursedLord.name&gt;&gt;&lt;br&gt;
-&lt;br&gt;
-&lt;&lt;tips &#39;执行者&#39; &#39;ayres&#39;&gt;&gt;：&lt;&lt;textbox &quot;$player.name&quot; $player.name&gt;&gt; · $player.surname&lt;br&gt;
-&lt;br&gt;
-&lt;&lt;tips &#39;伴侣&#39; &#39;isil&#39;&gt;&gt;：&lt;&lt;textbox &quot;$target.name&quot; $target.name&gt;&gt; · $target.midname · $target.surname&lt;br&gt;
-&lt;br&gt;
-全员扶她化？ &lt;&lt;checkbox &quot;_futa&quot; _futa autocheck&gt;&gt;&lt;br&gt;
-全员清除默认经验？ &lt;&lt;checkbox &quot;_newbie&quot; _newbie 1 autocheck&gt;&gt;&lt;br&gt;
-主CP纯女性化？ &lt;&lt;checkbox &quot;_lesCP&quot; _lesCP autocheck&gt;&gt;&lt;br&gt;
-
-&lt;&lt;dashline&gt;&gt;
-准备好了吗？ 准备好就开始吧。&lt;br&gt;
-
-&lt;br&gt;
-&lt;&lt;link &#39;开始游戏&#39; &#39;EventStart&#39;&gt;&gt;&lt;&lt;run game.start()&gt;&gt;&lt;&lt;/link&gt;&gt;&lt;br&gt;
-&lt;&lt;link &#39;跳过片头直接开始&#39; &#39;MainLoop&#39;&gt;&gt;&lt;&lt;run game.start(1)&gt;&gt;&lt;&lt;/link&gt;&gt;
-&lt;br&gt;&lt;br&gt;</tw-passagedata><tw-passagedata pid="14" name="LeftSide" tags="" position="475,225" size="100,100">&lt;&lt;if $mode is &quot;normal&quot;&gt;&gt;
+&lt;&lt;/timed&gt;&gt;</tw-passagedata><tw-passagedata pid="9" name="LeftSide" tags="" position="1100,100" size="100,100">&lt;&lt;if $mode is &quot;normal&quot;&gt;&gt;
 	&lt;&lt;include &quot;LeftSidePanel&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="15" name="RightSide" tags="" position="600,225" size="100,100">&lt;&lt;if $mode is &quot;normal&quot;&gt;&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="10" name="RightSide" tags="" position="1225,100" size="100,100">&lt;&lt;if $mode is &quot;normal&quot;&gt;&gt;
 	&lt;&lt;include &quot;RightSidePanel&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="16" name="LeftSidePanel" tags="" position="725,225" size="100,100">&lt;div id=&quot;ui-bar&quot;&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="LeftSidePanel" tags="" position="100,225" size="100,100">&lt;div id=&quot;ui-bar&quot;&gt;
 	&lt;div id=&quot;story-caption&quot;&gt;
 		show caption
 	&lt;/div&gt;
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="17" name="RightSidePanel" tags="" position="850,225" size="100,100">&lt;div id=&quot;sidebar&quot;&gt;
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="12" name="RightSidePanel" tags="" position="225,225" size="100,100">&lt;div id=&quot;sidebar&quot;&gt;
 	&lt;div id=&quot;story-caption&quot;&gt;
 		show character status
 	&lt;/div&gt;
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="18" name="StoryMenu" tags="" position="975,225" size="100,100">&lt;&lt;if $passage == &#39;MainLoop&#39;&gt;&gt;
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="13" name="StoryMenu" tags="" position="350,225" size="100,100">&lt;&lt;if $passage == &#39;MainLoop&#39;&gt;&gt;
 &lt;&lt;link &#39;Inventory&#39;&gt;&gt;&lt;&lt;/link&gt;&gt;
 &lt;&lt;link &#39;Profile&#39; &#39;Profile&#39;&gt;&gt;&lt;&lt;/link&gt;&gt;
 &lt;&lt;link &#39;Magicom&#39;&gt;&gt;&lt;&lt;/link&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="19" name="Invenory" tags="" position="1100,225" size="100,100">&lt;&lt;link &#39;返回&#39; $lastsession&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="20" name="Profile" tags="" position="1225,225" size="100,100">&lt;div id=&#39;profile&#39;&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="14" name="Invenory" tags="" position="475,225" size="100,100">&lt;&lt;link &#39;返回&#39; $lastsession&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="15" name="Profile" tags="" position="600,225" size="100,100">&lt;div id=&#39;profile&#39;&gt;
 $target.fullname  好感：&lt;&lt;print Cflag[tc].favo&gt;&gt;  信赖：&lt;&lt;print Cflag[tc].trust&gt;&gt;  支配：&lt;&lt;print Cflag[tc].dom&gt;&gt;  依存：&lt;&lt;print Cflag[tc].depend&gt;&gt;
 &lt;br&gt;&lt;hr&gt;
 
@@ -13678,7 +13632,7 @@ MP: $target.base.mana[0] / $target.base.mana[1]&lt;br&gt;
 &lt;br&gt;&lt;hr&gt;
 
 &lt;/div&gt;
-&lt;&lt;link &#39;返回&#39; $lastsession&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="21" name="Magicom" tags="" position="100,350" size="100,100">&lt;&lt;link &#39;返回&#39; $lastsession&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="22" name="Map" tags="" position="225,350" size="100,100">&lt;div id=&quot;travel&quot;&gt;
+&lt;&lt;link &#39;返回&#39; $lastsession&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="16" name="Magicom" tags="" position="725,225" size="100,100">&lt;&lt;link &#39;返回&#39; $lastsession&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="Map" tags="" position="850,225" size="100,100">&lt;div id=&quot;travel&quot;&gt;
 
 &lt;/div&gt;
 
@@ -13688,9 +13642,9 @@ MP: $target.base.mana[0] / $target.base.mana[1]&lt;br&gt;
 &lt;&lt;run
     F.createLocationLink()
 &gt;&gt;
-&lt;&lt;/done&gt;&gt;</tw-passagedata><tw-passagedata pid="23" name="Story_Opening::Before" tags="" position="350,350" size="100,100">/* 这里做前置设置。 */
+&lt;&lt;/done&gt;&gt;</tw-passagedata><tw-passagedata pid="18" name="Story_Opening::Before" tags="" position="975,225" size="100,100">/* 这里做前置设置。 */
 &lt;&lt;set $event.id = &#39;SE_0&#39;&gt;&gt;
-&lt;&lt;run F.setMemory(&#39;SE_0&#39;,&#39;序章 - 故事开头&#39;)&gt;&gt;</tw-passagedata><tw-passagedata pid="24" name="Story_Opening::After" tags="" position="475,350" size="100,100">/* 剧情结束时做的处理。 */</tw-passagedata><tw-passagedata pid="25" name="Story_Opening" tags="" position="600,350" size="100,100">#:{ &quot;test&quot;:true }
+&lt;&lt;run F.setMemory(&#39;SE_0&#39;,&#39;序章 - 故事开头&#39;)&gt;&gt;</tw-passagedata><tw-passagedata pid="19" name="Story_Opening::After" tags="" position="1100,225" size="100,100">/* 剧情结束时做的处理。 */</tw-passagedata><tw-passagedata pid="20" name="Story_Opening" tags="" position="1225,225" size="100,100">#:{ &quot;test&quot;:true }
 “嗷呜……总算通关了这个遗迹，这次月考也太磨人了。”
 队长兼主战的卡尔特用力推开BOSS房后的奖励房的大门，感慨道。
 
@@ -13745,7 +13699,7 @@ MP: $target.base.mana[0] / $target.base.mana[1]&lt;br&gt;
 “总而言之，这个脖环怎么看怎么诡异。目前唯一的线索，或者猜测，就是它可能与神代魔法有关。”
 
 “神代魔法……”伊希尔喃喃道，“只有神明才能使用的魔法、咒术……也就是目前是没法解明的吗……？”
-“嘛，目前看起来完全无害，就暂时不用管它吧。但如果出现什么问题，感觉到有什么变化记得告诉我。”安德鲁教授挥了挥手把话说完后，就关门送客了。</tw-passagedata><tw-passagedata pid="26" name="Story_FirstNight" tags="" position="725,350" size="100,100"></tw-passagedata><tw-passagedata pid="27" name="KojoEditor" tags="tool, nobar" position="850,350" size="100,100">&lt;&lt;run
+“嘛，目前看起来完全无害，就暂时不用管它吧。但如果出现什么问题，感觉到有什么变化记得告诉我。”安德鲁教授挥了挥手把话说完后，就关门送客了。</tw-passagedata><tw-passagedata pid="21" name="Story_FirstNight" tags="" position="100,350" size="100,100"></tw-passagedata><tw-passagedata pid="22" name="KojoEditor" tags="tool, nobar" position="225,350" size="100,100">&lt;&lt;run
     const data = Object.values(Action.data).filter( (action) =&gt; !groupmatch(action.type, &#39;常规&#39;, &#39;目录&#39;, &#39;其他&#39;, &#39;固有&#39;))
     const list = data.map( (action) =&gt; action.id + &#39;|&#39; + action.name)
     T.templetOption = list
@@ -13961,7 +13915,7 @@ $(&#39;#listbox--condition&#39;).on(&#39;change&#39;,()=&gt;{
     $(&#39;#kojotext&#39;).val(txt);
 })
 &lt;&lt;/script&gt;&gt;
-&lt;&lt;/done&gt;&gt;</tw-passagedata><tw-passagedata pid="28" name="MapEditor" tags="nobar" position="975,350" size="100,100">&lt;&lt;set _mapsizeX = 12&gt;&gt;
+&lt;&lt;/done&gt;&gt;</tw-passagedata><tw-passagedata pid="23" name="MapEditor" tags="nobar" position="350,350" size="100,100">&lt;&lt;set _mapsizeX = 12&gt;&gt;
 &lt;&lt;set _mapsizeY = 32&gt;&gt;
 &lt;&lt;set _placemode = 0&gt;&gt;
 &lt;&lt;set _destroymode = 0&gt;&gt;
@@ -14097,21 +14051,21 @@ $(&#39;#checkbox--placemode&#39;).on(&#39;change&#39;,()=&gt;{
 
 
 &lt;&lt;/script&gt;&gt;
-&lt;&lt;/done&gt;&gt;</tw-passagedata><tw-passagedata pid="29" name="ShowProfile" tags="" position="1100,350" size="100,100">&lt;div id=&#39;profile&#39;&gt;
+&lt;&lt;/done&gt;&gt;</tw-passagedata><tw-passagedata pid="24" name="ShowProfile" tags="" position="475,350" size="100,100">&lt;div id=&#39;profile&#39;&gt;
 
 $target.fullname&lt;br&gt;
 &lt;hr&gt;
 
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="30" name="BaseInfo" tags="" position="1225,350" size="100,100">基础：
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="25" name="BaseInfo" tags="" position="600,350" size="100,100">基础：
 
 状态：
 
-技能：</tw-passagedata><tw-passagedata pid="31" name="SpecialInfo" tags="" position="100,475" size="100,100">特殊：
+技能：</tw-passagedata><tw-passagedata pid="26" name="SpecialInfo" tags="" position="725,350" size="100,100">特殊：
 
-刻印：</tw-passagedata><tw-passagedata pid="32" name="ShowExp" tags="" position="225,475" size="100,100">经验：
+刻印：</tw-passagedata><tw-passagedata pid="27" name="ShowExp" tags="" position="850,350" size="100,100">经验：
 
-无自觉经验：</tw-passagedata><tw-passagedata pid="33" name="PassageHeader" tags="" position="350,475" size="100,100">&lt;&lt;run
+无自觉经验：</tw-passagedata><tw-passagedata pid="28" name="PassageHeader" tags="" position="975,350" size="100,100">&lt;&lt;run
     $passage = passage(); $tags = tags($passage);
     if($tags.has(&#39;title&#39;,&#39;nobar&#39;)){
         UIBar.stow();
@@ -14127,7 +14081,7 @@ $target.fullname&lt;br&gt;
     else{
        $(&#39;#story-header&#39;).removeClass(&#39;hidden&#39;) 
     }
-&gt;&gt;</tw-passagedata><tw-passagedata pid="34" name="StoryCaption" tags="" position="475,475" size="100,100">一个用于制作游戏的范本，稍微能玩的版本。&lt;br&gt;
+&gt;&gt;</tw-passagedata><tw-passagedata pid="29" name="StoryCaption" tags="" position="1100,350" size="100,100">一个用于制作游戏的范本，稍微能玩的版本。&lt;br&gt;
  version &lt;&lt;print game.version&gt;&gt;&lt;br&gt;
  author: 狐千月&lt;br&gt;
 
@@ -14137,7 +14091,7 @@ $target.fullname&lt;br&gt;
 &lt;div id=&#39;random_tips&#39;&gt;
 &lt;/div&gt;
 &lt;div id=&#39;update_note&#39;&gt;
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="35" name="PassageFooter" tags="" position="600,475" size="100,100"></tw-passagedata><tw-passagedata pid="36" name="PassageReady" tags="" position="725,475" size="100,100">&lt;&lt;run
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="30" name="PassageFooter" tags="" position="1225,350" size="100,100"></tw-passagedata><tw-passagedata pid="31" name="PassageReady" tags="" position="100,475" size="100,100">&lt;&lt;run
     _passageready = true;
     if($lastsession !== $passage)
       $lastsession = $passage;
@@ -14153,7 +14107,7 @@ $target.fullname&lt;br&gt;
     
     if($mode !== &#39;train&#39;)
       $flag.mode = 0;
-&gt;&gt;</tw-passagedata><tw-passagedata pid="37" name="PassageDone" tags="" position="850,475" size="100,100"></tw-passagedata><tw-passagedata pid="38" name="StoryHeader" tags="" position="975,475" size="100,100">&lt;&lt;if !groupmatch($passage, &#39;Start&#39;, &#39;Start1&#39;)&gt;&gt;
+&gt;&gt;</tw-passagedata><tw-passagedata pid="32" name="PassageDone" tags="" position="225,475" size="100,100"></tw-passagedata><tw-passagedata pid="33" name="StoryHeader" tags="" position="350,475" size="100,100">&lt;&lt;if !groupmatch($passage, &#39;Start&#39;, &#39;Start1&#39;)&gt;&gt;
 &lt;div id=&#39;showtime&#39; class=&#39;headbar-container&#39;&gt;
     &lt;&lt;showtime&gt;&gt;
     &lt;&lt;showmoney&gt;&gt;
@@ -14166,7 +14120,7 @@ $target.fullname&lt;br&gt;
         &lt;&lt;showgametime&gt;&gt;
     &lt;&lt;/replace&gt;&gt;
 &lt;&lt;/repeat&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="39" name="StoryFooter" tags="" position="1100,475" size="100,100"></tw-passagedata><tw-passagedata pid="40" name="Widgets" tags="widget" position="1225,475" size="100,100">&lt;&lt;widget &quot;dashline&quot;&gt;&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="34" name="StoryFooter" tags="" position="475,475" size="100,100"></tw-passagedata><tw-passagedata pid="35" name="Widgets" tags="widget" position="600,475" size="100,100">&lt;&lt;widget &quot;dashline&quot;&gt;&gt;
 &lt;div style=&#39;border-bottom:1px #444 dashed;margin:12px 0px&#39;&gt; &lt;/div&gt;
 &lt;&lt;/widget&gt;&gt;
 
@@ -14320,19 +14274,19 @@ $target.fullname&lt;br&gt;
 
 &lt;&lt;widget &quot;returnPhase&quot;&gt;&gt;
     &lt;&lt;set $event.phase -= 1&gt;&gt;
-&lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="41" name="Msg_Action_Common:Before" tags="" position="100,600" size="100,100">&lt;&lt;if $date.time &gt;= 1080 &amp;&amp; !_timeCheckNight&gt;&gt;
+&lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="36" name="Msg_Action_Common:Before" tags="" position="725,475" size="100,100">&lt;&lt;if $date.time &gt;= 1080 &amp;&amp; !_timeCheckNight&gt;&gt;
   &lt;&lt;set _timeCheckNight to true&gt;&gt;
   天开始暗下来了……&lt;br&gt;
 
 &lt;&lt;else&gt;&gt;
   &lt;&lt;set _noMsg to 1&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="42" name="FallToDeep" tags="" position="225,600" size="100,100">&lt;&lt;you&gt;&gt;的意识下沉到了深渊……&lt;br&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="37" name="FallToDeep" tags="" position="850,475" size="100,100">&lt;&lt;you&gt;&gt;的意识下沉到了深渊……&lt;br&gt;
 &lt;br&gt;
 &lt;div&gt;&lt;&lt;linkreplace &quot;放任诅咒&quot;&gt;&gt;&lt;&lt;set $flag.master to 1 &gt;&gt;&lt;&lt;run Action.redraw()&gt;&gt;&lt;&lt;/linkreplace&gt;&gt;&lt;/div&gt;
 &lt;div&gt;&lt;&lt;link &#39;查看深渊&#39; &#39;Basement&#39;&gt;&gt;&lt;&lt;/link&gt;&gt;&lt;/div&gt;
-&lt;div&gt;&lt;&lt;linkreplace &quot;什么也不做&quot;&gt;&gt;&lt;&lt;resetLink&gt;&gt;&lt;&lt;/linkreplace&gt;&gt;&lt;/div&gt;</tw-passagedata><tw-passagedata pid="43" name="RiseToSurface" tags="" position="350,600" size="100,100">&lt;&lt;you&gt;&gt;的意识从深渊回来了……&lt;br&gt;</tw-passagedata><tw-passagedata pid="44" name="Msg_PCAction_Interaction" tags="" position="475,600" size="100,100">/* 交流 */
+&lt;div&gt;&lt;&lt;linkreplace &quot;什么也不做&quot;&gt;&gt;&lt;&lt;resetLink&gt;&gt;&lt;&lt;/linkreplace&gt;&gt;&lt;/div&gt;</tw-passagedata><tw-passagedata pid="38" name="RiseToSurface" tags="" position="975,475" size="100,100">&lt;&lt;you&gt;&gt;的意识从深渊回来了……&lt;br&gt;</tw-passagedata><tw-passagedata pid="39" name="Msg_PCAction_Interaction" tags="" position="1100,475" size="100,100">/* 交流 */
 &lt;&lt;you&gt;&gt;与&lt;&lt;target&gt;&gt;打了个招呼。&lt;br&gt;
-/* 进入交流模式， 并出现交流指令 */</tw-passagedata><tw-passagedata pid="45" name="Msg_PCAction_Talk:Cancel" tags="" position="600,600" size="100,100">&lt;&lt;you&gt;&gt;试着跟对方搭话，
+/* 进入交流模式， 并出现交流指令 */</tw-passagedata><tw-passagedata pid="40" name="Msg_PCAction_Talk:Cancel" tags="" position="1225,475" size="100,100">&lt;&lt;you&gt;&gt;试着跟对方搭话，
 &lt;&lt;if Cflag[tc].trust &lt;= 100 &gt;&gt;
 但是对方并没有回应。&lt;br&gt;
 &lt;&lt;/if&gt;&gt;
@@ -14340,13 +14294,13 @@ $target.fullname&lt;br&gt;
 可惜&lt;&lt;target&gt;&gt;没有能力回应&lt;&lt;you&gt;&gt;。
 &lt;&lt;else&gt;&gt;
 但&lt;&lt;target&gt;&gt;并没有心情理会&lt;&lt;you&gt;&gt;。
-&lt;&lt;/if&gt;&gt;&lt;br&gt;</tw-passagedata><tw-passagedata pid="46" name="Msg_PCAction_Talk" tags="" position="725,600" size="100,100">&lt;&lt;you&gt;&gt;试着跟&lt;&lt;target&gt;&gt;搭话。&lt;br&gt;</tw-passagedata><tw-passagedata pid="47" name="Msg_PCAction_Look" tags="" position="850,600" size="100,100">&lt;&lt;you&gt;&gt;观察着&lt;&lt;target&gt;&gt;的模样。&lt;br&gt;</tw-passagedata><tw-passagedata pid="48" name="Msg_PCAction_Talk2" tags="" position="975,600" size="100,100">&lt;&lt;you&gt;&gt;问&lt;&lt;target&gt;&gt;最近过得如何。&lt;br&gt;</tw-passagedata><tw-passagedata pid="49" name="Msg_PCAction_Interest" tags="" position="1100,600" size="100,100">&lt;&lt;=Kojo.put(tc, { type:&#39;Action&#39;, id:&#39;Interest&#39;} )&gt;&gt;
+&lt;&lt;/if&gt;&gt;&lt;br&gt;</tw-passagedata><tw-passagedata pid="41" name="Msg_PCAction_Talk" tags="" position="100,600" size="100,100">&lt;&lt;you&gt;&gt;试着跟&lt;&lt;target&gt;&gt;搭话。&lt;br&gt;</tw-passagedata><tw-passagedata pid="42" name="Msg_PCAction_Look" tags="" position="225,600" size="100,100">&lt;&lt;you&gt;&gt;观察着&lt;&lt;target&gt;&gt;的模样。&lt;br&gt;</tw-passagedata><tw-passagedata pid="43" name="Msg_PCAction_Talk2" tags="" position="350,600" size="100,100">&lt;&lt;you&gt;&gt;问&lt;&lt;target&gt;&gt;最近过得如何。&lt;br&gt;</tw-passagedata><tw-passagedata pid="44" name="Msg_PCAction_Interest" tags="" position="475,600" size="100,100">&lt;&lt;=Kojo.put(tc, { type:&#39;Action&#39;, id:&#39;Interest&#39;} )&gt;&gt;
 &lt;&lt;if T.noMsg&gt;&gt;
 &lt;&lt;you&gt;&gt;对&lt;&lt;target&gt;&gt;感兴趣的话题发表了些见解。&lt;br&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="50" name="Msg_PCAction_PetHead" tags="" position="1225,600" size="100,100">&lt;&lt;you&gt;&gt;摸了摸&lt;&lt;target&gt;&gt;的脑袋。&lt;br&gt;</tw-passagedata><tw-passagedata pid="51" name="Msg_PCAction_Firm" tags="" position="100,725" size="100,100">&lt;&lt;you&gt;&gt;对&lt;&lt;target&gt;&gt;抛了个媚眼。&lt;br&gt;</tw-passagedata><tw-passagedata pid="52" name="Msg_PCAction_Gift" tags="" position="225,725" size="100,100">/* 送礼 */
-&lt;&lt;you&gt;&gt;在$location.name开始送礼。&lt;br&gt;</tw-passagedata><tw-passagedata pid="53" name="Msg_PCAction_AskMoney" tags="" position="350,725" size="100,100">/* 借钱 */
-&lt;&lt;you&gt;&gt;厚着脸皮向&lt;&lt;target&gt;&gt;借钱。&lt;br&gt;</tw-passagedata><tw-passagedata pid="54" name="Msg_PCAction_PayBack" tags="" position="475,725" size="100,100">/* 还钱 */
-&lt;&lt;you&gt;&gt;向&lt;&lt;target&gt;&gt;还了钱。&lt;br&gt;</tw-passagedata><tw-passagedata pid="55" name="Msg_PCAction_TrySex" tags="" position="600,725" size="100,100">/* 推倒 */
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="45" name="Msg_PCAction_PetHead" tags="" position="600,600" size="100,100">&lt;&lt;you&gt;&gt;摸了摸&lt;&lt;target&gt;&gt;的脑袋。&lt;br&gt;</tw-passagedata><tw-passagedata pid="46" name="Msg_PCAction_Firm" tags="" position="725,600" size="100,100">&lt;&lt;you&gt;&gt;对&lt;&lt;target&gt;&gt;抛了个媚眼。&lt;br&gt;</tw-passagedata><tw-passagedata pid="47" name="Msg_PCAction_Gift" tags="" position="850,600" size="100,100">/* 送礼 */
+&lt;&lt;you&gt;&gt;在$location.name开始送礼。&lt;br&gt;</tw-passagedata><tw-passagedata pid="48" name="Msg_PCAction_AskMoney" tags="" position="975,600" size="100,100">/* 借钱 */
+&lt;&lt;you&gt;&gt;厚着脸皮向&lt;&lt;target&gt;&gt;借钱。&lt;br&gt;</tw-passagedata><tw-passagedata pid="49" name="Msg_PCAction_PayBack" tags="" position="1100,600" size="100,100">/* 还钱 */
+&lt;&lt;you&gt;&gt;向&lt;&lt;target&gt;&gt;还了钱。&lt;br&gt;</tw-passagedata><tw-passagedata pid="50" name="Msg_PCAction_TrySex" tags="" position="1225,600" size="100,100">/* 推倒 */
 &lt;&lt;if $mode !== &#39;train&#39; &gt;&gt;
 &lt;&lt;you&gt;&gt;将&lt;&lt;target&gt;&gt;带到没人注意到的角落。&lt;br&gt;
 &lt;&lt;=Kojo.put(tc, { type: &#39;Action&#39;, id:&#39;TrySex&#39;, dif: &#39;start&#39; })&gt;&gt;
@@ -14354,17 +14308,17 @@ $target.fullname&lt;br&gt;
 &lt;&lt;else&gt;&gt;
 &lt;&lt;you&gt;&gt;帮&lt;&lt;target&gt;&gt;整理好衣服。&lt;br&gt;
 &lt;&lt;=Kojo.put(tc, { type: &#39;Action&#39;, id:&#39;TrySex&#39;, dif:&#39;finish&#39; })&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="56" name="Msg_PCAction_Relax" tags="" position="725,725" size="100,100">/* 放松 */
-&lt;&lt;you&gt;&gt;在$location.name找了个舒适的地方，坐下放松。&lt;br&gt;</tw-passagedata><tw-passagedata pid="57" name="Msg_PCAction_Walk" tags="" position="850,725" size="100,100">/* 散步 */
-&lt;&lt;you&gt;&gt;在$location.name开始散步。&lt;br&gt;</tw-passagedata><tw-passagedata pid="58" name="Msg_PCAction_Plant" tags="" position="975,725" size="100,100">/* 种植 */
-&lt;&lt;you&gt;&gt;在$location.name开始种植。&lt;br&gt;</tw-passagedata><tw-passagedata pid="59" name="Msg_PCAction_Bath" tags="" position="1100,725" size="100,100">/* 洗澡 */
-&lt;&lt;you&gt;&gt;在$location.name开始洗澡。&lt;br&gt;</tw-passagedata><tw-passagedata pid="60" name="Msg_PCAction_Read" tags="" position="1225,725" size="100,100">/* 读书 */
-&lt;&lt;you&gt;&gt;在$location.name开始读书。&lt;br&gt;</tw-passagedata><tw-passagedata pid="61" name="Msg_PCAction_Learn" tags="" position="100,850" size="100,100">/* 学习 */
-&lt;&lt;you&gt;&gt;在$location.name开始学习。&lt;br&gt;</tw-passagedata><tw-passagedata pid="62" name="Msg_PCAction_Class" tags="" position="225,850" size="100,100">/* 上课 */
-&lt;&lt;you&gt;&gt;在$location.name开始上课。&lt;br&gt;</tw-passagedata><tw-passagedata pid="63" name="Msg_PCAction_HomeWork" tags="" position="350,850" size="100,100">/* 做作业 */
-&lt;&lt;you&gt;&gt;在$location.name开始做作业。&lt;br&gt;</tw-passagedata><tw-passagedata pid="64" name="Msg_PCAction_Shop" tags="" position="475,850" size="100,100">/* 购物 */
-&lt;&lt;you&gt;&gt;在$location.name开始购物。&lt;br&gt;</tw-passagedata><tw-passagedata pid="65" name="Msg_PCAction_Stream" tags="" position="600,850" size="100,100">/* 直播 */
-&lt;&lt;you&gt;&gt;在$location.name开始直播。&lt;br&gt;</tw-passagedata><tw-passagedata pid="66" name="ActionList" tags="list" position="725,850" size="100,100">/* 常规动作 */
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="51" name="Msg_PCAction_Relax" tags="" position="100,725" size="100,100">/* 放松 */
+&lt;&lt;you&gt;&gt;在$location.name找了个舒适的地方，坐下放松。&lt;br&gt;</tw-passagedata><tw-passagedata pid="52" name="Msg_PCAction_Walk" tags="" position="225,725" size="100,100">/* 散步 */
+&lt;&lt;you&gt;&gt;在$location.name开始散步。&lt;br&gt;</tw-passagedata><tw-passagedata pid="53" name="Msg_PCAction_Plant" tags="" position="350,725" size="100,100">/* 种植 */
+&lt;&lt;you&gt;&gt;在$location.name开始种植。&lt;br&gt;</tw-passagedata><tw-passagedata pid="54" name="Msg_PCAction_Bath" tags="" position="475,725" size="100,100">/* 洗澡 */
+&lt;&lt;you&gt;&gt;在$location.name开始洗澡。&lt;br&gt;</tw-passagedata><tw-passagedata pid="55" name="Msg_PCAction_Read" tags="" position="600,725" size="100,100">/* 读书 */
+&lt;&lt;you&gt;&gt;在$location.name开始读书。&lt;br&gt;</tw-passagedata><tw-passagedata pid="56" name="Msg_PCAction_Learn" tags="" position="725,725" size="100,100">/* 学习 */
+&lt;&lt;you&gt;&gt;在$location.name开始学习。&lt;br&gt;</tw-passagedata><tw-passagedata pid="57" name="Msg_PCAction_Class" tags="" position="850,725" size="100,100">/* 上课 */
+&lt;&lt;you&gt;&gt;在$location.name开始上课。&lt;br&gt;</tw-passagedata><tw-passagedata pid="58" name="Msg_PCAction_HomeWork" tags="" position="975,725" size="100,100">/* 做作业 */
+&lt;&lt;you&gt;&gt;在$location.name开始做作业。&lt;br&gt;</tw-passagedata><tw-passagedata pid="59" name="Msg_PCAction_Shop" tags="" position="1100,725" size="100,100">/* 购物 */
+&lt;&lt;you&gt;&gt;在$location.name开始购物。&lt;br&gt;</tw-passagedata><tw-passagedata pid="60" name="Msg_PCAction_Stream" tags="" position="1225,725" size="100,100">/* 直播 */
+&lt;&lt;you&gt;&gt;在$location.name开始直播。&lt;br&gt;</tw-passagedata><tw-passagedata pid="61" name="ActionList" tags="list" position="100,850" size="100,100">/* 常规动作 */
 /* time：花费时间，locationTags：需求的地点标签，setting：额外设置 */
 /* 上课属于互动事件类型？上课期间可以对别人涩涩或作为伊希露被涩涩什么的！ */
 #G ,id   ,name ,time ,locationTags, placement, setting
@@ -14508,7 +14462,7 @@ sleep       ,睡觉       ,Sleep
 resetAct    ,清除动作
 resetAll    ,全部
 stopTouch   ,住手
-resetMode   ,走开</tw-passagedata><tw-passagedata pid="67" name="MainLoop:Before" tags="" position="850,850" size="100,100">/*纯代码区，最先处理 */</tw-passagedata><tw-passagedata pid="68" name="MainLoop:After" tags="" position="975,850" size="100,100">/*纯代码区，最后处理 */</tw-passagedata><tw-passagedata pid="69" name="MainLoop" tags="" position="1100,850" size="100,100">&lt;action&gt;&lt;/action&gt;
+resetMode   ,走开</tw-passagedata><tw-passagedata pid="62" name="MainLoop:Before" tags="" position="225,850" size="100,100">/*纯代码区，最先处理 */</tw-passagedata><tw-passagedata pid="63" name="MainLoop:After" tags="" position="350,850" size="100,100">/*纯代码区，最后处理 */</tw-passagedata><tw-passagedata pid="64" name="MainLoop" tags="" position="475,850" size="100,100">&lt;action&gt;&lt;/action&gt;
 &lt;div id=&#39;hidden&#39; class=&#39;hidden&#39;&gt;you can&#39;t see me.&lt;/div&gt;
 &lt;div id=&#39;location&#39;&gt;&lt;/div&gt;
 &lt;br&gt;
@@ -14625,11 +14579,11 @@ $(&#39;action&#39;).on(&#39;finish&#39;, ()=&gt;{
     Action.phase(&#39;reset&#39;)
 })
 
-&lt;/script&gt;</tw-passagedata><tw-passagedata pid="70" name="Msg_PCAction_t0" tags="" position="1225,850" size="100,100">/* 接吻 */
-&lt;&lt;actor&gt;&gt;吻上了&lt;&lt;target&gt;&gt;的嘴唇。&lt;br&gt;</tw-passagedata><tw-passagedata pid="71" name="Msg_PCAction_t1" tags="" position="100,975" size="100,100">/* 亲吻 */
-&lt;&lt;actor&gt;&gt;亲吻在了&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;上，轻吮吸舔，试图留下自己的印记。&lt;br&gt;</tw-passagedata><tw-passagedata pid="72" name="Msg_PCAction_t2" tags="" position="225,975" size="100,100">/* 抚摸 */
-&lt;&lt;actor&gt;&gt;的手轻抚着&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;。&lt;br&gt;</tw-passagedata><tw-passagedata pid="73" name="Msg_PCAction_t3" tags="" position="350,975" size="100,100">/* 揉捏 */
-&lt;&lt;actor&gt;&gt;揉捏着&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;。&lt;br&gt;</tw-passagedata><tw-passagedata pid="74" name="Msg_PCAction_t4" tags="" position="475,975" size="100,100">/* 吸舔 */
+&lt;/script&gt;</tw-passagedata><tw-passagedata pid="65" name="Msg_PCAction_t0" tags="" position="600,850" size="100,100">/* 接吻 */
+&lt;&lt;actor&gt;&gt;吻上了&lt;&lt;target&gt;&gt;的嘴唇。&lt;br&gt;</tw-passagedata><tw-passagedata pid="66" name="Msg_PCAction_t1" tags="" position="725,850" size="100,100">/* 亲吻 */
+&lt;&lt;actor&gt;&gt;亲吻在了&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;上，轻吮吸舔，试图留下自己的印记。&lt;br&gt;</tw-passagedata><tw-passagedata pid="67" name="Msg_PCAction_t2" tags="" position="850,850" size="100,100">/* 抚摸 */
+&lt;&lt;actor&gt;&gt;的手轻抚着&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;。&lt;br&gt;</tw-passagedata><tw-passagedata pid="68" name="Msg_PCAction_t3" tags="" position="975,850" size="100,100">/* 揉捏 */
+&lt;&lt;actor&gt;&gt;揉捏着&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;。&lt;br&gt;</tw-passagedata><tw-passagedata pid="69" name="Msg_PCAction_t4" tags="" position="1100,850" size="100,100">/* 吸舔 */
 &lt;&lt;actor&gt;&gt;
 &lt;&lt;switch T.selectPart&gt;&gt;
 &lt;&lt;case &#39;penis&#39;, &#39;critoris&#39;, &#39;nipple&#39;&gt;&gt;
@@ -14642,14 +14596,14 @@ $(&#39;action&#39;).on(&#39;finish&#39;, ()=&gt;{
 在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;上面用舌头又吸又舔地感受着对方的气味。&lt;br&gt;
 &lt;&lt;default&gt;&gt;
 含住了&lt;&lt;target&gt;&gt;的&lt;&lt;= groupmatch(T.selectPart,&#39;handL&#39;,&#39;handR&#39;) ? &#39;手指&#39; : &#39;脚趾&#39; &gt;&gt;，像舔舐糖果般吸舔着。&lt;br&gt;
-&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="75" name="Msg_PCAction_t5" tags="" position="600,975" size="100,100">/* 吸咬 */
+&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="70" name="Msg_PCAction_t5" tags="" position="1225,850" size="100,100">/* 吸咬 */
 &lt;&lt;actor&gt;&gt;
 &lt;&lt;switch T.selectPart&gt;&gt;
 &lt;&lt;case &#39;penis&#39;, &#39;critoris&#39;, &#39;nipple&#39;, &#39;ears&#39;&gt;&gt;
 含住&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;，吸吮轻咬着。&lt;br&gt;
 &lt;&lt;default&gt;&gt;
 轻咬在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;上，品味着对方的气息，不时轻啃慢咬试图留下自己的痕迹。&lt;br&gt;
-&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="76" name="Msg_PCAction_t6" tags="" position="725,975" size="100,100">/* 逗弄 */
+&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="71" name="Msg_PCAction_t6" tags="" position="100,975" size="100,100">/* 逗弄 */
 &lt;&lt;actor&gt;&gt;
 &lt;&lt;switch T.selectPart&gt;&gt;
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
@@ -14660,7 +14614,7 @@ $(&#39;action&#39;).on(&#39;finish&#39;, ()=&gt;{
 将手指往内深入，在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;扣弄着，不时刺激在脆弱的敏感点上。&lt;br&gt;
 &lt;&lt;case &#39;ears&#39;&gt;&gt;
 反复逗弄着&lt;&lt;target&gt;&gt;的耳朵。&lt;br&gt;
-&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="77" name="Msg_PCAction_t7" tags="" position="850,975" size="100,100">/* 指交 */
+&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="72" name="Msg_PCAction_t7" tags="" position="225,975" size="100,100">/* 指交 */
 &lt;&lt;actor&gt;&gt;
 &lt;&lt;switch T.selectPart&gt;&gt;
 &lt;&lt;case &#39;mouth&#39;&gt;&gt;
@@ -14669,24 +14623,24 @@ $(&#39;action&#39;).on(&#39;finish&#39;, ()=&gt;{
 的手指浅浅插入&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;，在入口附近摩擦着。&lt;br&gt;
 &lt;&lt;case &#39;urin&#39;&gt;&gt;
 的手指浅浅插入&lt;&lt;target&gt;&gt;的尿道，在入口附近摩擦着。&lt;br&gt;
-&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="78" name="Msg_PCAction_t8" tags="" position="975,975" size="100,100">/* 插入 */
-&lt;&lt;=Kojo.put(pc, {type:&#39;PCAction&#39;, id:T.action.pose, noTag:1})&gt;&gt;</tw-passagedata><tw-passagedata pid="79" name="Msg_PCAction_r1" tags="" position="1100,975" size="100,100">/* 逆插入 */
-&lt;&lt;=Kojo.put(pc, {type:&#39;PCAction&#39;, id:T.action.pose, noTag:1})&gt;&gt;</tw-passagedata><tw-passagedata pid="80" name="Msg_PCAction_t9" tags="" position="1225,975" size="100,100">/* 抽插 */
-&lt;&lt;actor&gt;&gt;活动腰身，在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;反复出入着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="81" name="Msg_PCAction_t10" tags="" position="100,1100" size="100,100">/* 撸动 */
-&lt;&lt;actor&gt;&gt;握住&lt;&lt;target&gt;&gt;的阴茎，前后撸动着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="82" name="Msg_PCAction_t11" tags="" position="225,1100" size="100,100">/* 抽插 */
-&lt;&lt;actor&gt;&gt;模拟性交的动作，活动右手在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;反复进出着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="83" name="Msg_PCAction_t12" tags="" position="350,1100" size="100,100">/* 深入 */
-&lt;&lt;actor&gt;&gt;深深插入了&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;&lt;br&gt;</tw-passagedata><tw-passagedata pid="84" name="Msg_PCAction_t13" tags="" position="475,1100" size="100,100">/* 深入 */
-&lt;&lt;actor&gt;&gt;让&lt;&lt;target&gt;&gt;含住了自己的阴茎&lt;br&gt;</tw-passagedata><tw-passagedata pid="85" name="Msg_PCAction_Rotor" tags="" position="600,1100" size="100,100">/* 跳蛋 */
+&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="73" name="Msg_PCAction_t8" tags="" position="350,975" size="100,100">/* 插入 */
+&lt;&lt;=Kojo.put(pc, {type:&#39;PCAction&#39;, id:T.action.pose, noTag:1})&gt;&gt;</tw-passagedata><tw-passagedata pid="74" name="Msg_PCAction_r1" tags="" position="475,975" size="100,100">/* 逆插入 */
+&lt;&lt;=Kojo.put(pc, {type:&#39;PCAction&#39;, id:T.action.pose, noTag:1})&gt;&gt;</tw-passagedata><tw-passagedata pid="75" name="Msg_PCAction_t9" tags="" position="600,975" size="100,100">/* 抽插 */
+&lt;&lt;actor&gt;&gt;活动腰身，在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;反复出入着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="76" name="Msg_PCAction_t10" tags="" position="725,975" size="100,100">/* 撸动 */
+&lt;&lt;actor&gt;&gt;握住&lt;&lt;target&gt;&gt;的阴茎，前后撸动着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="77" name="Msg_PCAction_t11" tags="" position="850,975" size="100,100">/* 抽插 */
+&lt;&lt;actor&gt;&gt;模拟性交的动作，活动右手在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;反复进出着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="78" name="Msg_PCAction_t12" tags="" position="975,975" size="100,100">/* 深入 */
+&lt;&lt;actor&gt;&gt;深深插入了&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;&lt;br&gt;</tw-passagedata><tw-passagedata pid="79" name="Msg_PCAction_t13" tags="" position="1100,975" size="100,100">/* 深入 */
+&lt;&lt;actor&gt;&gt;让&lt;&lt;target&gt;&gt;含住了自己的阴茎&lt;br&gt;</tw-passagedata><tw-passagedata pid="80" name="Msg_PCAction_Rotor" tags="" position="1225,975" size="100,100">/* 跳蛋 */
 &lt;&lt;actor&gt;&gt;
 &lt;&lt;switch T.selectPart&gt;&gt;
 &lt;&lt;case &#39;vagina&#39;, &#39;anal&#39;&gt;&gt;
 将跳蛋放入了&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;。&lt;br&gt;
 &lt;&lt;default&gt;&gt;
 将跳蛋贴在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;，刺激着。&lt;br&gt;
-&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="86" name="Msg_PCAction_Vibrator" tags="" position="725,1100" size="100,100">/* 震动棒 */
+&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="81" name="Msg_PCAction_Vibrator" tags="" position="100,1100" size="100,100">/* 震动棒 */
 &lt;&lt;actor&gt;&gt;将震动棒塞进了&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;。&lt;br&gt;
 
-/* 触手系 */</tw-passagedata><tw-passagedata pid="87" name="Msg_PCAction_x0" tags="" position="850,1100" size="100,100">/* 揉捏 */
+/* 触手系 */</tw-passagedata><tw-passagedata pid="82" name="Msg_PCAction_x0" tags="" position="225,1100" size="100,100">/* 揉捏 */
 触手
 &lt;&lt;switch T.selectPart&gt;&gt;
 &lt;&lt;case &#39;breast&#39;&gt;&gt;
@@ -14697,7 +14651,7 @@ $(&#39;action&#39;).on(&#39;finish&#39;, ()=&gt;{
 缠绕在&lt;&lt;target&gt;&gt;的阴蒂上，巧妙地反复揉捏给予刺激。&lt;br&gt;
 &lt;&lt;case &#39;nipple&#39;&gt;&gt;
 缠绕在&lt;&lt;target&gt;&gt;的乳头上，巧妙地反复揉捏给予刺激。&lt;br&gt;
-&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="88" name="Msg_PCAction_x1" tags="" position="975,1100" size="100,100">/* 逗弄 */
+&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="83" name="Msg_PCAction_x1" tags="" position="350,1100" size="100,100">/* 逗弄 */
 &lt;&lt;switch T.selectPart&gt;&gt;
 &lt;&lt;case &#39;mouth&#39;&gt;&gt;
 深入、缠绕、蠕动。触手反复逗弄着&lt;&lt;target&gt;&gt;的口腔，给予极大的刺激。&lt;br&gt;
@@ -14707,11 +14661,11 @@ $(&#39;action&#39;).on(&#39;finish&#39;, ()=&gt;{
 蠕动、摩擦、按揉。触手反复逗弄着&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;，给予极大的刺激。&lt;br&gt;
 &lt;&lt;case &#39;urin&#39;&gt;&gt;
 刺探、深入、蠕动。触手反复逗弄着&lt;&lt;target&gt;&gt;的尿道，给予极大的刺激。&lt;br&gt;
-&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="89" name="Msg_PCAction_x2" tags="" position="1100,1100" size="100,100">/* 吸舔 */
-吸盘触手吸附在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;上，反复吸舔着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="90" name="Msg_PCAction_x3" tags="" position="1225,1100" size="100,100">/* 吸咬 */
-口器触手含住&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;，吸吮轻咬着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="91" name="Msg_PCAction_x4" tags="" position="100,1225" size="100,100">/* 撸动 */
-触手缠绕住&lt;&lt;target&gt;&gt;的阴茎，反复撸动着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="92" name="Msg_PCAction_x5" tags="" position="225,1225" size="100,100">/* 插入 */
-触手钻进了&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;，缓缓往内深入。&lt;br&gt;</tw-passagedata><tw-passagedata pid="93" name="Msg_PCAction_x6" tags="" position="350,1225" size="100,100">/* 蠕动 */
+&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="84" name="Msg_PCAction_x2" tags="" position="475,1100" size="100,100">/* 吸舔 */
+吸盘触手吸附在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;上，反复吸舔着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="85" name="Msg_PCAction_x3" tags="" position="600,1100" size="100,100">/* 吸咬 */
+口器触手含住&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;，吸吮轻咬着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="86" name="Msg_PCAction_x4" tags="" position="725,1100" size="100,100">/* 撸动 */
+触手缠绕住&lt;&lt;target&gt;&gt;的阴茎，反复撸动着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="87" name="Msg_PCAction_x5" tags="" position="850,1100" size="100,100">/* 插入 */
+触手钻进了&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;，缓缓往内深入。&lt;br&gt;</tw-passagedata><tw-passagedata pid="88" name="Msg_PCAction_x6" tags="" position="975,1100" size="100,100">/* 蠕动 */
 触手
 &lt;&lt;switch T.selectPart&gt;&gt;
 &lt;&lt;case &#39;mouth&#39;, &#39;vagina&#39;, &#39;anal&#39;, &#39;urin&#39;&gt;&gt;
@@ -14720,61 +14674,61 @@ $(&#39;action&#39;).on(&#39;finish&#39;, ()=&gt;{
 缠绕着&lt;&lt;target&gt;&gt;的阴茎，在表面慢慢蠕动着。&lt;br&gt;
 &lt;&lt;default&gt;&gt;
 缠绕着&lt;&lt;target&gt;&gt;的身躯，在&lt;&lt;targetPart&gt;&gt;表面攀爬蠕动着。&lt;br&gt;
-&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="94" name="Msg_PCAction_x7" tags="" position="475,1225" size="100,100">/* 抽插 */
-触手不停在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;进出，抽插蠕动着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="95" name="Msg_PCAction_x8" tags="" position="600,1225" size="100,100">/* 深入 */
-触手往&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;内部发出了进攻，往更深处蠕进。&lt;br&gt;</tw-passagedata><tw-passagedata pid="96" name="Msg_PCAction_x9" tags="" position="725,1225" size="100,100">/* 抽送 */
-触手激烈地在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;进出着，反复抽送着触身给予莫大的刺激。&lt;br&gt;</tw-passagedata><tw-passagedata pid="97" name="Msg_PCAction_x10" tags="" position="850,1225" size="100,100">/* 鞭打 */
-触手甩动触鞭，用巧妙的力度鞭打在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;上。&lt;br&gt;</tw-passagedata><tw-passagedata pid="98" name="Msg_PCAction_x11" tags="" position="975,1225" size="100,100">/* 刺入 */
-触手伸出尖锐的细针，狠狠地刺入了&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;。&lt;br&gt;</tw-passagedata><tw-passagedata pid="99" name="Msg_PCAction_x12" tags="" position="1100,1225" size="100,100">/* 灌入 */
-触手往&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;深处灌入大量的药液。&lt;br&gt;</tw-passagedata><tw-passagedata pid="100" name="Msg_PCAction_x13" tags="" position="1225,1225" size="100,100">/* 注射 */
-触手伸出尖锐的针头，刺入&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;并注入药液。&lt;br&gt;</tw-passagedata><tw-passagedata pid="101" name="Msg_PCAction_pose0" tags="" position="100,1350" size="100,100">/* 正常位 */
+&lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="89" name="Msg_PCAction_x7" tags="" position="1100,1100" size="100,100">/* 抽插 */
+触手不停在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;进出，抽插蠕动着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="90" name="Msg_PCAction_x8" tags="" position="1225,1100" size="100,100">/* 深入 */
+触手往&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;内部发出了进攻，往更深处蠕进。&lt;br&gt;</tw-passagedata><tw-passagedata pid="91" name="Msg_PCAction_x9" tags="" position="100,1225" size="100,100">/* 抽送 */
+触手激烈地在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;进出着，反复抽送着触身给予莫大的刺激。&lt;br&gt;</tw-passagedata><tw-passagedata pid="92" name="Msg_PCAction_x10" tags="" position="225,1225" size="100,100">/* 鞭打 */
+触手甩动触鞭，用巧妙的力度鞭打在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;上。&lt;br&gt;</tw-passagedata><tw-passagedata pid="93" name="Msg_PCAction_x11" tags="" position="350,1225" size="100,100">/* 刺入 */
+触手伸出尖锐的细针，狠狠地刺入了&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;。&lt;br&gt;</tw-passagedata><tw-passagedata pid="94" name="Msg_PCAction_x12" tags="" position="475,1225" size="100,100">/* 灌入 */
+触手往&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;深处灌入大量的药液。&lt;br&gt;</tw-passagedata><tw-passagedata pid="95" name="Msg_PCAction_x13" tags="" position="600,1225" size="100,100">/* 注射 */
+触手伸出尖锐的针头，刺入&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;并注入药液。&lt;br&gt;</tw-passagedata><tw-passagedata pid="96" name="Msg_PCAction_pose0" tags="" position="725,1225" size="100,100">/* 正常位 */
 &lt;&lt;if T.action.id == &#39;t8&#39;&gt;&gt;
     &lt;&lt;actor&gt;&gt;把身体覆盖在&lt;&lt;target&gt;&gt;身上，掰开&lt;&lt;target&gt;&gt;的双腿从正面把阴茎插进了&lt;&lt;targetPart&gt;&gt;。&lt;br&gt;
 &lt;&lt;else&gt;&gt;
     &lt;&lt;actor&gt;&gt;平躺好后，张开双腿勾引着&lt;&lt;target&gt;&gt;，让对方覆盖在自己身上从正面进入了自己的&lt;&lt;actPart&gt;&gt;&lt;br&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="102" name="Msg_PCAction_pose1" tags="" position="225,1350" size="100,100">/* 背后位 */
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="97" name="Msg_PCAction_pose1" tags="" position="850,1225" size="100,100">/* 背后位 */
 &lt;&lt;if T.action.id == &#39;t8&#39;&gt;&gt;
     &lt;&lt;actor&gt;&gt;如同野兽般把&lt;&lt;target&gt;&gt;按倒在身下，掰开肉瓣从后面进入了&lt;&lt;target&gt;&gt;的身体。&lt;br&gt;
 
 &lt;&lt;else&gt;&gt;
     &lt;&lt;actor&gt;&gt;趴在地上，撅起屁股让&lt;&lt;target&gt;&gt;从后面进入了自己的&lt;&lt;actPart&gt;&gt;&lt;br&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="103" name="Msg_PCAction_pose2" tags="" position="350,1350" size="100,100">/* 正座位 */
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="98" name="Msg_PCAction_pose2" tags="" position="975,1225" size="100,100">/* 正座位 */
 &lt;&lt;if T.action.id == &#39;t8&#39;&gt;&gt;
     &lt;&lt;actor&gt;&gt;让&lt;&lt;target&gt;&gt;面对面坐在自己身上，一边亲吻着对方一边让&lt;&lt;target&gt;&gt;缓缓坐下将自己的阴茎收纳到&lt;&lt;targetPart&gt;&gt;里。&lt;br&gt;
 
 &lt;&lt;else&gt;&gt;
     &lt;&lt;actor&gt;&gt;面对面坐到&lt;&lt;target&gt;&gt;身上，双手搭在对方肩膀上支撑着自己，然后利用自身体重慢慢将&lt;&lt;target&gt;&gt;的阴茎收纳到自己体内。&lt;br&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="104" name="Msg_PCAction_pose3" tags="" position="475,1350" size="100,100">/* 背座位 */
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="99" name="Msg_PCAction_pose3" tags="" position="1100,1225" size="100,100">/* 背座位 */
 &lt;&lt;if T.action.id==&#39;t8&#39;&gt;&gt;
    &lt;&lt;actor&gt;&gt;让&lt;&lt;target&gt;&gt;背对自己跨坐到身上，从背后搂住对方，让其慢慢坐下把&lt;&lt;actor&gt;&gt;的阴茎吞入&lt;&lt;targetPart&gt;&gt;里。&lt;br&gt;
 &lt;&lt;else&gt;&gt;
     &lt;&lt;actor&gt;&gt;靠坐在&lt;&lt;target&gt;&gt;身上，让对方用手支撑着自己，然后慢慢坐下用&lt;&lt;actPart&gt;&gt;把&lt;&lt;target&gt;&gt;的阴茎吞入腹中。&lt;br&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="105" name="Msg_PCAction_pose4" tags="" position="600,1350" size="100,100">/* 骑乘位 */
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="100" name="Msg_PCAction_pose4" tags="" position="1225,1225" size="100,100">/* 骑乘位 */
 &lt;&lt;if T.action.id==&#39;t8&#39;&gt;&gt;
    &lt;&lt;actor&gt;&gt;让&lt;&lt;target&gt;&gt;骑在自己身上，一手扶着对方腰身让其以舒适的角度把&lt;&lt;actor&gt;&gt;的阴茎收入&lt;&lt;targetPart&gt;&gt;中。&lt;br&gt;
 &lt;&lt;else&gt;&gt;
     &lt;&lt;actor&gt;&gt;骑在&lt;&lt;target&gt;&gt;身上，寻找一个舒服的角度用&lt;&lt;actPart&gt;&gt;把&lt;&lt;target&gt;&gt;的阴茎纳入腹中。&lt;br&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="106" name="Msg_PCAction_pose5" tags="" position="725,1350" size="100,100">/* 侧卧位 */
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="101" name="Msg_PCAction_pose5" tags="" position="100,1350" size="100,100">/* 侧卧位 */
 &lt;&lt;if T.action.id==&#39;t8&#39;&gt;&gt;
    &lt;&lt;actor&gt;&gt;让&lt;&lt;target&gt;&gt;侧卧躺在自己身边，一手穿过对方腰身，从后面缓缓插入&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;。&lt;br&gt;
 &lt;&lt;else&gt;&gt;
     &lt;&lt;actor&gt;&gt;侧躺在&lt;&lt;target&gt;&gt;身边，向对方招招手，勾引对方从后面进入自己的&lt;&lt;actPart&gt;&gt;&lt;br&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="107" name="Msg_PCAction_pose6" tags="" position="850,1350" size="100,100">/* 趴卧位 */
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="102" name="Msg_PCAction_pose6" tags="" position="225,1350" size="100,100">/* 趴卧位 */
 &lt;&lt;if T.action.id==&#39;t8&#39;&gt;&gt;
    &lt;&lt;actor&gt;&gt;让&lt;&lt;target&gt;&gt;趴卧在床上，拿枕头垫高对方小腹后，以俯卧撑的姿势从后方贯穿了&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;。&lt;br&gt;
 &lt;&lt;else&gt;&gt;
    &lt;&lt;actor&gt;&gt;趴卧在床上，回头以目光示意&lt;&lt;target&gt;&gt;，让对方从后面贯穿自己的&lt;&lt;actPart&gt;&gt;&lt;br&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="108" name="Msg_PCAction_pose7" tags="" position="975,1350" size="100,100">/* 站立位 */
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="103" name="Msg_PCAction_pose7" tags="" position="350,1350" size="100,100">/* 站立位 */
 &lt;&lt;if T.action.id==&#39;t8&#39;&gt;&gt;
    &lt;&lt;actor&gt;&gt;让&lt;&lt;target&gt;&gt;站立在自己身前，用手臂支撑对方，从正面把阴茎插入&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;。&lt;br&gt;
 &lt;&lt;else&gt;&gt;
     &lt;&lt;actor&gt;&gt;站在&lt;&lt;target&gt;&gt;面前，抬高右脚让对方抱着，维持着站立的姿势让&lt;&lt;target&gt;&gt;从正面进入自己的&lt;&lt;actPart&gt;&gt;&lt;br&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="109" name="Msg_PCAction_pose8" tags="" position="1100,1350" size="100,100">/* 背后立位 */
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="104" name="Msg_PCAction_pose8" tags="" position="475,1350" size="100,100">/* 背后立位 */
 &lt;&lt;if T.action.id==&#39;t8&#39;&gt;&gt;
     &lt;&lt;actor&gt;&gt;让&lt;&lt;target&gt;&gt;找个地方站好，然后从背后把阴茎插入&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;。&lt;br&gt;
 &lt;&lt;else&gt;&gt;
     &lt;&lt;actor&gt;&gt;找个地方靠站着，掰开自己肉瓣勾引着对方，让&lt;&lt;target&gt;&gt;从背后进入自己的&lt;&lt;actPart&gt;&gt;&lt;br&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="110" name="ComList" tags="list" position="1225,1350" size="100,100">/* 常规指令 */
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="105" name="ComList" tags="list" position="600,1350" size="100,100">/* 常规指令 */
 #常规,id ,name    ,tags    ,time
 G0       ,移动    ,交流    ,1
 G1       ,放松    ,休息    ,15
@@ -14797,51 +14751,51 @@ X1       ,玩乳头(触)
 X2       ,吸乳头(触)
 X3       ,撸阴茎(触)
 X4       ,玩后穴(触)
-X5       ,玩私穴(触)</tw-passagedata><tw-passagedata pid="111" name="Command::Before" tags="" position="100,1475" size="100,100">/* 指令执行前的通用文本。时间段提示、场景变换等。如果有运行代码不放这里。*/
+X5       ,玩私穴(触)</tw-passagedata><tw-passagedata pid="106" name="Command::Before" tags="" position="725,1350" size="100,100">/* 指令执行前的通用文本。时间段提示、场景变换等。如果有运行代码不放这里。*/
 &lt;&lt;if $date.time &gt;= 1080 &amp;&amp; !_timeCheckNight&gt;&gt;
 &lt;&lt;set _timeCheckNight to true&gt;&gt;
 天开始暗下来了……&lt;br&gt;
 &lt;&lt;else&gt;&gt;
 &lt;&lt;set _noMsg to 1&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="112" name="Command::After" tags="" position="225,1475" size="100,100">/* 指令执行完毕时的通用事件文本。*/</tw-passagedata><tw-passagedata pid="113" name="Command_G0" tags="" position="350,1475" size="100,100">休息了下</tw-passagedata><tw-passagedata pid="114" name="Command_G0:Script" tags="" position="475,1475" size="100,100">&lt;&lt;script&gt;&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="107" name="Command::After" tags="" position="850,1350" size="100,100">/* 指令执行完毕时的通用事件文本。*/</tw-passagedata><tw-passagedata pid="108" name="Command_G0" tags="" position="975,1350" size="100,100">休息了下</tw-passagedata><tw-passagedata pid="109" name="Command_G0:Script" tags="" position="1100,1350" size="100,100">&lt;&lt;script&gt;&gt;
 Com.set(&#39;G0&#39;)
     .Check(()=&gt;{})
     .Effect(()=&gt;{})
 
-&lt;&lt;/script&gt;&gt;</tw-passagedata><tw-passagedata pid="115" name="Com_G0" tags="" position="600,1475" size="100,100">/* 迟些切换成overlay？ */
-&lt;&lt;goto &#39;Map&#39;&gt;&gt;</tw-passagedata><tw-passagedata pid="116" name="Com_G1:Cancel" tags="" position="725,1475" size="100,100">暂时不用休息。&lt;br&gt;</tw-passagedata><tw-passagedata pid="117" name="Com_G1" tags="" position="850,1475" size="100,100">&lt;&lt;if $location.tags.includes(&#39;chair&#39;)&gt;&gt;
+&lt;&lt;/script&gt;&gt;</tw-passagedata><tw-passagedata pid="110" name="Com_G0" tags="" position="1225,1350" size="100,100">/* 迟些切换成overlay？ */
+&lt;&lt;goto &#39;Map&#39;&gt;&gt;</tw-passagedata><tw-passagedata pid="111" name="Com_G1:Cancel" tags="" position="100,1475" size="100,100">暂时不用休息。&lt;br&gt;</tw-passagedata><tw-passagedata pid="112" name="Com_G1" tags="" position="225,1475" size="100,100">&lt;&lt;if $location.tags.includes(&#39;chair&#39;)&gt;&gt;
 坐在椅子上休息了下，
 &lt;&lt;elseif $location.tags.includes(&#39;bed&#39;)&gt;&gt;
 在床上躺下放松，
 &lt;&lt;else&gt;&gt;
 找了个合适的地方坐下休息了一会，
 &lt;&lt;/if&gt;&gt;
-恢复了 $player.sup.stamina 点体力。&lt;br&gt;</tw-passagedata><tw-passagedata pid="118" name="Com_G2:Cancel" tags="" position="975,1475" size="100,100">&lt;&lt;you&gt;&gt;试着跟对方搭话，
+恢复了 $player.sup.stamina 点体力。&lt;br&gt;</tw-passagedata><tw-passagedata pid="113" name="Com_G2:Cancel" tags="" position="350,1475" size="100,100">&lt;&lt;you&gt;&gt;试着跟对方搭话，
 &lt;&lt;if !cond.canSpeak(tc)&gt;&gt;
 可惜$target.name没有能力回应&lt;&lt;you&gt;&gt;。
 &lt;&lt;else&gt;&gt;
 但$target.name并没有心情理会&lt;&lt;you&gt;&gt;。
-&lt;&lt;/if&gt;&gt;&lt;br&gt;</tw-passagedata><tw-passagedata pid="119" name="Com_G2" tags="" position="1100,1475" size="100,100">&lt;&lt;you&gt;&gt;试着跟$target.name搭话。&lt;br&gt;</tw-passagedata><tw-passagedata pid="120" name="//Com_G2:Before" tags="" position="1225,1475" size="100,100">/*取消前的文本sample */
+&lt;&lt;/if&gt;&gt;&lt;br&gt;</tw-passagedata><tw-passagedata pid="114" name="Com_G2" tags="" position="475,1475" size="100,100">&lt;&lt;you&gt;&gt;试着跟$target.name搭话。&lt;br&gt;</tw-passagedata><tw-passagedata pid="115" name="//Com_G2:Before" tags="" position="600,1475" size="100,100">/*取消前的文本sample */
 $player.name走近$target.name准备搭话。&lt;br&gt;
-&lt;&lt;linkreplace &#39;取消&#39;&gt;&gt;&lt;&lt;resetLink&gt;&gt;&lt;&lt;resetScene&gt;&gt;&lt;&lt;/linkreplace&gt;&gt;&lt;br&gt;</tw-passagedata><tw-passagedata pid="121" name="Com_G2::After" tags="" position="100,1600" size="100,100">/*指令结束时的文本sample */
-好感增加了一点。&lt;br&gt;</tw-passagedata><tw-passagedata pid="122" name="Com_T0" tags="" position="225,1600" size="100,100">&lt;&lt;you&gt;&gt;的手在$target.name的身上四处游走着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="123" name="Com_T1" tags="" position="350,1600" size="100,100">&lt;&lt;you&gt;&gt;把手覆盖在$target.name的胸上开始抚摸。&lt;br&gt;</tw-passagedata><tw-passagedata pid="124" name="Com_T2" tags="" position="475,1600" size="100,100">&lt;&lt;you&gt;&gt;用手轻轻捏住了$target.name的乳头&lt;br&gt;</tw-passagedata><tw-passagedata pid="125" name="Com_T3" tags="" position="600,1600" size="100,100">&lt;&lt;you&gt;&gt;用嘴含住了$target.name的乳头，吮吸着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="126" name="Com_T4" tags="" position="725,1600" size="100,100">&lt;&lt;you&gt;&gt;轻轻握住了$target.name的阴茎，缓缓地前后撸动。&lt;br&gt;</tw-passagedata><tw-passagedata pid="127" name="Com_T5" tags="" position="850,1600" size="100,100">&lt;&lt;you&gt;&gt;将手指探入$target.name的&lt;&lt;=P.splitSex($target,&#39;菊穴&#39;,&#39;秘穴&#39;)&gt;&gt;在入口附近摩擦着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="128" name="Com_T99" tags="" position="975,1600" size="100,100">&lt;&lt;if $mode !== &#39;train&#39; &gt;&gt;
+&lt;&lt;linkreplace &#39;取消&#39;&gt;&gt;&lt;&lt;resetLink&gt;&gt;&lt;&lt;resetScene&gt;&gt;&lt;&lt;/linkreplace&gt;&gt;&lt;br&gt;</tw-passagedata><tw-passagedata pid="116" name="Com_G2::After" tags="" position="725,1475" size="100,100">/*指令结束时的文本sample */
+好感增加了一点。&lt;br&gt;</tw-passagedata><tw-passagedata pid="117" name="Com_T0" tags="" position="850,1475" size="100,100">&lt;&lt;you&gt;&gt;的手在$target.name的身上四处游走着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="118" name="Com_T1" tags="" position="975,1475" size="100,100">&lt;&lt;you&gt;&gt;把手覆盖在$target.name的胸上开始抚摸。&lt;br&gt;</tw-passagedata><tw-passagedata pid="119" name="Com_T2" tags="" position="1100,1475" size="100,100">&lt;&lt;you&gt;&gt;用手轻轻捏住了$target.name的乳头&lt;br&gt;</tw-passagedata><tw-passagedata pid="120" name="Com_T3" tags="" position="1225,1475" size="100,100">&lt;&lt;you&gt;&gt;用嘴含住了$target.name的乳头，吮吸着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="121" name="Com_T4" tags="" position="100,1600" size="100,100">&lt;&lt;you&gt;&gt;轻轻握住了$target.name的阴茎，缓缓地前后撸动。&lt;br&gt;</tw-passagedata><tw-passagedata pid="122" name="Com_T5" tags="" position="225,1600" size="100,100">&lt;&lt;you&gt;&gt;将手指探入$target.name的&lt;&lt;=P.splitSex($target,&#39;菊穴&#39;,&#39;秘穴&#39;)&gt;&gt;在入口附近摩擦着。&lt;br&gt;</tw-passagedata><tw-passagedata pid="123" name="Com_T99" tags="" position="350,1600" size="100,100">&lt;&lt;if $mode !== &#39;train&#39; &gt;&gt;
 &lt;&lt;you&gt;&gt;将$target.name带到没人注意到的角落。&lt;br&gt;
 &lt;&lt;=Kojo.put($tc, &#39;Com&#39;, &#39;T99&#39;, &#39;start&#39;)&gt;&gt;
 
 &lt;&lt;else&gt;&gt;
 &lt;&lt;you&gt;&gt;帮$target.name整理好衣服。&lt;br&gt;
 &lt;&lt;=Kojo.put($tc, &#39;Com&#39;, &#39;T99&#39;, &#39;finish&#39;)&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="129" name="Com_X1" tags="" position="1100,1600" size="100,100">触手&lt;&lt;=(T.force? `强行爬上${$target.name}的身躯，` : &#39;&#39; )&gt;&gt;沿着$target.name的肌肤往胸部游走，缠绕在乳尖上开始蠕动。&lt;br&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="124" name="Com_X1" tags="" position="475,1600" size="100,100">触手&lt;&lt;=(T.force? `强行爬上${$target.name}的身躯，` : &#39;&#39; )&gt;&gt;沿着$target.name的肌肤往胸部游走，缠绕在乳尖上开始蠕动。&lt;br&gt;
 &lt;&lt;=either([
     &#39;缠绕、蠕动。&#39;,&#39;揉捏、摩擦。&#39;,&#39;挑弄、点拨。&#39;,&#39;蠕动、揉捏。&#39;,&#39;挑逗、缠绕、扭捏。&#39;
 ])&gt;&gt;触手不停地反复着动作，时重时轻地对乳尖反复进行刺激。
-&lt;br&gt;</tw-passagedata><tw-passagedata pid="130" name="//Com_X1:Fail" tags="" position="1225,1600" size="100,100">因为对方不配合而取消时的文本。
-口上分支是 Kojo_Chara_Com_id:Failed</tw-passagedata><tw-passagedata pid="131" name="//Com_X1:Force" tags="" position="100,1725" size="100,100">整个事件脉络都不一样时。
+&lt;br&gt;</tw-passagedata><tw-passagedata pid="125" name="//Com_X1:Fail" tags="" position="600,1600" size="100,100">因为对方不配合而取消时的文本。
+口上分支是 Kojo_Chara_Com_id:Failed</tw-passagedata><tw-passagedata pid="126" name="//Com_X1:Force" tags="" position="725,1600" size="100,100">整个事件脉络都不一样时。
 直接用:Force做分支。
-口上分支是 Kojo_Chara_Com_id:Force;</tw-passagedata><tw-passagedata pid="132" name="Com_X2" tags="" position="225,1725" size="100,100">触手&lt;&lt;=(T.force? `强行爬上${$target.name}的身躯，` : &#39;&#39; )&gt;&gt;沿着$target.name的肌肤往胸部游走，张开吸盘吸附在乳尖上，伸出触须吸舔乳尖。&lt;br&gt;</tw-passagedata><tw-passagedata pid="133" name="Com_X3" tags="" position="350,1725" size="100,100"></tw-passagedata><tw-passagedata pid="134" name="Com_X4" tags="" position="475,1725" size="100,100"></tw-passagedata><tw-passagedata pid="135" name="Com_X5" tags="" position="600,1725" size="100,100"></tw-passagedata><tw-passagedata pid="136" name="CommandLoop:Before" tags="" position="725,1725" size="100,100">/*纯代码区，最先处理 */
+口上分支是 Kojo_Chara_Com_id:Force;</tw-passagedata><tw-passagedata pid="127" name="Com_X2" tags="" position="850,1600" size="100,100">触手&lt;&lt;=(T.force? `强行爬上${$target.name}的身躯，` : &#39;&#39; )&gt;&gt;沿着$target.name的肌肤往胸部游走，张开吸盘吸附在乳尖上，伸出触须吸舔乳尖。&lt;br&gt;</tw-passagedata><tw-passagedata pid="128" name="Com_X3" tags="" position="975,1600" size="100,100"></tw-passagedata><tw-passagedata pid="129" name="Com_X4" tags="" position="1100,1600" size="100,100"></tw-passagedata><tw-passagedata pid="130" name="Com_X5" tags="" position="1225,1600" size="100,100"></tw-passagedata><tw-passagedata pid="131" name="CommandLoop:Before" tags="" position="100,1725" size="100,100">/*纯代码区，最先处理 */
 &lt;&lt;if !$selectCom&gt;&gt;
 &lt;&lt;set $selectCom = &#39;&#39;&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="137" name="CommandLoop:After" tags="" position="850,1725" size="100,100">/*纯代码区，最后处理 */</tw-passagedata><tw-passagedata pid="138" name="CommandLoop" tags="" position="975,1725" size="100,100">&lt;div id=&#39;hidden&#39; class=&#39;hidden&#39;&gt;you can&#39;t see me.&lt;/div&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="132" name="CommandLoop:After" tags="" position="225,1725" size="100,100">/*纯代码区，最后处理 */</tw-passagedata><tw-passagedata pid="133" name="CommandLoop" tags="" position="350,1725" size="100,100">&lt;div id=&#39;hidden&#39; class=&#39;hidden&#39;&gt;you can&#39;t see me.&lt;/div&gt;
 &lt;div id=&#39;location&#39;&gt;&lt;/div&gt;
 &lt;br&gt;
 &lt;div id=&#39;content&#39; class=&#39;content&#39; onClick=&#39;if(S.msg)Com.next();&#39;&gt;
@@ -14866,7 +14820,7 @@ Com.updateScene()
 Com.updateMenu()
 Com.initList()
 
-&lt;/script&gt;</tw-passagedata><tw-passagedata pid="139" name="Messsage_Com_2" tags="" position="1100,1725" size="100,100">$target.name随意地敷衍着你&lt;br&gt;</tw-passagedata><tw-passagedata pid="140" name="Message_Com_20" tags="" position="1225,1725" size="100,100"></tw-passagedata><tw-passagedata pid="141" name="CharaSheet_Amia" tags="csv" position="100,1850" size="100,100">/* 正确的注释打开方式,不做设置的项目要删干净. */
+&lt;/script&gt;</tw-passagedata><tw-passagedata pid="134" name="Messsage_Com_2" tags="" position="475,1725" size="100,100">$target.name随意地敷衍着你&lt;br&gt;</tw-passagedata><tw-passagedata pid="135" name="Message_Com_20" tags="" position="600,1725" size="100,100"></tw-passagedata><tw-passagedata pid="136" name="CharaSheet_Amia" tags="csv" position="725,1725" size="100,100">/* 正确的注释打开方式,不做设置的项目要删干净. */
 
 id, Amia
 name, 阿米娅
@@ -14921,7 +14875,7 @@ exp.同性, 30+random(100)
 organ.v.size, 1
 
 flag.jobfame, 120
-flag.schoolfame, 20</tw-passagedata><tw-passagedata pid="142" name="CharaSheet_Besta" tags="csv" position="225,1850" size="100,100">id, Besta
+flag.schoolfame, 20</tw-passagedata><tw-passagedata pid="137" name="CharaSheet_Besta" tags="csv" position="850,1725" size="100,100">id, Besta
 name, 贝斯塔
 
 gender, male
@@ -15004,7 +14958,7 @@ virginity.anal, 不明, 不明, 在一次酒吧派对上、醉酒后与伙伴发
 virginity.analsex, 不明, 不明, 在一次酒吧派对上、醉酒后与伙伴发生了关系。
 virginity.penis, 不明, 不明, 在一次酒吧派对上、醉酒后与伙伴发生了关系。
 virginity.vagina, 不明, 不明, 在一次酒吧派对上、醉酒后与伙伴发生了关系。
-virginity.vaginasex, 不明, 不明, 在一次酒吧派对上、醉酒后与伙伴发生了关系。</tw-passagedata><tw-passagedata pid="143" name="CharaSheet_Nanaly" tags="csv" position="350,1850" size="100,100">id, Nanaly
+virginity.vaginasex, 不明, 不明, 在一次酒吧派对上、醉酒后与伙伴发生了关系。</tw-passagedata><tw-passagedata pid="138" name="CharaSheet_Nanaly" tags="csv" position="975,1725" size="100,100">id, Nanaly
 name, 娜娜莉
 surname, 艾索斯
 
@@ -15057,7 +15011,7 @@ sbl.desire, 2
 
 exp.自慰, 30+random(30)
 
-virginity.anal, 震动棒, 不明, 以某人为幻想对象,用震动棒自行破处</tw-passagedata><tw-passagedata pid="144" name="CharaSheet_Rena" tags="csv" position="475,1850" size="100,100">/* 正确的注释打开方式 */
+virginity.anal, 震动棒, 不明, 以某人为幻想对象,用震动棒自行破处</tw-passagedata><tw-passagedata pid="139" name="CharaSheet_Rena" tags="csv" position="1100,1725" size="100,100">/* 正确的注释打开方式 */
 
 id, Rena
 name, 蕾娜
@@ -15122,7 +15076,75 @@ flag.jobfame, 120
 flag.schoolfame, 20
 
 virginity.kiss, 初恋对象, 不明, 告白后一个冲动吻上了对方
-virginity.vagina, 自己的手指, 不明, 对初恋对象进行性幻想时用手指破了自己处</tw-passagedata><tw-passagedata pid="145" name="Kojo_Ayres" tags="widget" position="600,1850" size="100,100">/* 自定义小功能区 */
+virginity.vagina, 自己的手指, 不明, 对初恋对象进行性幻想时用手指破了自己处</tw-passagedata><tw-passagedata pid="140" name="StoryDisplayTitle" tags="" position="1225,1725" size="100,100">Era the Cursed</tw-passagedata><tw-passagedata pid="141" name="StoryInit" tags="" position="100,1850" size="100,100">&lt;&lt;run 
+    game.init();
+    Chara.init(); 
+&gt;&gt;
+
+/*诅咒相关 */
+&lt;&lt;set $cursedLord= {
+    name:&#39;诅咒之触&#39;,
+    level: 0,
+    MP:0,
+    abl:{
+        len:0,
+        thick:0,
+        num:0,
+        form:0,
+        drug:0,
+        hypnos:0,
+        cum:0,
+        scale:0,
+    },
+    trait:[&#39;光滑&#39;],
+}&gt;&gt;</tw-passagedata><tw-passagedata pid="142" name="Start" tags="nosave, title" position="225,1850" size="100,100">&lt;div id=&#39;gametitle&#39;&gt;
+Era the Cursed
+&lt;/div&gt;
+&lt;div id=&#39;gamesubtitle&#39;&gt;
+- 伊希露的诅咒 -
+&lt;/div&gt;
+&lt;div id=&#39;gametitle_selection&#39;&gt;
+&lt;&lt;link &#39;开始游戏&#39; &#39;Start1&#39;&gt;&gt;&lt;&lt;/link&gt;&gt;&lt;br&gt;
+&lt;&lt;link &#39;游戏设置&#39; &#39;Option&#39;&gt;&gt;&lt;&lt;/link&gt;&gt;&lt;br&gt;
+&lt;/div&gt;
+
+&lt;div id=&#39;footer&#39;&gt;
+开发者工具：
+&lt;&lt;link &#39;地图编辑器&#39; &#39;MapEditor&#39;&gt;&gt;&lt;&lt;/link&gt;&gt;
+　
+&lt;&lt;link &#39;口上编辑器&#39; &#39;KojoEditor&#39;&gt;&gt;&lt;&lt;/link&gt;&gt;
+　
+&lt;&lt;link &#39;获取口上模板&#39;&gt;&gt;&lt;&lt;run Action.output(&#39;kojo&#39;); Action.output(&#39;kojocounter&#39;)&gt;&gt;&lt;&lt;/link&gt;&gt;
+　
+&lt;&lt;link &#39;获取系统文模板&#39;&gt;&gt;&lt;&lt;run Action.output(&#39;msg&#39;)&gt;&gt;&lt;&lt;/link&gt;&gt;
+　
+&lt;&lt;link &#39;获取指令设置模板&#39;&gt;&gt;&lt;&lt;run Action.output(&#39;script&#39;)&gt;&gt;&lt;&lt;/link&gt;&gt;
+　
+&lt;&lt;link &#39;快速重启&#39;&gt;&gt;&lt;&lt;run Engine.restart()&gt;&gt;&lt;&lt;/link&gt;&gt;&lt;br&gt;
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="143" name="Option" tags="nosave, system" position="350,1850" size="100,100">&lt;li&gt;总是显示主控角色名称 &lt;&lt;checkbox &#39;$system.alwaysShowPCName&#39; 0 1 autocheck&gt;&gt;&lt;/li&gt;
+&lt;li&gt;总是显示配合度检测  &lt;&lt;checkbox &#39;$system.showOrder&#39; 0 1 autocheck&gt;&gt;&lt;/li&gt;
+&lt;li title=&#39;推荐打开哦。&#39;&gt;指令模式下，如果存在PC口上则优先显示 &lt;&lt;checkbox &#39;$system.showPCKojo&#39; 0 1 autocheck&gt;&gt;&lt;/li&gt;
+
+&lt;&lt;link &#39;Back&#39; $lastsession&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="144" name="Start1" tags="nosave, nobar" position="475,1850" size="100,100">游戏初始设定&lt;br&gt;
+&lt;&lt;dashline&gt;&gt;
+
+&lt;&lt;tips &#39;你&#39; &#39;curse&#39;&gt;&gt;：&lt;&lt;textbox &quot;$cursedLord.name&quot; $cursedLord.name&gt;&gt;&lt;br&gt;
+&lt;br&gt;
+&lt;&lt;tips &#39;执行者&#39; &#39;ayres&#39;&gt;&gt;：&lt;&lt;textbox &quot;$player.name&quot; $player.name&gt;&gt; · $player.surname&lt;br&gt;
+&lt;br&gt;
+&lt;&lt;tips &#39;伴侣&#39; &#39;isil&#39;&gt;&gt;：&lt;&lt;textbox &quot;$target.name&quot; $target.name&gt;&gt; · $target.midname · $target.surname&lt;br&gt;
+&lt;br&gt;
+全员扶她化？ &lt;&lt;checkbox &quot;_futa&quot; _futa autocheck&gt;&gt;&lt;br&gt;
+全员清除默认经验？ &lt;&lt;checkbox &quot;_newbie&quot; _newbie 1 autocheck&gt;&gt;&lt;br&gt;
+主CP纯女性化？ &lt;&lt;checkbox &quot;_lesCP&quot; _lesCP autocheck&gt;&gt;&lt;br&gt;
+
+&lt;&lt;dashline&gt;&gt;
+准备好了吗？ 准备好就开始吧。&lt;br&gt;
+
+&lt;br&gt;
+&lt;&lt;link &#39;开始游戏&#39; &#39;EventStart&#39;&gt;&gt;&lt;&lt;run game.start()&gt;&gt;&lt;&lt;/link&gt;&gt;&lt;br&gt;
+&lt;&lt;link &#39;跳过片头直接开始&#39; &#39;MainLoop&#39;&gt;&gt;&lt;&lt;run game.start(1)&gt;&gt;&lt;&lt;/link&gt;&gt;
+&lt;br&gt;&lt;br&gt;</tw-passagedata><tw-passagedata pid="145" name="Kojo_Ayres" tags="widget" position="600,1850" size="100,100">/* 自定义小功能区 */
 &lt;&lt;widget &quot;AyresGetDom&quot;&gt;&gt;
 &lt;&lt;if args[0]&gt;&gt;
 &lt;&lt;set Cflag[&#39;Ayres&#39;].dom += parseInt(args[0])&gt;&gt;

@@ -1,4 +1,4 @@
-﻿setup.Path = ""; // Running in a browser
+﻿setup.Path = "./public/"; // Running in a browser
 setup.ImagePath = setup.Path + "image/";
 setup.SoundPath = setup.Path + "sound/";
 
@@ -69,3 +69,14 @@ window.saveToFile = function () {
 if (!fs || !fs.existsSync || !os) {
 	console.log("node.js not supported");
 }
+
+window.SaveGame = function (slot, meta) {};
+
+window.test = async function () {
+	try {
+		const dir = await fs.opendirSync("./");
+		for await (const dirent of dir) console.log(dirent.name);
+	} catch (err) {
+		console.error(err);
+	}
+};

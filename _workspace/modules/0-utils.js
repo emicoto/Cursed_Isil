@@ -198,18 +198,8 @@ function getKeyByValue(object, value) {
     (key) => object[key] === value || object[key].includes(value) || Array.isArray(object[key]) && (object[key].includes(value) || findArray(object[key], value))
   );
 }
-function setByPath(obj, path) {
-  const pathArray = path.split(".");
-  const last = pathArray.pop();
-  for (let i = 0; i < pathArray.length; i++) {
-    if (!obj[pathArray[i]])
-      obj[pathArray[i]] = {};
-    obj = obj[pathArray[i]];
-  }
-  if (!obj[last]) {
-    obj[last] = {};
-  }
-  return obj[last];
+function getIndexByValue(array, value) {
+  return array.findIndex((item) => item === value);
 }
 Object.defineProperties(window, {
   isObject: { value: isObject },
@@ -236,7 +226,7 @@ Object.defineProperties(window, {
   setVByPath: { value: setVByPath },
   getByPath: { value: getByPath },
   getKeyByValue: { value: getKeyByValue },
-  setByPath: { value: setByPath }
+  getIndexByValue: { value: getIndexByValue }
 });
 
 class SelectCase {

@@ -62,22 +62,19 @@
 	});
 
 	class Item {
-	  static newId(type, cate) {
-	    const len = Db[type].length;
+	  static newId(group, cate) {
+	    const len = Db[group].length;
 	    if (cate) {
-	      return `${type.toUpperCase()[0]}${cate}_${len}`;
+	      return `${group.toUpperCase()[0]}${cate}_${len}`;
 	    } else {
-	      return `${type}_${len}`;
+	      return `${group}_${len}`;
 	    }
 	  }
-	  static new(name, des, type, cate = "") {
-	    getByPath(Db, type + cate ? `.${cate}` : "");
-	  }
-	  constructor(name, des = name, type = "Items", cate = "") {
-	    this.id = Item.newId(type, cate);
+	  constructor(name, des = name, group = "Items", cate = "") {
+	    this.id = Item.newId(group, cate);
 	    this.name = name;
 	    this.des = des;
-	    this.type = type;
+	    this.group = group;
 	    this.category = cate;
 	  }
 	  Price(num) {
@@ -102,10 +99,14 @@
 	    });
 	    return this;
 	  }
-	  Effect(...palam) {
-	    palam.forEach(([key, t, a, m]) => {
-	      this.effect[key] = { t, a, m };
+	  Source(...palam) {
+	    palam.forEach(([key, m, v]) => {
+	      this.source[key] = { m, v };
 	    });
+	    return this;
+	  }
+	  Method(method) {
+	    this.method = method;
 	    return this;
 	  }
 	}
@@ -1733,7 +1734,8 @@
 	  UI: {},
 	  printer: {},
 	  utils: {},
-	  fix: {}
+	  fix: {},
+	  effects: {}
 	};
 	window.gamedata = {};
 	window.languagedata = {};
@@ -1776,6 +1778,11 @@
 	  fix: {
 	    get: function() {
 	      return window.gameutils.fix;
+	    }
+	  },
+	  Effect: {
+	    get: function() {
+	      return window.gameutils.effects;
 	    }
 	  }
 	});

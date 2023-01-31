@@ -13,7 +13,8 @@ Kojo.set('Nanaly', '#66CCFF') //角色id与 名牌颜色
 
     .Event()
 
-
+:: Kojo_Nanaly_Exist
+/* 文件存在性检测 */
 :: Kojo_Nanaly[widget]
 /* 自定义小功能区 */
 <<widget "NanalyToolname">>

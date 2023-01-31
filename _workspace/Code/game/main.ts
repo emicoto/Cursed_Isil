@@ -32,11 +32,12 @@ declare global {
 
 window.database = {};
 window.gameutils = {
-	condition: {},
-	UI: {},
-	printer: {},
-	utils: {},
-	fix: {},
+	condition: {}, //条件判断
+	UI: {}, //UI控制
+	printer: {}, //文本、html打印
+	utils: {}, //工具库
+	fix: {}, //数值修正器
+	effects: {}, //物品或技能的效果库
 };
 window.gamedata = {}; //游戏资料
 window.languagedata = {};
@@ -83,6 +84,11 @@ Object.defineProperties(window, {
 	fix: {
 		get: function () {
 			return window.gameutils.fix;
+		},
+	},
+	Effect: {
+		get: function () {
+			return window.gameutils.effects;
 		},
 	},
 });

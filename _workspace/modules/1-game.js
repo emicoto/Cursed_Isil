@@ -70,6 +70,11 @@
 	      return `${group}_${len}`;
 	    }
 	  }
+	  static init() {
+	    D.itemGroup.forEach((group) => {
+	      Db[group] = /* @__PURE__ */ new Map();
+	    });
+	  }
 	  constructor(name, des = name, group = "Items", cate = "") {
 	    this.id = Item.newId(group, cate);
 	    this.name = name;

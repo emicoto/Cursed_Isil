@@ -77,6 +77,7 @@ F.initKojoEditor = function () {
 		"LoseMark|Hypnosis|失去催眠刻印",
 	];
 	T.eventOption = eventList;
+	T.npcId = "NPCID";
 };
 
 F.getEventTemplet = function () {
@@ -104,8 +105,7 @@ F.getEventTemplet = function () {
 };
 
 F.makeSelectionEvent = function () {
-	let txt = $("#kojotext").val();
-	txt += `\n\n#:{ "type":"selectEnd" }\n<<eventSelect>>\n<<select '分支选项1'>>\n<<set $event.sp = 1>>\n<<select '分支选项2'>>\n<<set $event.sp = 2>>\n<</eventSelect>>\n\n\n :: Kojo_${$(
+	const insertTxt = `\n\n#:{ "type":"selectEnd" }\n<<eventSelect>>\n<<select '分支选项1'>>\n<<set $event.sp = 1>>\n<<select '分支选项2'>>\n<<set $event.sp = 2>>\n<</eventSelect>>\n\n\n :: Kojo_${$(
 		"#input-npcid"
 	).val()}_Event_${
 		T.eventID.split("|")[1]
@@ -123,37 +123,41 @@ F.makeSelectionEvent = function () {
 		T.eventID.split("|")[1]
 	}:sp2\n 选了分支B后显示的文本。\n\n#:{ "type":"endPhase", ep:1 }\n最后一段记得加上'endPhase'的设置。并指定下一个章节。\n\n`;
 
-	$("#kojotext").val(txt);
+	F.insertTxt(insertTxt);
 };
 
 F.loadCharaKojoFile = function () {
-	let txt = fs.readFileSync(`./_workspace/gamecode/Kojo/${T.npcID}/${T.file}.twee`, "utf8");
+	let txt = fs.readFileSync(`./_workspace/gamecode/Kojo/${T.npcId}/${T.file}.twee`, "utf8");
 	$("#kojotext").val(txt);
 };
 
 F.saveCharaKojoFile = function () {
 	let txt = $("#kojotext").val();
-	fs.writeFileSync(`./_workspace/gamecode/Kojo/${T.npcID}/${T.file}.twee`, txt, "utf8");
+	fs.writeFileSync(`./_workspace/gamecode/Kojo/${T.npcId}/${T.file}.twee`, txt, "utf8");
 };
 
 F.npcIdOnChange = async function () {
-	let html = `角色ID: <input id='input-npcid' type='text' value='NPCID'>`;
+	let html = `角色ID: <input id='input-npcid' type='text' @value='_npcId'>`;
 	const id = $("#input-npcid").val();
 	let txt = $("#kojotext").val();
 	let match = txt.match(/Kojo_(\S+)_/);
 	if (match) {
 		txt = txt.replace(match[1], id);
 	}
-	T.npcID = id;
+	if (T.npcId !== id) T.npcId = id;
+
 	$("#kojotext").val(txt);
 
-	if (Kojo.get(T.npcID)) {
+	if (fs) console.log("has fs");
+	else console.log("fs not found");
+
+	if (fs && Kojo.get(T.npcId)) {
 		//遍历角色对应的文件夹。
-		let files = await fs.readdirSync(`./_workspace/gamecode/Kojo/${T.npcID}`);
+		let files = await fs.readdirSync(`./_workspace/gamecode/Kojo/${T.npcId}`);
 		T.fileList = [];
 		let i = 0;
 		for (const file of files) {
-			if (file.includes("twee")) fileList[i] = file.split(".")[0];
+			if (file.includes("twee")) T.fileList[i] = file.split(".")[0];
 			i++;
 		}
 
@@ -161,4 +165,61 @@ F.npcIdOnChange = async function () {
 
 		new Wikifier(null, `<<replace #charaId>>${html}<</replace>>`);
 	}
+};
+
+F.insertSwitch = function () {
+	const insert = `\n<<switch Cflag["${$(
+		"#input-npcid"
+	).val()}"].flagname >>\n<<case "差分A">>\n差分A显示的文本。\n<<case "差分B">>\n差分B显示的文本。<</switch>>`;
+
+	//获取当前输入光标位置，插入文本
+	F.insertTxt(insert);
+};
+
+F.insertRandomTxt = function () {
+	const insert = `\n<<=either([\n    "随机文本A。",\n    "随机文本B。",\n    "随机文本C。",\n])>>`;
+
+	//获取当前输入光标位置，插入文本
+	F.insertTxt(insert);
+};
+
+F.insertSelection = function () {
+	const insert = `\n<<selection replace>>\n<<pick "选项A">>\n选择A之后显示的文本。\n<<pick "选项B">>\n选择B之后显示的文本。\n<</selection>>`;
+
+	//获取当前输入光标位置，插入文本
+	F.insertTxt(insert);
+};
+
+F.insertTxt = function (insert) {
+	//获取当前输入光标位置，插入文本
+	let cursorPos = $("#kojotext").prop("selectionStart");
+	let v = $("#kojotext").val();
+	let textBefore = v.substring(0, cursorPos);
+	let textAfter = v.substring(cursorPos, v.length);
+	$("#kojotext").val(textBefore + insert + textAfter);
+};
+
+//检测用户的输入，如果连续按两次回车，则自动插入<br>
+F.checkEnter = function () {
+	if (T.lastEnter === true) {
+		F.insertBR();
+		T.lastEnter = false;
+	} else {
+		F.insertTxt("\n");
+		T.lastEnter = true;
+	}
+};
+
+F.insertBR = function () {
+	let cursorPos = $("#kojotext").prop("selectionStart");
+	let v = $("#kojotext").val();
+	let textBefore = v.substring(0, cursorPos);
+	let textAfter = v.substring(cursorPos, v.length);
+
+	//先删除最后一个换行符
+	textBefore = textBefore.replace(/\n$/, "");
+	//再插入br
+	$("#kojotext").val(textBefore + "<br>\n" + textAfter);
+	//光标的位置也要挪一下，跟在br后面
+	$("#kojotext").prop("selectionEnd", cursorPos + 3);
 };

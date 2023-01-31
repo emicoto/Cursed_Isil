@@ -3,6 +3,8 @@ D.race = ["human", "elvin", "deamon", "wolves", "drawf", "goblin", "catvinx", "c
 D.basicneeds = ["health", "stamina", "sanity", "mana", "hydration", "nutrient", "dirty"];
 D.basicpalam = ["drug", "alcohol", "stress", "libido", "ecstacy", "cum", "milk"];
 
+D.itemGroup = ['Weapon', 'Shield', 'Clothes', 'Accesory', 'Items', 'Material', 'Recipies', 'Books']
+
 D.base = {
 	health: "健康",
 	stamina: "体力",

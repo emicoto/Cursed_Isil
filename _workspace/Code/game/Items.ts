@@ -65,6 +65,33 @@ export interface SexToy extends Item {
 	specialEffects?: string; //特殊效果
 }
 
+export interface Recipies {
+	//合成配方
+	id: string; //合成配方id
+	resultItemId: string; //合成结果物品id
+	result: number; //合成结果数量
+
+	requireLv: number; //需求最低技能等级
+	require: string[]; //合成所需物品
+
+	byproduct?: Array<[string, number]>; //副产物
+	byproductChance?: number; //副产物出现几率
+
+	failProduct?: Array<[string, number]>; //失败产物
+
+	rate: number; //合成成功率
+}
+
+export class Recipies {
+	constructor(itemId: string, result: number, requires: string[], rate: number) {
+		this.id = Db.Recipies.length;
+		this.resultItemId = itemId;
+		this.result = result;
+		this.require = requires;
+		this.rate = rate;
+	}
+}
+
 export class Item {
 	public static newId(group: string, cate?: string) {
 		const len = Db[group].length;
@@ -73,6 +100,11 @@ export class Item {
 		} else {
 			return `${group}_${len}`;
 		}
+	}
+	public static init() {
+		D.itemGroup.forEach((group) => {
+			Db[group] = new Map();
+		});
 	}
 	constructor(name: [string, string?], des: [string, string?] = name, group: ItemGroup = "Items", cate: string = "") {
 		this.id = Item.newId(group, cate);
@@ -131,6 +163,20 @@ export class Potion extends Item {
 	}
 	EffectsDecrease(num: number) {
 		this.effectsDecrease = num;
+		return this;
+	}
+	SpecialEffects(str: string) {
+		this.specialEffects = str;
+		return this;
+	}
+}
+
+export class SexToy extends Item {
+	constructor(name: [string, string?], des: [string, string?]) {
+		super(name, des, "Accessory", "SexToy");
+	}
+	Switchable() {
+		this.switchable = true;
 		return this;
 	}
 	SpecialEffects(str: string) {

@@ -12,4 +12,4 @@ export type MaterialType = "Metal" | "Wood" | "Stone" | "Leather" | "Cloth" | "H
 
 export type AccesoryType = "Facemask" | "Glasses" | "Earring" | "Chest" | "SexToy";
 
-export type potionType = "Heal" | "Restore" | "Buff" | "Debuff" | "Other";
+export type potionType = "Heal" | "Restore" | "Buff" | "Debuff" | "Misc";

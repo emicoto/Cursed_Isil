@@ -81,27 +81,20 @@ Chara.skinCounter = function (chara, t) {
 
 			let layer = skin[i];
 			dolayer(layer, t);
-			total[i] = {
-				kiss: countArray(layer, "kissmark"),
-				scars: countArray(layer, "scar"),
-				whips: countArray(layer, "whip"),
-				wounds: countArray(layer, "wound"),
-				pen: countArray(layer, "pen"),
-				bruise: countArray(layer, "bruise"),
-			};
+			D.scarType.forEach((type) => {
+				total[i][type] = countArray(layer, type);
+			});
 		}
 		return total;
 	};
 
 	const count = () => {
-		const result = {
-			kiss: [0, []],
-			scars: [0, []],
-			whips: [0, []],
-			wounds: [0, []],
-			pen: [0, []],
-			bruise: [0, []],
-		};
+		const result = {};
+
+		D.scarType.forEach((type) => {
+			result[type] = [0, []];
+		});
+
 		for (let i in total) {
 			for (let k in total[i]) {
 				if (total[i][k] > 0) {

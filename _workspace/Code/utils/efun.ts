@@ -221,9 +221,8 @@ export function getKeyByValue(object, value) {
 }
 
 export function getIndexByValue(array, value) {
-    return array.findIndex((item) => item === value);
+	return array.findIndex((item) => item === value);
 }
-
 
 Object.defineProperties(window, {
 	isObject: { value: isObject },
@@ -250,5 +249,5 @@ Object.defineProperties(window, {
 	setVByPath: { value: setVByPath },
 	getByPath: { value: getByPath },
 	getKeyByValue: { value: getKeyByValue },
-    getIndexByValue: { value: getIndexByValue },
+	getIndexByValue: { value: getIndexByValue },
 });

@@ -37,7 +37,7 @@ export interface appearance {
 
 	skincolor?: string;
 	beauty?: number;
-	bodysize?: number; //0=tiny 137~147, 1=small 147~164, 2=normal 164~174, 3=tall 174~184, 4=huge 184~200, 5=giant 200+
+	bodysize?: number; //0=tiny 137~147, 1=small 147~164, 2=normal 164~174, 3=tall 174~184, 4=verytall 184~200, 5=huge 200~220, 6=giant 220+
 	tall?: number; //mm
 	weight?: number; //kg
 }
@@ -304,8 +304,6 @@ export class Creature {
 		return this;
 	}
 	setUrin() {
-		const size = this.sexstats.u.size;
-
 		this.sexstats.u.d = this.fixUrinDiameter();
 		this.sexstats.u.l = this.GenerateUrinDepth();
 
@@ -346,7 +344,7 @@ export class Creature {
 
 	GenerateTall(size?) {
 		const bodysize = size !== undefined ? size : this.appearance.bodysize;
-		return bodysize * 150 + 1300 + random(1, 148);
+		return bodysize * 150 + 1300 + random(1, 150) + bodysize >= 5 ? random(100, 200) : random(1, 20);
 	}
 
 	GenerateBodysize(_tall?) {

@@ -3,7 +3,7 @@ D.race = ["human", "elvin", "deamon", "wolves", "drawf", "goblin", "catvinx", "c
 D.basicneeds = ["health", "stamina", "sanity", "mana", "hydration", "nutrient", "dirty"];
 D.basicpalam = ["drug", "alcohol", "stress", "libido", "ecstacy", "cum", "milk"];
 
-D.itemGroup = ['Weapon', 'Shield', 'Clothes', 'Accesory', 'Items', 'Material', 'Recipies', 'Books']
+D.itemGroup = ["weapon", "shield", "clothes", "accesory", "items", "material", "recipies", "books"];
 
 D.base = {
 	health: "健康",
@@ -18,13 +18,11 @@ D.base = {
 	drug: "药物",
 	alcohol: "酒精",
 	stress: "压力",
-	libido: "性欲",
-	esctacy: "快感",
-	cum: "射精",
-	milk: "喷乳",
+	libido: "性欲", //平日积累的性欲。跟调教时的欲情不是一个系统。
 };
 
 D.palam = {
+	esctacy: "快感", //快感值总条。 与射精or潮吹绑定。
 	//受方palam
 	arousal: "欲情", //欲望值，根据累积flag升级欲望lv。指令执行成功时概率获得依存值。
 	surrend: "屈从", //根据累积flag升级顺从Lv。屈从palamlv累计到一定值时获得刻印。指令执行成功时概率获得服从值/支配值。
@@ -300,3 +298,5 @@ D.actAbleParts = ["handR", "handL", "mouth", "penis", "vagina", "anal", "foot"];
 D.selectAbleParts = ["breast", "critoris", "urin", "ears", "neck", "butts", "nipple", "thighs", "abdomen"].concat(
 	D.actAbleParts
 );
+
+D.scarType = ["kissmark", "scar", "whip", "wound", "pen", "bruise", "tattoo", "band"];

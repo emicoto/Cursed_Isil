@@ -68,19 +68,19 @@ class Trait {
 		this.effect = callback;
 		return this;
 	}
-	setFix(callback) {
+	Fix(callback) {
 		this.onFix = callback;
 		return this;
 	}
-	setOrder(callback) {
+	Order(callback) {
 		this.onOrder = callback;
 		return this;
 	}
-	setSource(callback) {
+	Source(callback) {
 		this.onSource = callback;
 		return this;
 	}
-	setRest(callback) {
+	Rest(callback) {
 		this.onRest = callback;
 		return this;
 	}
@@ -101,7 +101,7 @@ Trait.init();
 
 const initials = ["M", "B", "C", "U", "V", "A"];
 
-Trait.set("M体质").setSource((cid, ...args) => {
+Trait.set("M体质").Source((cid, ...args) => {
 	initials.forEach((k) => {
 		if (Source[cid][`pa${k}`] > 0) {
 			Source[cid][`es${k}`] += Source[cid][`pa${k}`] * 0.2;
@@ -109,7 +109,7 @@ Trait.set("M体质").setSource((cid, ...args) => {
 	});
 });
 
-Trait.set("M倾向").setSource((cid, ...args) => {
+Trait.set("M倾向").Source((cid, ...args) => {
 	initials.forEach((k) => {
 		if (Source[cid][`pa${k}`] > 0) {
 			Source[cid][`es${k}`] += Source[cid][`pa${k}`] * 0.3;
@@ -137,13 +137,13 @@ Trait.set('易伤体质')
 */
 
 Trait.set("理智")
-	.setFix((base, ...args) => {
+	.Fix((base, ...args) => {
 		base.sanity[1] *= 1.2;
 	})
-	.setRest((cid, ...args) => {
+	.Rest((arg, ...args) => {
 		const list = ["fear", "mortify", "humilate", "depress", "resist", "uncomfort", "angry"];
 	})
-	.setOrder((cid, ...args) => {
+	.Order((id, ...args) => {
 		if (cond.isWeaker(tc, pc)) return 10;
 		else if (cond.baseLt(tc, "health", 0.3) || cond.baseLt(tc, "stamina", 0.1)) return 15;
 		else return 2;

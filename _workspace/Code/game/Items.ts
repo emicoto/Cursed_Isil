@@ -10,11 +10,13 @@ import {
 	statskey,
 	palamkey,
 	potionType,
+	ItemCategory,
+	weaponType,
+	materialType,
+	accesoryType,
 } from "./types";
 
 declare var Db: typeof window.Db;
-declare var V: typeof window.V;
-declare function getByPath(obj: any, path: string): any;
 declare function random(min: number, max: number): number;
 
 //各物品对个属性的影响。正数为加，负数为减，0为不变
@@ -32,7 +34,7 @@ export interface Item {
 	des: [string, string?]; //中文描述，英文描述。英文描述可选，若无则为中文描述
 	group: ItemGroup; //物品组
 
-	category?: string; //物品类型
+	category?: ItemCategory | materialType | accesoryType | potionType | weaponType | clothcategory; //物品类型
 	type?: string; //物品分类
 	tags?: string[]; //物品标签
 	shop?: shop[]; //入手途径或商店种类
@@ -46,8 +48,8 @@ export interface Item {
 }
 
 export interface Potion extends Item {
-	group: "Items";
-	category: "Potion";
+	group: "items";
+	category: "potion";
 	type: potionType;
 
 	daily?: number; //每日有效使用次数
@@ -57,8 +59,8 @@ export interface Potion extends Item {
 }
 
 export interface SexToy extends Item {
-	group: "Accessory";
-	category: "SexToy";
+	group: "accessory";
+	category: "sextoy";
 
 	switch?: boolean; //开关状态
 	switchable?: boolean; //是否可开关
@@ -83,6 +85,17 @@ export interface Recipies {
 }
 
 export class Recipies {
+	public static new(id, { resultItemId, result, require, rate }) {
+		Db[id].set(id, new Recipies(resultItemId, result, require, rate));
+	}
+	public static getByName(itemname: string) {
+		const itemId = Item.getByName("items", itemname).id;
+		return Db.Recipies.find((recipie) => recipie.resultItemId === itemId);
+	}
+	public static getBySrcName(itemname: string) {
+		const itemId = Item.getByName("items", itemname).id;
+		return Db.Recipies.find((recipie) => recipie.require.includes(itemId));
+	}
 	constructor(itemId: string, result: number, requires: string[], rate: number) {
 		this.id = Db.Recipies.length;
 		this.resultItemId = itemId;
@@ -101,12 +114,26 @@ export class Item {
 			return `${group}_${len}`;
 		}
 	}
+	public static getByName(group: ItemGroup, name: string) {
+		return Db[group].find((item) => item.name[0] === name || item.name[1] === name);
+	}
+	public static getTypelist(
+		group: ItemGroup,
+		cate: ItemCategory | materialType | accesoryType | potionType | weaponType | clothcategory
+	) {
+		return Db[group].filter((item) => item.category === cate);
+	}
 	public static init() {
 		D.itemGroup.forEach((group) => {
 			Db[group] = new Map();
 		});
 	}
-	constructor(name: [string, string?], des: [string, string?] = name, group: ItemGroup = "Items", cate: string = "") {
+	constructor(
+		name: [string, string?],
+		des: [string, string?] = name,
+		group: ItemGroup = "items",
+		cate: ItemCategory | materialType | accesoryType | potionType | weaponType | clothcategory = ""
+	) {
 		this.id = Item.newId(group, cate);
 		this.name = name;
 		this.des = des;
@@ -150,7 +177,7 @@ export class Item {
 
 export class Potion extends Item {
 	constructor(name: [string, string?], des: [string, string?], type: potionType) {
-		super(name, des, "Items", "Potion");
+		super(name, des, "items", "potion");
 		this.type = type;
 	}
 	Daily(num: number) {
@@ -173,7 +200,7 @@ export class Potion extends Item {
 
 export class SexToy extends Item {
 	constructor(name: [string, string?], des: [string, string?]) {
-		super(name, des, "Accessory", "SexToy");
+		super(name, des, "accessory", "sextoy");
 	}
 	Switchable() {
 		this.switchable = true;
@@ -188,7 +215,7 @@ export class SexToy extends Item {
 export interface Clothes extends Item {
 	id: string; //在库中所登记的id,
 	uid?: string; //购买时生成的绝对id，6位数字
-	group: "Clothes"; //物品组
+	group: "clothes"; //物品组
 	category: clothcategory;
 
 	name: [string, string?];
@@ -197,8 +224,6 @@ export interface Clothes extends Item {
 
 	gender: gender;
 	tags: clothtags[];
-
-	price: number;
 
 	color: [string?, string?]; //默认色,颜色名字
 	cover: coverparts[]; //覆盖部位
@@ -210,11 +235,13 @@ export interface Clothes extends Item {
 	defence: number; //防御加值，加数, 范围在 0-6 之间
 
 	cursed?: 0 | 1; //是否诅咒物品。如果是则无法脱下
+
+	img?: string[]; //图片路径。如果有多个图片，第一个为默认图片，后面的为变化差分
 }
 
 export class Clothes extends Item {
 	constructor(cate: clothcategory, name: [string, string?], des: [string, string?], gender: gender = "n") {
-		super(name, des, "Clothes", cate);
+		super(name, des, "clothes", cate);
 		this.gender = gender;
 		this.uid = "0";
 

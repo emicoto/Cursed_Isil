@@ -1,0 +1,31 @@
+[
+	{
+		"name": ["酒心巧克力", "Wine Chocolate"],
+		"des": [
+			"一种经典的糖果，甜美的外表下，包裹着醉人的香醇。",
+			"A classic candy, sweet appearance, wrapped in a drunken sweet."
+		],
+		"group": "items",
+		"category": "food",
+		"tags": ["sweet"],
+		"source": {
+			"nutrition": 5,
+			"alcohol": 10
+		},
+		"method": "onetime"
+	},
+	{
+		"name": ["空心巧克力", "Hollow Chocolate"],
+		"des": [
+			"看上去和普通巧克力完全一样，但酒心的部分已经抽空了。",
+			"Looks exactly the same as ordinary chocolate, but the wine heart part has been hollowed out."
+		],
+		"group": "items",
+		"category": "food",
+		"tags": ["material", "sweet"],
+		"source": {
+			"nutrition": 5
+		},
+		"method": "onetime/craft"
+	}
+]

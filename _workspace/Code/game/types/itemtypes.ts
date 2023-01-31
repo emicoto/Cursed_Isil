@@ -1,15 +1,20 @@
 export type ItemGroup =
-	| "Weapon" //武器
-	| "Shield" //盾牌或护盾
-	| "Clothes" //衣服
-	| "Accessory" //饰品
-	| "Items" //道具物品
-	| "Material"; //纯素材
+	| "weapon" //武器
+	| "shield" //盾牌或护盾
+	| "armor" //盔甲
+	| "clothes" //衣服
+	| "accessory" //饰品
+	| "items" //道具物品
+	| "material"; //纯素材
 
-export type ItemCategory = "Foods" | "Potion" | "Drink" | "Drug" | "Misc";
+export type ItemCategory = "foods" | "potion" | "drink" | "drug" | "misc" | "";
 
-export type MaterialType = "Metal" | "Wood" | "Stone" | "Leather" | "Cloth" | "Herb" | "Gem" | "Other";
+export type materialType = "metal" | "wood" | "stone" | "leather" | "cloth" | "herb" | "gem" | "other";
 
-export type AccesoryType = "Facemask" | "Glasses" | "Earring" | "Chest" | "SexToy";
+export type accesoryType = "facemask" | "glasses" | "earring" | "chest" | "sextoy";
 
-export type potionType = "Heal" | "Restore" | "Buff" | "Debuff" | "Misc";
+export type potionType = "heal" | "restore" | "buff" | "debuff" | "misc";
+
+export type weaponType = "sword" | "gun" | "bow" | "staff" | "hammer" | "spear";
+
+export type shieldType = "shield" | "guard";

@@ -18,3 +18,5 @@ export type potionType = "heal" | "restore" | "buff" | "debuff" | "misc";
 export type weaponType = "sword" | "gun" | "bow" | "staff" | "hammer" | "spear";
 
 export type shieldType = "shield" | "guard";
+
+export type ItemTags = "consumable" | "craftable" | "wrapable" | "sweet" | "";

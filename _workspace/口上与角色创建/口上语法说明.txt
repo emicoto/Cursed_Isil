@@ -174,73 +174,73 @@ onselect
 <</if>>
 
 条件式中可以使用的便利函数：
-cond.baseLt(cid, key, val)
+Cond.baseLt(cid, key, val)
 cid 是角色 id, key 是 health/stamina/sanity/mana 这些分配在 base 下的变量名，val 是数值。
 Lt 就是小于的意思。也就是说
-<<if cond.baseLt('Isil', 'mana', 0.1)>>
+<<if Cond.baseLt('Isil', 'mana', 0.1)>>
 这个条件式的意思就是，当伊希露的 mana 低于 10%的时候。
-如果用大于的方式，反转一下就好。如 !cond.baseLt('Isil', 'nmana', 0.1)
+如果用大于的方式，反转一下就好。如 !Cond.baseLt('Isil', 'nmana', 0.1)
 
 数值如果是 0~1 之内的小数的话，则会以百分比判定
 数值如果是 1 以上的具体值，则会以具体值进行判定。
 如果 val 填入了'max'，就直接判断是否满值。
 
-cond.palamLt(cid, key, val)
-与 cond.baseLt 一样。
+Cond.palamLt(cid, key, val)
+与 Cond.baseLt 一样。
 只是 key 是 ecstacy,pain,这些分配在 palam 下的变量。
 
-cond.flagLt(cid, key, val)
+Cond.flagLt(cid, key, val)
 这些是分配在 Cflag 下的数值，例如好感(favo)，信赖(trust), 依赖(depend)。
 key 可以使任何预设在 Cflag 下的变量或自己设置的变量名。
 这些没有最大值，所以会根据具体值进行判定。
 
-cond.favoLt(cid, key, val)
+Cond.favoLt(cid, key, val)
 好感小于……的快捷函数
 
-cond.trustLt(cid, key, val)
+Cond.trustLt(cid, key, val)
 信赖小于……的快捷函数
 
-cond.dependLt(cid, key, val)
+Cond.dependLt(cid, key, val)
 依赖小于……的快捷函数
 
-cond.isVirgin(cid)
+Cond.isVirgin(cid)
 判断是不是处女，如果是男的会根据后穴经验进行判定
 如果是女的或扶她则根据秘穴经验进行判定
 童贞是另一个函数。
 
-cond.isCockVirgin(cid)
+Cond.isCockVirgin(cid)
 判定是不是童贞。根据 P 经验进行判定。
 如果是没有丁的，则会返回 false。
 
-cond.canSpeak(cid)
+Cond.canSpeak(cid)
 判定有无能力说话
 
-cond.canMove(cid)
+Cond.canMove(cid)
 判定有无能力活动
 
-cond.canActNormal(cid)
+Cond.canActNormal(cid)
 判定有无正常思考的能力
 
-cond.isSleeping(cid)
+Cond.isSleeping(cid)
 判定是不是在睡觉
 
-cond.isUncons(cid)
+Cond.isUncons(cid)
 判定意识是否清晰
 
-cond.isActive(cid)
+Cond.isActive(cid)
 判定有无活动能力
 
-cond.isRape(cid)
+Cond.isRape(cid)
 判定是不是在被强上
 
-cond.canResist(cid)
+Cond.canResist(cid)
 确认角色是否有正常的抵抗能力
 
-cond.isWeaker(a, b)
+Cond.isWeaker(a, b)
 判定 a 是否比 b 弱。
 a,b 都是角色 id。
 
-cond.isEnergetic(cid, value)
+Cond.isEnergetic(cid, value)
 判定精力是否充足用于抵抗。
 value 是可选项，用于调整判定难度。
 范围请填在 0~400 范围内。
@@ -248,17 +248,17 @@ value 是可选项，用于调整判定难度。
 300 以上的话，大概是 hp,sp,san,mp 都大于 80%的程度
 默认值是 160.
 
-cond.isFallen(cid)
+Cond.isFallen(cid)
 判定角色是否陷落
 
-cond.OnlyU()
+Cond.OnlyU()
 判定现场是不是只有你
 
-cond.OnlyU2()
+Cond.OnlyU2()
 判定现场是不是只有你和选择对象
 
-cond.hasPenis(cid)
+Cond.hasPenis(cid)
 有丁
 
-cond.hasVagina(cid)
+Cond.hasVagina(cid)
 有 V

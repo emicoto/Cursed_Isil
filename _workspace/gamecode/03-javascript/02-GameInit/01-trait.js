@@ -144,7 +144,7 @@ Trait.set("理智")
 		const list = ["fear", "mortify", "humilate", "depress", "resist", "uncomfort", "angry"];
 	})
 	.Order((id, ...args) => {
-		if (cond.isWeaker(tc, pc)) return 10;
-		else if (cond.baseLt(tc, "health", 0.3) || cond.baseLt(tc, "stamina", 0.1)) return 15;
+		if (Cond.isWeaker(tc, pc)) return 10;
+		else if (Cond.baseLt(tc, "health", 0.3) || Cond.baseLt(tc, "stamina", 0.1)) return 15;
 		else return 2;
 	});

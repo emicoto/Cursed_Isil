@@ -27,7 +27,7 @@ export type ItemPalam = Dict<itemEffect, basekey | palamkey>;
 export type itemEffect = { v: number; m: itemMethod };
 export type itemMethod = "add" | "mul" | "fix";
 export type itemEffectType = "recover" | "sustain" | "onetime" | "change" | "fix" | "permanent";
-export interface Item {
+export interface Items {
 	id: string; //在库中所登记的id
 
 	name: [string, string?]; //中文名，英文名。英文名可选，若无则为中文名
@@ -47,7 +47,7 @@ export interface Item {
 	method?: itemEffectType; //影响方法
 }
 
-export interface Potion extends Item {
+export interface Potion extends Items {
 	group: "items";
 	category: "potion";
 	type: potionType;
@@ -58,7 +58,7 @@ export interface Potion extends Item {
 	specialEffects?: string; //特殊效果
 }
 
-export interface SexToy extends Item {
+export interface SexToy extends Items {
 	group: "accessory";
 	category: "sextoy";
 
@@ -89,12 +89,12 @@ export class Recipies {
 		Db[id].set(id, new Recipies(resultItemId, result, require, rate));
 	}
 	public static getByName(itemname: string) {
-		const itemId = Item.getByName("items", itemname).id;
-		return Db.Recipies.find((recipie) => recipie.resultItemId === itemId);
+		const itemId = Items.getByName("items", itemname).id;
+		return Array.from(Db.Recipies).find((recipie: Recipies) => recipie.resultItemId === itemId);
 	}
 	public static getBySrcName(itemname: string) {
-		const itemId = Item.getByName("items", itemname).id;
-		return Db.Recipies.find((recipie) => recipie.require.includes(itemId));
+		const itemId = Items.getByName("items", itemname).id;
+		return Array.from(Db.Recipies).find((recipie: Recipies) => recipie.require.includes(itemId));
 	}
 	constructor(itemId: string, result: number, requires: string[], rate: number) {
 		this.id = Db.Recipies.length;
@@ -105,23 +105,26 @@ export class Recipies {
 	}
 }
 
-export class Item {
-	public static newId(group: string, cate?: string) {
-		const len = Db[group].length;
+export class Items {
+	public static newId(group: string, name: string, cate?: string) {
 		if (cate) {
-			return `${group.toUpperCase()[0]}${cate}_${len}`;
+			return `${group}_${cate[0]}.${name[1].replace(/\s/g, "")}`;
 		} else {
-			return `${group}_${len}`;
+			return `${group}_${name[1]}`;
 		}
 	}
-	public static getByName(group: ItemGroup, name: string) {
-		return Db[group].find((item) => item.name[0] === name || item.name[1] === name);
+	public static getByName(group: ItemGroup, name: string): Items | undefined {
+		return Array.from(Db[group]).find((item: Items) => item[1].name[0] === name || item[1].name[1] === name) as Items;
 	}
 	public static getTypelist(
 		group: ItemGroup,
 		cate: ItemCategory | materialType | accesoryType | potionType | weaponType | clothcategory
-	) {
-		return Db[group].filter((item) => item.category === cate);
+	): Items[] | undefined {
+		return Array.from(Db[group]).filter((item: Items) => item[1].category === cate) as Items[];
+	}
+	public static get(Itemid): Items | undefined {
+		const itemGroup = Itemid.split("_")[0];
+		return Array.from(Db[itemGroup]).find((item: Items) => item[0] === Itemid) as Items;
 	}
 	public static init() {
 		D.itemGroup.forEach((group) => {
@@ -134,7 +137,7 @@ export class Item {
 		group: ItemGroup = "items",
 		cate: ItemCategory | materialType | accesoryType | potionType | weaponType | clothcategory = ""
 	) {
-		this.id = Item.newId(group, cate);
+		this.id = Items.newId(group, cate);
 		this.name = name;
 		this.des = des;
 		this.group = group;
@@ -175,7 +178,7 @@ export class Item {
 	}
 }
 
-export class Potion extends Item {
+export class Potion extends Items {
 	constructor(name: [string, string?], des: [string, string?], type: potionType) {
 		super(name, des, "items", "potion");
 		this.type = type;
@@ -198,7 +201,7 @@ export class Potion extends Item {
 	}
 }
 
-export class SexToy extends Item {
+export class SexToy extends Items {
 	constructor(name: [string, string?], des: [string, string?]) {
 		super(name, des, "accessory", "sextoy");
 	}
@@ -212,7 +215,7 @@ export class SexToy extends Item {
 	}
 }
 
-export interface Clothes extends Item {
+export interface Clothes extends Items {
 	id: string; //在库中所登记的id,
 	uid?: string; //购买时生成的绝对id，6位数字
 	group: "clothes"; //物品组
@@ -239,7 +242,7 @@ export interface Clothes extends Item {
 	img?: string[]; //图片路径。如果有多个图片，第一个为默认图片，后面的为变化差分
 }
 
-export class Clothes extends Item {
+export class Clothes extends Items {
 	constructor(cate: clothcategory, name: [string, string?], des: [string, string?], gender: gender = "n") {
 		super(name, des, "clothes", cate);
 		this.gender = gender;
@@ -274,7 +277,32 @@ export class Clothes extends Item {
 	}
 }
 
-Object.defineProperties(window, {
-	Item: { value: Item },
+Object.defineProperties(window.scEra.modules, {
+	Items: { value: Items },
 	Clothes: { value: Clothes },
+	Potion: { value: Potion },
+	SexToy: { value: SexToy },
+});
+
+Object.defineProperties(window, {
+	Items: {
+		get() {
+			return window.scEra.modules.Items;
+		},
+	},
+	Clothes: {
+		get() {
+			return window.scEra.modules.Clothes;
+		},
+	},
+	Potion: {
+		get() {
+			return window.scEra.modules.Potion;
+		},
+	},
+	SexToy: {
+		get() {
+			return window.scEra.modules.SexToy;
+		},
+	},
 });

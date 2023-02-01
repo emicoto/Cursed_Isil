@@ -1,9 +1,5 @@
-;(function (fs) {
+;(function () {
 	'use strict';
-
-	function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
-	var fs__default = /*#__PURE__*/_interopDefaultLegacy(fs);
 
 	function lan(txt, ...txts) {
 	  let CN, EN;
@@ -15,40 +11,13 @@
 	    CN = txt;
 	    EN = txts[0] ? txts[0] : txt;
 	  }
-	  if (lang == "CN" && CN)
+	  if (config.lan == "CN" && CN)
 	    return CN;
-	  if (lang == "EN" && EN)
+	  if (config.lan == "EN" && EN)
 	    return EN;
 	  return txt;
 	}
-	var language = "CN";
-	Object.defineProperties(window, {
-	  lan: { value: lan },
-	  lang: {
-	    get: function() {
-	      return language;
-	    },
-	    set(v) {
-	      language = v;
-	    }
-	  }
-	});
-	String.prototype.has = function(...str) {
-	  if (Array.isArray(str[0]))
-	    str = str[0];
-	  for (let i = 0; i < str.length; i++)
-	    if (this.indexOf(str[i]) != -1)
-	      return true;
-	  return false;
-	};
-	Array.prototype.has = function(...str) {
-	  if (Array.isArray(str[0]))
-	    str = str[0];
-	  for (let i = 0; i < str.length; i++)
-	    if (this.indexOf(str[i]) != -1)
-	      return true;
-	  return false;
-	};
+	config.lan = "CN";
 	function percent(...num) {
 	  let min = num[0], max = num[1];
 	  if (num.length == 3) {
@@ -58,25 +27,35 @@
 	  return Math.clamp(Math.trunc(min / max * 100), 1, 100);
 	}
 	Object.defineProperties(window, {
-	  percent: { value: percent }
+	  percent: { value: percent },
+	  lan: { value: lan }
 	});
 
-	class Item {
-	  static newId(group, cate) {
-	    const len = Db[group].length;
+	class Items {
+	  static newId(group, name, cate) {
 	    if (cate) {
-	      return `${group.toUpperCase()[0]}${cate}_${len}`;
+	      return `${group}_${cate[0]}.${name[1].replace(/\s/g, "")}`;
 	    } else {
-	      return `${group}_${len}`;
+	      return `${group}_${name[1]}`;
 	    }
+	  }
+	  static getByName(group, name) {
+	    return Array.from(Db[group]).find((item) => item[1].name[0] === name || item[1].name[1] === name);
+	  }
+	  static getTypelist(group, cate) {
+	    return Array.from(Db[group]).filter((item) => item[1].category === cate);
+	  }
+	  static get(Itemid) {
+	    const itemGroup = Itemid.split("_")[0];
+	    return Array.from(Db[itemGroup]).find((item) => item[0] === Itemid);
 	  }
 	  static init() {
 	    D.itemGroup.forEach((group) => {
 	      Db[group] = /* @__PURE__ */ new Map();
 	    });
 	  }
-	  constructor(name, des = name, group = "Items", cate = "") {
-	    this.id = Item.newId(group, cate);
+	  constructor(name, des = name, group = "items", cate = "") {
+	    this.id = Items.newId(group, cate);
 	    this.name = name;
 	    this.des = des;
 	    this.group = group;
@@ -115,9 +94,44 @@
 	    return this;
 	  }
 	}
-	class Clothes extends Item {
+	class Potion extends Items {
+	  constructor(name, des, type) {
+	    super(name, des, "items", "potion");
+	    this.type = type;
+	  }
+	  Daily(num) {
+	    this.daily = num;
+	    return this;
+	  }
+	  Lifetime(num) {
+	    this.lifetime = num;
+	    return this;
+	  }
+	  EffectsDecrease(num) {
+	    this.effectsDecrease = num;
+	    return this;
+	  }
+	  SpecialEffects(str) {
+	    this.specialEffects = str;
+	    return this;
+	  }
+	}
+	class SexToy extends Items {
+	  constructor(name, des) {
+	    super(name, des, "accessory", "sextoy");
+	  }
+	  Switchable() {
+	    this.switchable = true;
+	    return this;
+	  }
+	  SpecialEffects(str) {
+	    this.specialEffects = str;
+	    return this;
+	  }
+	}
+	class Clothes extends Items {
 	  constructor(cate, name, des, gender2 = "n") {
-	    super(name, des, "Clothes", cate);
+	    super(name, des, "clothes", cate);
 	    this.gender = gender2;
 	    this.uid = "0";
 	    this.tags = [];
@@ -146,9 +160,33 @@
 	    return this;
 	  }
 	}
+	Object.defineProperties(window.scEra.modules, {
+	  Items: { value: Items },
+	  Clothes: { value: Clothes },
+	  Potion: { value: Potion },
+	  SexToy: { value: SexToy }
+	});
 	Object.defineProperties(window, {
-	  Item: { value: Item },
-	  Clothes: { value: Clothes }
+	  Items: {
+	    get() {
+	      return window.scEra.modules.Items;
+	    }
+	  },
+	  Clothes: {
+	    get() {
+	      return window.scEra.modules.Clothes;
+	    }
+	  },
+	  Potion: {
+	    get() {
+	      return window.scEra.modules.Potion;
+	    }
+	  },
+	  SexToy: {
+	    get() {
+	      return window.scEra.modules.SexToy;
+	    }
+	  }
 	});
 
 	const _Creature = class {
@@ -310,7 +348,6 @@
 	    return this;
 	  }
 	  setUrin() {
-	    this.sexstats.u.size;
 	    this.sexstats.u.d = this.fixUrinDiameter();
 	    this.sexstats.u.l = this.GenerateUrinDepth();
 	    if (this.gender === "female") {
@@ -351,7 +388,7 @@
 	  }
 	  GenerateTall(size) {
 	    const bodysize = size !== void 0 ? size : this.appearance.bodysize;
-	    return bodysize * 150 + 1300 + random(1, 148);
+	    return bodysize * 150 + 1300 + random(1, 150) + bodysize >= 5 ? random(100, 200) : random(1, 20);
 	  }
 	  GenerateBodysize(_tall) {
 	    const tall = _tall ? _tall : this.appearance.tall;
@@ -426,7 +463,7 @@
 	    this.initScars();
 	    this.initFlag();
 	    this.wallet = 1e3;
-	    this.invetory = [];
+	    this.inventory = [];
 	    this.tempture = {
 	      low: 16,
 	      high: 28,
@@ -577,10 +614,10 @@
 	    return this.state.has("\u7761\u7720", "\u6655\u53A5");
 	  }
 	  unable() {
-	    return this.state.has("\u62D8\u675F", "\u77F3\u5316") || !cond.isEnergetic(this.cid, 30);
+	    return this.state.has("\u62D8\u675F", "\u77F3\u5316") || !Cond.isEnergetic(this.cid, 30);
 	  }
 	  active() {
-	    return !this.state.has("\u7761\u7720", "\u6655\u53A5", "\u62D8\u675F", "\u77F3\u5316", "\u7CBE\u795E\u5D29\u6E83") && !cond.baseLt(this.cid, "health", 0.05) && !cond.baseLt(this.cid, "sanity", 10) && !cond.baseLt(this.cid, "stamina", 10);
+	    return !this.state.has("\u7761\u7720", "\u6655\u53A5", "\u62D8\u675F", "\u77F3\u5316", "\u7CBE\u795E\u5D29\u6E83") && !Cond.baseLt(this.cid, "health", 0.05) && !Cond.baseLt(this.cid, "sanity", 10) && !Cond.baseLt(this.cid, "stamina", 10);
 	  }
 	  setAppearance({
 	    eyecolor = "\u84DD\u8272",
@@ -596,7 +633,7 @@
 	      haircolor,
 	      hairstyle,
 	      skincolor,
-	      beauty: fix.beauty(this),
+	      beauty: Fix.beauty(this),
 	      bodysize: bodysize !== void 0 ? bodysize : tall ? this.GenerateBodysize(tall) : this.appearance.bodysize,
 	      tall: tall ? tall : bodysize ? this.GenerateTall() : 1704,
 	      weight
@@ -665,9 +702,13 @@
 	};
 	let Chara = _Chara;
 	Chara.data = {};
-	Object.defineProperties(window, {
+	Object.defineProperties(window.scEra.modules, {
 	  Creature: { value: Creature },
 	  Chara: { value: Chara }
+	});
+	Object.defineProperties(window, {
+	  Creature: { get: () => window.scEra.modules.Creature },
+	  Chara: { get: () => window.scEra.modules.Chara }
 	});
 
 	const moveableTile = ["road", "glass", "field", "passable", "area"];
@@ -1733,71 +1774,12 @@
 	  });
 	});
 
-	window.database = {};
-	window.gameutils = {
-	  condition: {},
-	  UI: {},
-	  printer: {},
-	  utils: {},
-	  fix: {},
-	  effects: {}
-	};
-	window.gamedata = {};
-	window.languagedata = {};
-	Object.defineProperties(window, {
-	  D: {
-	    get: function() {
-	      return window.gamedata;
-	    }
-	  },
-	  Db: {
-	    get: function() {
-	      return window.database;
-	    }
-	  },
-	  L: {
-	    get: function() {
-	      return window.languagedata;
-	    }
-	  },
-	  F: {
-	    get: function() {
-	      return window.gameutils.utils;
-	    }
-	  },
-	  ui: {
-	    get: function() {
-	      return window.gameutils.UI;
-	    }
-	  },
-	  P: {
-	    get: function() {
-	      return window.gameutils.printer;
-	    }
-	  },
-	  cond: {
-	    get: function() {
-	      return window.gameutils.condition;
-	    }
-	  },
-	  fix: {
-	    get: function() {
-	      return window.gameutils.fix;
-	    }
-	  },
-	  Effect: {
-	    get: function() {
-	      return window.gameutils.effects;
-	    }
-	  }
-	});
 	console.log(lan("\u6E38\u620F\u5F00\u59CB", "game start"));
 	console.log("utils loaded, the game is", window.game);
-	console.log("package.json", fs__default["default"].readFileSync("./package.json", "utf8"));
-	console.log("config.json", fs__default["default"].readFileSync("./public/config.json", "utf8"));
+	console.log("package.json", fs.readFileSync("./package.json", "utf8"));
+	console.log("config.json", fs.readFileSync("./public/config.json", "utf8"));
 	$.getJSON("./config.json", function(data) {
-	  window.config = data;
 	  console.log("load config", data);
 	});
 
-})(fs);
+})();

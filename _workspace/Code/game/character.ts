@@ -106,7 +106,7 @@ export interface Chara extends Creature {
 	flag: any; //好感、信赖， 学籍情报， 诅咒进展， 诅咒魔力效率等
 	wallet?: number;
 	debt?: number;
-	invetory?: any;
+	inventory?: any;
 	tempture?: { low: number; high: number; best: number; current: number };
 }
 
@@ -429,7 +429,7 @@ export class Chara extends Creature {
 		this.initScars();
 		this.initFlag();
 		this.wallet = 1000;
-		this.invetory = [];
+		this.inventory = [];
 		this.tempture = {
 			low: 16,
 			high: 28,
@@ -608,15 +608,15 @@ export class Chara extends Creature {
 	}
 
 	unable() {
-		return this.state.has("拘束", "石化") || !cond.isEnergetic(this.cid, 30);
+		return this.state.has("拘束", "石化") || !Cond.isEnergetic(this.cid, 30);
 	}
 
 	active() {
 		return (
 			!this.state.has("睡眠", "晕厥", "拘束", "石化", "精神崩溃") &&
-			!cond.baseLt(this.cid, "health", 0.05) &&
-			!cond.baseLt(this.cid, "sanity", 10) &&
-			!cond.baseLt(this.cid, "stamina", 10)
+			!Cond.baseLt(this.cid, "health", 0.05) &&
+			!Cond.baseLt(this.cid, "sanity", 10) &&
+			!Cond.baseLt(this.cid, "stamina", 10)
 		);
 	}
 
@@ -634,7 +634,7 @@ export class Chara extends Creature {
 			haircolor: haircolor,
 			hairstyle: hairstyle,
 			skincolor: skincolor,
-			beauty: fix.beauty(this),
+			beauty: Fix.beauty(this),
 			bodysize: bodysize !== undefined ? bodysize : tall ? this.GenerateBodysize(tall) : this.appearance.bodysize,
 			tall: tall ? tall : bodysize ? this.GenerateTall() : 1704,
 			weight: weight,
@@ -710,7 +710,12 @@ export class Chara extends Creature {
 	}
 }
 
-Object.defineProperties(window, {
+Object.defineProperties(window.scEra.modules, {
 	Creature: { value: Creature },
 	Chara: { value: Chara },
+});
+
+Object.defineProperties(window, {
+	Creature: { get: () => window.scEra.modules.Creature },
+	Chara: { get: () => window.scEra.modules.Chara },
 });

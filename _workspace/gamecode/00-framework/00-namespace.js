@@ -11,43 +11,13 @@
  * if shadowed, and for "documentation" purposes
  */
 
-window.game = {
-	// In pseudo-load order
-	/**
-	 * Mini application reporter app
-	 * helps get detailed error messages to devs
-	 * {@link 01-error.js errors}
-	 */
-	Errors: {},
-	Perflog: {},
+Object.defineProperties(window.game, {
+	State: { value: State },
+	setup: { value: setup },
+	Wikifier: { value: Wikifier },
+});
 
-	/** Patch to make javascript execution more consistent (see comment below) */
-	State: State,
-	/** Patch to make javascript execution more consistent (see comment below) */
-	setup: setup,
-	/** Patch to make javascript execution more consistent (see comment below) */
-	Wikifier: Wikifier,
-	version: "0.0.0",
-	debug: false,
-};
-/* Make each of these namespaces available at the top level as well */
-window.defineGlobalNamespaces = (namespaces) => {
-	Object.entries(namespaces).forEach(([name, namespaceObject]) => {
-		try {
-			if (window[name] && window[name] !== namespaceObject) {
-				console.warn(
-					`Attempted to set ${name} in the global namespace, but it's already in use. Skipping this assignment. Existing Object:`,
-					window[name]
-				);
-			} else {
-				/* Make it more difficult to shadow/overwrite things (users can still Object.defineProperty if they really mean it) */
-				Object.defineProperty(window, name, { value: namespaceObject, writeable: false });
-			}
-		} catch (e) {
-			if (window[name] !== namespaceObject) {
-				console.error(`Failed to setup global namespace object ${name}. Attempting to continue. Source Error:`, e);
-			}
-		}
-	});
-};
-defineGlobalNamespaces(game);
+game.Errors = {};
+game.Perflog = {};
+
+defineGlobalNamespaces(window.game);

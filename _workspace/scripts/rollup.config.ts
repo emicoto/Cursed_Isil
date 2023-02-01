@@ -54,7 +54,7 @@ export const configs: RollupOptions[] = [
 		input: "_workspace/Code/utils/index.ts",
 		plugins,
 		output: {
-			format: "commonjs",
+			format: "iife",
 			file: "_workspace/modules/0-utils.js",
 		},
 	},

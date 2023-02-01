@@ -6,7 +6,7 @@ Chara.onLoad = function () {
 	}
 };
 
-fix.beauty = function (chara) {
+Fix.beauty = function (chara) {
 	const traitbuff = function (chara) {
 		let buff = 1;
 
@@ -81,6 +81,7 @@ Chara.skinCounter = function (chara, t) {
 
 			let layer = skin[i];
 			dolayer(layer, t);
+			total[i] = {};
 			D.scarType.forEach((type) => {
 				total[i][type] = countArray(layer, type);
 			});
@@ -132,7 +133,7 @@ Chara.init = function () {
 	Chara.initGlobal();
 
 	for (let i in V.chara) {
-		fix.base(V.chara[i], 1);
+		Fix.base(V.chara[i], 1);
 		F.resetBase(V.chara[i]);
 	}
 
@@ -160,7 +161,7 @@ Chara.init = function () {
 	V.tc = "Isil";
 };
 //修正基础属性
-fix.base = function (chara, mode) {
+Fix.base = function (chara, mode) {
 	const { base, stats, race, traits } = chara;
 
 	if (chara.id == "m0") {
@@ -183,11 +184,11 @@ fix.base = function (chara, mode) {
 		base.sanity[0] = base.sanity[1];
 		base.mana[0] = base.mana[1];
 
-		fix.stats(chara);
+		Fix.stats(chara);
 	}
 };
 //修正角色的属性
-fix.stats = function (chara) {
+Fix.stats = function (chara) {
 	const { stats, equip, race } = chara;
 
 	if (chara.id === "m0") {

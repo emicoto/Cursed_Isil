@@ -132,6 +132,7 @@ game.start = function (skip) {
 
 	if (!skip) {
 		F.setEvent("Story", "Opening");
+		V.mode = "event";
 	} else {
 		F.setMemory("SE_0", "序章 - 故事开头");
 		V.mode = "normal";

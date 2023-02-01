@@ -1,6 +1,6 @@
 #header {
     font-size: 85%;
-    font-family: "Times New Roman", "NotoSerifL";
+    font-family: "Times New Roman", "NotoSerifR";
     padding: 2px;
 }
 
@@ -198,7 +198,7 @@
 #footer{
     width: 100%;
     font-size: 14px;
-    font-family: "Times New Roman", "NotoSerifL";
+    font-family: "Times New Roman", "NotoSerifR";
     position: fixed;
     bottom: 0px;
     left: 0px;
@@ -206,7 +206,7 @@
 }
 
 #footer a {
-    font-family: "Times New Roman", "NotoSerifS";
+    font-family: "Times New Roman", "NotoSerifR";
     color: lightskyblue
 }
 

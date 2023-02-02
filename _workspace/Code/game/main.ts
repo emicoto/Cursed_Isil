@@ -4,6 +4,8 @@ import "./Items";
 import "./character";
 import "./Map";
 import "./mapdata";
+import "./Trait";
+
 declare global {
 	interface Window {
 		loadOrder; //加载顺序
@@ -34,6 +36,7 @@ declare global {
 	}
 }
 declare var fs: typeof import("fs");
+declare function defineGlobalShortcuts(modules);
 
 console.log(lan("游戏开始", "game start"));
 

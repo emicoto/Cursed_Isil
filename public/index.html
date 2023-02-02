@@ -298,7 +298,70 @@ window.defineGlobalShortcuts = (shortcuts) => {
 	};
 
 	defineGlobalShortcuts(shortcuts);
-})();</script>
+})();
+
+//------------------------------------------------------------------------------
+//
+//   scEra.regist
+//
+//------------------------------------------------------------------------------
+window.registModule = function (modules) {
+	//check if the module is already loaded before registering it
+	if (window.scEra.modules[modules.name]) {
+		console.warn(`Module ${modules.name} is already loaded. Skipping this registration.`);
+		return false;
+	}
+
+	//register the module
+	const { name, data, classObj, functions, config, version, des } = modules;
+
+	window.scEra.modules[name] = {
+		info: {
+			name,
+			version,
+			des,
+		},
+		data: data,
+	};
+
+	//ensure the class at the top level
+	Object.keys(classObj).forEach((key) => {
+		window.scEra.modules[name][key] = classObj[key];
+	});
+
+	//ensure the functions at the top level
+	if (functions) {
+		Object.keys(functions).forEach((key) => {
+			window.scEra.modules[name][key] = functions[key];
+		});
+	}
+
+	//check the config
+	if (config?.globalfunction) {
+		Object.keys(functions).forEach((key) => {
+			Object.defineProperty(window, key, {
+				get: () => window.scEra.modules[name][key],
+			});
+		});
+	}
+
+	if (config?.globaldata) {
+		Object.keys(data).forEach((key) => {
+			Object.defineProperty(window, key.toUpperFirst() + "Data", {
+				get: () => window.scEra.modules[name].data[key],
+			});
+		});
+	}
+
+	//make the class available at the top level
+	Object.keys(classObj).forEach((key) => {
+		Object.defineProperty(window, key, {
+			get: () => window.scEra.modules[name][key],
+		});
+	});
+
+	return true;
+};</script>
 <script id="script-module-0_selectcase" type="text/javascript">/**
  * @name SelectCase
  * @description
@@ -813,7 +876,46 @@ var path = require("path");
 defineGlobalNamespaces({ os, fs, path });
 
 console.log(`It's running on ${os.platform()} ${os.arch()} ${os.release()}`);
-console.log("fs, path, child_process are loaded: ", fs, path);</script>
+console.log("fs, path, child_process are loaded: ", fs, path);
+
+//------------------------------------------------------------------------------
+window.parseXml = function (xml, arrayTags) {
+	let dom = null;
+	if (window.DOMParser) dom = new DOMParser().parseFromString(xml, "text/xml");
+	else if (window.ActiveXObject) {
+		dom = new ActiveXObject("Microsoft.XMLDOM");
+		dom.async = false;
+		if (!dom.loadXML(xml)) throw dom.parseError.reason + " " + dom.parseError.srcText;
+	} else throw new Error("cannot parse xml string!");
+
+	function parseNode(xmlNode, result) {
+		if (xmlNode.nodeName == "#text") {
+			let v = xmlNode.nodeValue;
+			if (v.trim()) result["#text"] = v;
+			return;
+		}
+
+		let jsonNode = {},
+			existing = result[xmlNode.nodeName];
+		if (existing) {
+			if (!Array.isArray(existing)) result[xmlNode.nodeName] = [existing, jsonNode];
+			else result[xmlNode.nodeName].push(jsonNode);
+		} else {
+			if (arrayTags && arrayTags.indexOf(xmlNode.nodeName) != -1) result[xmlNode.nodeName] = [jsonNode];
+			else result[xmlNode.nodeName] = jsonNode;
+		}
+
+		if (xmlNode.attributes)
+			for (let attribute of xmlNode.attributes) jsonNode[attribute.nodeName] = attribute.nodeValue;
+
+		for (let node of xmlNode.childNodes) parseNode(node, jsonNode);
+	}
+
+	let result = {};
+	for (let node of dom.childNodes) parseNode(node, result);
+
+	return result;
+};</script>
 <script id="script-module-0_eslib" type="text/javascript">/*
     Concatenates one or more unique elements to the end of the base array
     and returns the result as a new array.  Elements which are arrays will
@@ -2083,34 +2185,18 @@ Object.defineProperty(String.prototype, "readBracketedList", {
 	    return this;
 	  }
 	}
-	Object.defineProperties(window.scEra.modules, {
-	  Items: { value: Items },
-	  Clothes: { value: Clothes },
-	  Potion: { value: Potion },
-	  SexToy: { value: SexToy }
-	});
-	Object.defineProperties(window, {
-	  Items: {
-	    get() {
-	      return window.scEra.modules.Items;
-	    }
-	  },
-	  Clothes: {
-	    get() {
-	      return window.scEra.modules.Clothes;
-	    }
-	  },
-	  Potion: {
-	    get() {
-	      return window.scEra.modules.Potion;
-	    }
-	  },
-	  SexToy: {
-	    get() {
-	      return window.scEra.modules.SexToy;
-	    }
+	const modules$2 = {
+	  name: "Items",
+	  version: "1.0.0",
+	  des: "A module for items.",
+	  classObj: {
+	    Items,
+	    Clothes,
+	    Potion,
+	    SexToy
 	  }
-	});
+	};
+	registModule(modules$2);
 
 	const _Creature = class {
 	  constructor(type, name, gender, race2) {
@@ -2402,7 +2488,7 @@ Object.defineProperty(String.prototype, "readBracketedList", {
 	    return this;
 	  }
 	  initExp() {
-	    D.exp.forEach((k) => {
+	    Object.keys(D.exp).forEach((k) => {
 	      this.exp[k] = { aware: 0, total: 0 };
 	    });
 	    return this;
@@ -2551,7 +2637,7 @@ Object.defineProperty(String.prototype, "readBracketedList", {
 	    tall,
 	    weight = 0
 	  }) {
-	    const appearance = {
+	    const appearance2 = {
 	      eyecolor,
 	      haircolor,
 	      hairstyle,
@@ -2561,11 +2647,11 @@ Object.defineProperty(String.prototype, "readBracketedList", {
 	      tall: tall ? tall : bodysize ? this.GenerateTall() : 1704,
 	      weight
 	    };
-	    if (!appearance.weight) {
-	      appearance.weight = this.GenerateWeight(appearance.tall);
+	    if (!appearance2.weight) {
+	      appearance2.weight = this.GenerateWeight(appearance2.tall);
 	    }
-	    for (let i in appearance) {
-	      this.appearance[i] = appearance[i];
+	    for (let i in appearance2) {
+	      this.appearance[i] = appearance2[i];
 	    }
 	    return this;
 	  }
@@ -2625,14 +2711,16 @@ Object.defineProperty(String.prototype, "readBracketedList", {
 	};
 	let Chara = _Chara;
 	Chara.data = {};
-	Object.defineProperties(window.scEra.modules, {
-	  Creature: { value: Creature },
-	  Chara: { value: Chara }
-	});
-	Object.defineProperties(window, {
-	  Creature: { get: () => window.scEra.modules.Creature },
-	  Chara: { get: () => window.scEra.modules.Chara }
-	});
+	const modules$1 = {
+	  name: "Creatures",
+	  version: "1.0.0",
+	  des: "A module for generating creatures, including characters, monsters, and NPCs.",
+	  classObj: {
+	    Creature,
+	    Chara
+	  }
+	};
+	registModule(modules$1);
 
 	const moveableTile = ["road", "glass", "field", "passable", "area"];
 	const directions = [
@@ -3386,15 +3474,33 @@ Object.defineProperty(String.prototype, "readBracketedList", {
 	  const mapdata = mapdataToBoard(map, map.mapsize.x, map.mapsize.y);
 	  printMap(mapdata);
 	}
-	Object.defineProperties(window, {
-	  printMap: { value: printMap },
-	  printMapFromData: { value: printMapFromData },
+	Object.defineProperties(window.scEra.modules, {
 	  GameMap: { value: GameMap },
 	  Boards: { value: Boards },
 	  Spots: { value: Spots }
 	});
+	Object.defineProperties(window, {
+	  GameMap: {
+	    get() {
+	      return window.scEra.modules.GameMap;
+	    }
+	  },
+	  Boards: {
+	    get() {
+	      return window.scEra.modules.Boards;
+	    }
+	  },
+	  Spots: {
+	    get() {
+	      return window.scEra.modules.Spots;
+	    }
+	  },
+	  printMap: { value: printMap },
+	  printMapFromData: { value: printMapFromData }
+	});
 
 	function setCommon(id) {
+	  const CM = worldMap.CommonSpots;
 	  switch (id) {
 	    case "PublicToilet":
 	      CM[id].Tags("\u5395\u6240", "\u65E0\u7A97", "\u72ED\u7A84", "\u516C\u5171").Placement("\u6D17\u624B\u53F0", "\u955C\u5B50", "\u9A6C\u6876");
@@ -3420,6 +3526,7 @@ Object.defineProperty(String.prototype, "readBracketedList", {
 	  }
 	}
 	function setAcademy(id) {
+	  const FMA = worldMap.Academy;
 	  switch (id) {
 	    case "MageTower":
 	      FMA[id].Rooms("Inside", "Observatory", "Storage").Tags("\u9AD8\u53F0", "\u60AC\u6D6E", "\u9632\u5FA1").Placement("\u9632\u5FA1\u70AE\u53F0");
@@ -3473,6 +3580,7 @@ Object.defineProperty(String.prototype, "readBracketedList", {
 	  }
 	}
 	function setAcademyRoom(id, roomid) {
+	  const FMA = worldMap.Academy;
 	  switch (id) {
 	    case "MageTower":
 	      if (roomid == "Inside") {
@@ -3493,7 +3601,7 @@ Object.defineProperty(String.prototype, "readBracketedList", {
 	    case "Dormitory":
 	      if (FMA[id][roomid].name[0].includes("\u5BBF\u820D")) {
 	        FMA[id][roomid].Rooms("Bathroom").Tags("\u5BBF\u820D", "\u7761\u623F").Placement("\u5E8A", "\u684C\u5B50", "\u6905\u5B50", "\u4E66\u684C", "\u8863\u67DC", "\u4E66\u67B6").MaxSlots(12);
-	        FMA[id][roomid].Bathroom = GameMap.copy(worldMap$1.CommonSpots["Bathroom"], FMA[id][roomid].id, "Bathroom");
+	        FMA[id][roomid].Bathroom = GameMap.copy(worldMap.CommonSpots["Bathroom"], FMA[id][roomid].id, "Bathroom");
 	      }
 	      if (roomid == "Kitchen") {
 	        FMA[id][roomid].MaxSlots(16).Placement("\u6905\u5B50");
@@ -3527,175 +3635,315 @@ Object.defineProperty(String.prototype, "readBracketedList", {
 	  }
 	}
 
-	const worldMap$1 = {
-	  Orlania: new Boards("Orlania", "", {
-	    type: "town",
-	    name: ["\u5965\u5170\u5C3C\u4E9A"],
-	    entry: ["Orlania.GateN", "Orlania.GateS", "Orlania.GateW", "Orlania.GateE"],
-	    xy: [35, 35]
-	  }),
-	  Academy: new Boards("Academy", "Orlania", {
-	    type: "academy",
-	    name: ["\u5965\u5170\u5C3C\u4E9A\u7B2C\u4E00\u9B54\u6CD5\u5B66\u9662"],
-	    entry: "Academy.SchoolEntrance",
-	    xy: [7, 25]
-	  }),
-	  CommonSpots: {
-	    groupId: "CommonSpots"
-	  }
-	};
-	Object.defineProperties(window, {
-	  worldMap: { get: () => worldMap$1 }
-	});
-	console.log(window.worldMap);
-	worldMap$1.Orlania["Academy"] = worldMap$1.Academy;
-	worldMap$1.Orlania.Spots(
-	  ["OutskirtN|field", -17, 0, "S", ["field", "mapEntry"]],
-	  ["OutskirtS|field", 17, 0, "N", ["field", "mapEntry"]],
-	  ["OutskirtW|field", 0, -17, "E", ["field", "mapEntry"]],
-	  ["OutskirtE|field", 0, 17, "W", ["field", "mapEntry"]],
-	  ["GateN|passable", -15, 0, "S", ["gate"]],
-	  ["GateS|passable", 15, 0, "N", ["gate"]],
-	  ["GateW|passable", 0, -15, "E", ["gate"]],
-	  ["GateE|passable", 0, 15, "W", ["gate"]],
-	  ["TownCenter|passable", 0, 0, "SNWE", ["buildingEntry"]],
-	  ["CenterSquare|passable", 2, 0, "SN", ["ground"]],
-	  ["Academy", -11, 8, "SW", ["buildingEntry", "mapEntry"]],
-	  ["Hospital", -9, 3, "W", ["building"]],
-	  ["ShopAlley|passable", 11, -4, "E", ["shopAlley", "mapEntry"]],
-	  ["BathHouse", 9, -4, "EN", ["building"]],
-	  ["Aquarium", 12, 13, "N", ["buildingEntry"]],
-	  ["ArtGallery", -8, 8, "WNS", ["building"]],
-	  ["Church", -12, 4, "E", ["buildingEntry"]],
-	  ["BlackCat", -9, 8, "W", ["building"]],
-	  ["OperaHouse", -6, 11, "S", ["building"]],
-	  ["BairdTrading|passable", -4, -11, "SN", ["ground"]],
-	  ["SliverChimes", -4, -8, "N", ["building"]],
-	  ["CentaurBar", -6, -8, "N", ["building"]]
-	);
-	worldMap$1.Academy.Spots(
-	  ["MageTower", -3, -12, "S", ["buildingEntry"]],
-	  ["SchoolEntrance|passable", 0, -12, "EN", ["mapEntry", "gate"]],
-	  ["ActivitySquare|passable", 0, -10, "SNWE", ["ground"]],
-	  ["ClassBuildingR1|passable", 3, -8, "N", ["building"]],
-	  ["ClassBuildingR2|passable", -3, -8, "S", ["building"]],
-	  ["ResearchLabA", 2, -5, "WSN", ["building"]],
-	  ["ResearchLabB", -2, -5, "ESN", ["building"]],
-	  ["Library|passable", 2, -2, "SN", ["building"]],
-	  ["Arena|passable", -2, 1, "SNWE", ["ground", "float"]],
-	  ["HistoryMuseum", 2, 2, "N", ["building"]],
-	  ["DiningHall", 2, 10, "N", ["building"]],
-	  ["GreenGarden|passable", -2, -2, "SN", ["park"]],
-	  ["StudentCenter", -2, 7, "S", ["building"]],
-	  ["Dormitory", 0, 12, "W", ["building"]],
-	  ["SecretTrainingGround|invisible", 3, 12, "", ["secretArea"]]
-	);
-	const OL = worldMap$1.Orlania;
-	const FMA = worldMap$1.Academy;
-	const CM = worldMap$1.CommonSpots;
-	const CMConfig = [
-	  ["RailcarStation", "\u8F68\u9053\u8F66\u7AD9", "stransport"],
-	  ["AirShipPort", "\u98DE\u8239\u6E2F\u53E3", "transport"],
-	  ["PublicToilet", "\u516C\u5171\u5395\u6240", "room"],
-	  ["Storage", "\u50A8\u7269\u95F4", "room"],
-	  ["Bathroom", "\u6D74\u5BA4", "room"],
-	  ["Kitchen", "\u53A8\u623F", "room"],
-	  ["Restroom", "\u5395\u6240", "room"]
-	];
-	CMConfig.forEach((config) => {
-	  let id = config[0], name = [config[1], id], type = "common|" + config[2];
-	  CM[id] = new Spots(["CommonSpots", id, name, type]);
-	  setCommon(id);
-	});
-	const OLConfig = [
-	  "\u57CE\u90CA(\u5317)",
-	  "\u57CE\u90CA(\u5357)",
-	  "\u57CE\u90CA(\u897F)",
-	  "\u57CE\u90CA(\u4E1C)",
-	  "\u57CE\u95E8(\u5317)",
-	  "\u57CE\u95E8(\u5357)",
-	  "\u57CE\u95E8(\u897F)",
-	  "\u57CE\u95E8(\u4E1C)",
-	  "\u57CE\u9547\u4E2D\u5FC3",
-	  "\u4E2D\u5FC3\u5E7F\u573A",
-	  "\u9B54\u6CD5\u5B66\u9662",
-	  "\u533B\u9662",
-	  "\u5546\u5E97\u8857",
-	  "\u5927\u6D74\u573A",
-	  "\u6C34\u65CF\u9986",
-	  "\u827A\u672F\u9986",
-	  "\u5143\u7075\u6559\u5802",
-	  "\u9ED1\u732B\u5496\u5561",
-	  "\u7EEF\u9E1F\u5267\u573A",
-	  "\u767E\u5FB7\u5546\u4F1A",
-	  "\u94F6\u94C3\u9910\u9986",
-	  "\u725B\u9A6C\u9152\u5427"
-	];
-	Array.from(worldMap$1.Orlania.spots).forEach((spot, i) => {
-	  const id = spot[0];
-	  const name = OLConfig[i];
-	  if (worldMap$1.Orlania[id] === void 0)
-	    OL[id] = new Spots(["Orlania", id, [name, id], spot[1].spotType]);
-	});
-	const A0Config = [
-	  "\u6CD5\u5E08\u5854",
-	  "\u9B54\u6CD5\u5B66\u9662|\u5165\u53E3",
-	  "\u9B54\u6CD5\u5B66\u9662|\u5E7F\u573A",
-	  "\u6559\u5B66\u697C|R1",
-	  "\u6559\u5B66\u697C|R2",
-	  "\u9B54\u6CD5\u7814\u7A76\u6240",
-	  "\u7EFC\u5408\u7814\u7A76\u6240",
-	  "\u56FE\u4E66\u9986",
-	  "\u7ADE\u6280\u573A",
-	  "\u535A\u7269\u9986",
-	  "\u5B66\u751F\u996D\u5802",
-	  "\u690D\u7269\u56ED",
-	  "\u5B66\u751F\u4E2D\u5FC3",
-	  "\u5BBF\u820D|\u5927\u5385",
-	  "\u79D8\u5BC6\u8BAD\u7EC3\u573A"
-	];
-	Array.from(worldMap$1.Academy.spots).forEach((spot, i) => {
-	  const id = spot[0];
-	  const name = A0Config[i];
-	  if (worldMap$1.Academy[id] === void 0)
-	    FMA[id] = new Spots(["Academy", id, [name, id], spot[1].spotType]);
-	  setAcademy(id);
-	});
-	const hasroom = Object.values(FMA).filter((spot) => {
-	  var _a;
-	  return (_a = spot.rooms) == null ? void 0 : _a.length;
-	});
-	const roomName = {
-	  GreenHouse: "\u6E29\u5BA4",
-	  Inside: "\u6CD5\u5E08\u5854|\u5185\u90E8",
-	  Observatory: "\u89C2\u6D4B\u53F0",
-	  MagiPysics: "\u9B54\u6CD5\u5B9E\u9A8C\u5BA4",
-	  Analyzing: "\u9B54\u6CD5\u5206\u6790\u5BA4",
-	  Alchemy: "\u70BC\u91D1\u5B9E\u9A8C\u5BA4",
-	  Biologic: "\u751F\u7269\u5B9E\u9A8C\u5BA4",
-	  MagiPotion: "\u9B54\u836F\u5B9E\u9A8C\u5BA4"
-	};
-	hasroom.forEach((spot) => {
-	  let id = spot.id.split(".").pop();
-	  spot.rooms.forEach((room) => {
-	    if (worldMap$1.CommonSpots[room]) {
-	      FMA[id][room] = GameMap.copy(worldMap$1.CommonSpots[room], spot.id, room);
-	    } else if (roomName[room]) {
-	      FMA[id][room] = new Spots([spot.id, room, [roomName[room], room], "room"]);
-	    } else {
-	      switch (id) {
-	        case "ClassBuildingR1":
-	        case "ClassBuildingR2":
-	          FMA[id][room] = new Spots([spot.id, room, ["\u6559\u5BA4|" + room, "Classroom|" + room], "room"]);
-	          break;
-	        case "Dormitory":
-	          FMA[id][room] = new Spots([spot.id, room, ["\u5BBF\u820D|" + room, "Dormitory|" + room], "room"]);
-	          break;
+	function initWorldMap() {
+	  const worldMap = {
+	    Orlania: new Boards("Orlania", "", {
+	      type: "town",
+	      name: ["\u5965\u5170\u5C3C\u4E9A"],
+	      entry: ["Orlania.GateN", "Orlania.GateS", "Orlania.GateW", "Orlania.GateE"],
+	      xy: [35, 35]
+	    }),
+	    Academy: new Boards("Academy", "Orlania", {
+	      type: "academy",
+	      name: ["\u5965\u5170\u5C3C\u4E9A\u7B2C\u4E00\u9B54\u6CD5\u5B66\u9662"],
+	      entry: "Academy.SchoolEntrance",
+	      xy: [7, 25]
+	    }),
+	    CommonSpots: {
+	      groupId: "CommonSpots"
+	    }
+	  };
+	  Object.defineProperties(window.game, {
+	    worldMap: { value: worldMap }
+	  });
+	  Object.defineProperties(window, {
+	    worldMap: {
+	      get() {
+	        return window.game.worldMap;
 	      }
 	    }
-	    setAcademyRoom(id, room);
 	  });
+	  console.log(window.worldMap);
+	  worldMap.Orlania["Academy"] = worldMap.Academy;
+	  worldMap.Orlania.Spots(
+	    ["OutskirtN|field", -17, 0, "S", ["field", "mapEntry"]],
+	    ["OutskirtS|field", 17, 0, "N", ["field", "mapEntry"]],
+	    ["OutskirtW|field", 0, -17, "E", ["field", "mapEntry"]],
+	    ["OutskirtE|field", 0, 17, "W", ["field", "mapEntry"]],
+	    ["GateN|passable", -15, 0, "S", ["gate"]],
+	    ["GateS|passable", 15, 0, "N", ["gate"]],
+	    ["GateW|passable", 0, -15, "E", ["gate"]],
+	    ["GateE|passable", 0, 15, "W", ["gate"]],
+	    ["TownCenter|passable", 0, 0, "SNWE", ["buildingEntry"]],
+	    ["CenterSquare|passable", 2, 0, "SN", ["ground"]],
+	    ["Academy", -11, 8, "SW", ["buildingEntry", "mapEntry"]],
+	    ["Hospital", -9, 3, "W", ["building"]],
+	    ["ShopAlley|passable", 11, -4, "E", ["shopAlley", "mapEntry"]],
+	    ["BathHouse", 9, -4, "EN", ["building"]],
+	    ["Aquarium", 12, 13, "N", ["buildingEntry"]],
+	    ["ArtGallery", -8, 8, "WNS", ["building"]],
+	    ["Church", -12, 4, "E", ["buildingEntry"]],
+	    ["BlackCat", -9, 8, "W", ["building"]],
+	    ["OperaHouse", -6, 11, "S", ["building"]],
+	    ["BairdTrading|passable", -4, -11, "SN", ["ground"]],
+	    ["SliverChimes", -4, -8, "N", ["building"]],
+	    ["CentaurBar", -6, -8, "N", ["building"]]
+	  );
+	  worldMap.Academy.Spots(
+	    ["MageTower", -3, -12, "S", ["buildingEntry"]],
+	    ["SchoolEntrance|passable", 0, -12, "EN", ["mapEntry", "gate"]],
+	    ["ActivitySquare|passable", 0, -10, "SNWE", ["ground"]],
+	    ["ClassBuildingR1|passable", 3, -8, "N", ["building"]],
+	    ["ClassBuildingR2|passable", -3, -8, "S", ["building"]],
+	    ["ResearchLabA", 2, -5, "WSN", ["building"]],
+	    ["ResearchLabB", -2, -5, "ESN", ["building"]],
+	    ["Library|passable", 2, -2, "SN", ["building"]],
+	    ["Arena|passable", -2, 1, "SNWE", ["ground", "float"]],
+	    ["HistoryMuseum", 2, 2, "N", ["building"]],
+	    ["DiningHall", 2, 10, "N", ["building"]],
+	    ["GreenGarden|passable", -2, -2, "SN", ["park"]],
+	    ["StudentCenter", -2, 7, "S", ["building"]],
+	    ["Dormitory", 0, 12, "W", ["building"]],
+	    ["SecretTrainingGround|invisible", 3, 12, "", ["secretArea"]]
+	  );
+	  const OL = worldMap.Orlania;
+	  const FMA = worldMap.Academy;
+	  const CM = worldMap.CommonSpots;
+	  const CMConfig = [
+	    ["RailcarStation", "\u8F68\u9053\u8F66\u7AD9", "stransport"],
+	    ["AirShipPort", "\u98DE\u8239\u6E2F\u53E3", "transport"],
+	    ["PublicToilet", "\u516C\u5171\u5395\u6240", "room"],
+	    ["Storage", "\u50A8\u7269\u95F4", "room"],
+	    ["Bathroom", "\u6D74\u5BA4", "room"],
+	    ["Kitchen", "\u53A8\u623F", "room"],
+	    ["Restroom", "\u5395\u6240", "room"]
+	  ];
+	  CMConfig.forEach((config) => {
+	    let id = config[0], name = [config[1], id], type = "common|" + config[2];
+	    CM[id] = new Spots(["CommonSpots", id, name, type]);
+	    setCommon(id);
+	  });
+	  const OLConfig = [
+	    "\u57CE\u90CA(\u5317)",
+	    "\u57CE\u90CA(\u5357)",
+	    "\u57CE\u90CA(\u897F)",
+	    "\u57CE\u90CA(\u4E1C)",
+	    "\u57CE\u95E8(\u5317)",
+	    "\u57CE\u95E8(\u5357)",
+	    "\u57CE\u95E8(\u897F)",
+	    "\u57CE\u95E8(\u4E1C)",
+	    "\u57CE\u9547\u4E2D\u5FC3",
+	    "\u4E2D\u5FC3\u5E7F\u573A",
+	    "\u9B54\u6CD5\u5B66\u9662",
+	    "\u533B\u9662",
+	    "\u5546\u5E97\u8857",
+	    "\u5927\u6D74\u573A",
+	    "\u6C34\u65CF\u9986",
+	    "\u827A\u672F\u9986",
+	    "\u5143\u7075\u6559\u5802",
+	    "\u9ED1\u732B\u5496\u5561",
+	    "\u7EEF\u9E1F\u5267\u573A",
+	    "\u767E\u5FB7\u5546\u4F1A",
+	    "\u94F6\u94C3\u9910\u9986",
+	    "\u725B\u9A6C\u9152\u5427"
+	  ];
+	  Array.from(worldMap.Orlania.spots).forEach((spot, i) => {
+	    const id = spot[0];
+	    const name = OLConfig[i];
+	    if (worldMap.Orlania[id] === void 0)
+	      OL[id] = new Spots(["Orlania", id, [name, id], spot[1].spotType]);
+	  });
+	  const A0Config = [
+	    "\u6CD5\u5E08\u5854",
+	    "\u9B54\u6CD5\u5B66\u9662|\u5165\u53E3",
+	    "\u9B54\u6CD5\u5B66\u9662|\u5E7F\u573A",
+	    "\u6559\u5B66\u697C|R1",
+	    "\u6559\u5B66\u697C|R2",
+	    "\u9B54\u6CD5\u7814\u7A76\u6240",
+	    "\u7EFC\u5408\u7814\u7A76\u6240",
+	    "\u56FE\u4E66\u9986",
+	    "\u7ADE\u6280\u573A",
+	    "\u535A\u7269\u9986",
+	    "\u5B66\u751F\u996D\u5802",
+	    "\u690D\u7269\u56ED",
+	    "\u5B66\u751F\u4E2D\u5FC3",
+	    "\u5BBF\u820D|\u5927\u5385",
+	    "\u79D8\u5BC6\u8BAD\u7EC3\u573A"
+	  ];
+	  Array.from(worldMap.Academy.spots).forEach((spot, i) => {
+	    const id = spot[0];
+	    const name = A0Config[i];
+	    if (worldMap.Academy[id] === void 0)
+	      FMA[id] = new Spots(["Academy", id, [name, id], spot[1].spotType]);
+	    setAcademy(id);
+	  });
+	  const hasroom = Object.values(FMA).filter((spot) => {
+	    var _a;
+	    return (_a = spot.rooms) == null ? void 0 : _a.length;
+	  });
+	  const roomName = {
+	    GreenHouse: "\u6E29\u5BA4",
+	    Inside: "\u6CD5\u5E08\u5854|\u5185\u90E8",
+	    Observatory: "\u89C2\u6D4B\u53F0",
+	    MagiPysics: "\u9B54\u6CD5\u5B9E\u9A8C\u5BA4",
+	    Analyzing: "\u9B54\u6CD5\u5206\u6790\u5BA4",
+	    Alchemy: "\u70BC\u91D1\u5B9E\u9A8C\u5BA4",
+	    Biologic: "\u751F\u7269\u5B9E\u9A8C\u5BA4",
+	    MagiPotion: "\u9B54\u836F\u5B9E\u9A8C\u5BA4"
+	  };
+	  hasroom.forEach((spot) => {
+	    let id = spot.id.split(".").pop();
+	    spot.rooms.forEach((room) => {
+	      if (worldMap.CommonSpots[room]) {
+	        FMA[id][room] = GameMap.copy(worldMap.CommonSpots[room], spot.id, room);
+	      } else if (roomName[room]) {
+	        FMA[id][room] = new Spots([spot.id, room, [roomName[room], room], "room"]);
+	      } else {
+	        switch (id) {
+	          case "ClassBuildingR1":
+	          case "ClassBuildingR2":
+	            FMA[id][room] = new Spots([spot.id, room, ["\u6559\u5BA4|" + room, "Classroom|" + room], "room"]);
+	            break;
+	          case "Dormitory":
+	            FMA[id][room] = new Spots([spot.id, room, ["\u5BBF\u820D|" + room, "Dormitory|" + room], "room"]);
+	            break;
+	        }
+	      }
+	      setAcademyRoom(id, room);
+	    });
+	  });
+	}
+	Object.defineProperties(window.scEra.initialization, {
+	  WorldMap: { value: initWorldMap }
 	});
+
+	class Talent {
+	  constructor(name, des) {
+	    this.name = name;
+	    this.des = des;
+	    this.effect = function() {
+	    };
+	  }
+	  Effects(callback) {
+	    this.effect = callback;
+	    return this;
+	  }
+	}
+	Talent.data = {};
+	const _Trait = class extends Talent {
+	  static init() {
+	    D.traits.forEach((obj) => {
+	      _Trait.data[obj.name] = new _Trait(obj);
+	    });
+	    console.log(_Trait.data);
+	  }
+	  static set(name) {
+	    const traitdata = Object.values(_Trait.data).filter((trait) => {
+	      return trait.name.includes(name);
+	    });
+	    if (traitdata) {
+	      return traitdata[0];
+	    } else {
+	      console.log("trait has not found:", name);
+	      return null;
+	    }
+	  }
+	  static get(name, key = "", event) {
+	    const traitdata = this.set(name);
+	    if (traitdata) {
+	      if (key == "") {
+	        return traitdata;
+	      }
+	      if (traitdata[key] && event) {
+	        return traitdata[key](event);
+	      }
+	      if (traitdata[key])
+	        return traitdata[key];
+	      else {
+	        console.log("key has not found:", name, key);
+	        return null;
+	      }
+	    } else {
+	      return null;
+	    }
+	  }
+	  static list(type) {
+	    return Object.values(_Trait.data).filter((trait) => {
+	      return trait.group == type;
+	    });
+	  }
+	  constructor({ name, des, order, group, conflict, sourceEffect } = {}) {
+	    if (typeof name == "string") {
+	      name = [name, name];
+	    }
+	    if (typeof des == "string") {
+	      des = [des, des];
+	    }
+	    super(name, des);
+	    this.order = order;
+	    this.group = group;
+	    this.conflict = conflict;
+	    this.get = {};
+	    this.lose = {};
+	    this.init(sourceEffect);
+	  }
+	  init(source) {
+	    if (source == null ? void 0 : source.length) {
+	      source.forEach(([key, value, option]) => {
+	        if (option) {
+	          this.lose[key] = value;
+	        } else {
+	          this.get[key] = value;
+	        }
+	      });
+	    }
+	  }
+	  Order(callback) {
+	    this.onOrder = callback;
+	    return this;
+	  }
+	  Source(callback) {
+	    this.onSource = callback;
+	    return this;
+	  }
+	  Fix(callback) {
+	    this.onFix = callback;
+	    return this;
+	  }
+	};
+	let Trait = _Trait;
+	Trait.data = {};
+	function findConflic(source, conflicGroup) {
+	  let conflicArr = source.filter((val) => conflicGroup.includes(val));
+	  if (conflicArr.length < 2) {
+	    return source;
+	  } else {
+	    let index = random(conflicArr.length - 1);
+	    source.delete(conflicGroup);
+	    source.push(conflicArr[index]);
+	    return source;
+	  }
+	}
+	const modules = {
+	  name: "Trait",
+	  version: "1.0.0",
+	  des: "A module for managing and building traits and talents.",
+	  data: {
+	    trait: Trait.data,
+	    talent: Talent.data
+	  },
+	  classObj: {
+	    Trait,
+	    Talent
+	  },
+	  functions: {
+	    findConflic
+	  },
+	  config: {
+	    globalfunction: true
+	  }
+	};
+	registModule(modules);
 
 	console.log(lan("\u6E38\u620F\u5F00\u59CB", "game start"));
 	console.log("utils loaded, the game is", window.game);
@@ -3778,71 +4026,136 @@ D.cflag = [
 	"getResistance",
 ];</script>
 <script id="script-module-language" type="text/javascript">D.bodyparts = {
+	//head group
 	head: "头部",
-	mouth: "嘴巴",
-	torso: "胴体",
-	body: "身体",
-	top: "上身",
-	bottom: "下身",
-	genital: "生殖器",
-	organ: "器官",
-	private: "私处",
-	groin: "腹股沟",
-	slimebody: "史莱姆身",
-	snakebody: "蛇身",
-	tailbody: "尾身",
-	nipple: "乳头",
-	wings: "翅膀",
-	wingL: "左翼",
-	wingR: "右翼",
-	horns: "角",
-	tails: "尾巴",
-	tentacles: "触手",
-	face: "面部",
 	eyes: "双眼",
 	eyeL: "左眼",
 	eyeR: "右眼",
-	nose: "鼻子",
+	eye: "眼睛",
 	ears: "耳朵",
 	earL: "左耳",
 	earR: "右耳",
+	ear: "耳朵",
+
+	face: "面部",
+	nose: "鼻子",
+	mouth: "嘴巴",
+	hairs: "头发",
+	brain: "大脑",
+	beak: "喙",
+
+	//shoudler group
+	neck: "脖子",
+	shoulders: "肩部",
+	shoulderL: "左肩",
+	shoulderR: "右肩",
 	shoulder: "肩部",
-	breast: "胸部",
-	abdomen: "腹部",
 	arms: "手臂",
 	armL: "左臂",
 	armR: "右臂",
-	legs: "腿部",
-	legL: "左腿",
-	legR: "右腿",
-	thighs: "大腿",
-	hips: "臀部",
-	buttL: "左臀",
-	buttR: "右臀",
-	butts: "屁股",
-	thighL: "左大腿",
-	thighR: "右大腿",
-	ankles: "脚踝",
-	wrists: "手腕",
-	ankleL: "左脚踝",
-	ankleR: "右脚踝",
-	feet: "双脚",
+	arm: "手臂",
 	hands: "双手",
-	footL: "左脚",
-	footR: "右脚",
 	handL: "左手",
 	handR: "右手",
+	hand: "手",
+	wrists: "手腕",
+	wristL: "左手腕",
+	wristR: "右手腕",
+	wrist: "手腕",
+	fingers: "手指",
+	finger: "手指",
+
+	//torso group
+	torso: "胴体",
+	body: "身体",
+	top: "上身",
+	organ: "器官",
+	organs: "器官",
+	slimebody: "史莱姆身",
+	snakebody: "蛇身",
+	tailbody: "尾身",
+	shoulder: "肩部",
+	breast: "胸部",
+	abdomen: "腹部",
+	belly: "肚子",
+	back: "背部",
+	waist: "腰部",
+
+	//chest group
+	chest: "胸腔",
+	nipple: "乳头",
+	breast: "胸部",
+	heart: "心脏",
+	lung: "肺",
+	lungs: "肺部",
+	lungL: "左肺",
+	lungR: "右肺",
+
+	//organs group
+	liver: "肝",
+	stomach: "胃",
+	intestine: "肠道",
+	bladder: "膀胱",
+	ovary: "卵巢",
+	testicle: "睾丸",
+	prostate: "前列腺",
+	uetrus: "子宫",
+	womb: "子宫",
+	fetus: "胎儿",
+
+	//bottom group
+	bottom: "下身",
+	groin: "腹股沟",
+	crotch: "裆部",
+	private: "私处",
+	genital: "生殖器",
 	critoris: "阴蒂",
 	anal: "肛门",
 	penis: "阴茎",
 	vagina: "阴道",
-	womb: "子宫",
 	anus: "肛门",
 	urin: "尿道",
+	urinary: "尿道",
+	urethral: "尿道口",
+
+	//hips to legs
+	hips: "臀部",
+	butts: "屁股",
+	buttL: "左臀",
+	buttR: "右臀",
+	thighs: "大腿",
+	thighL: "左大腿",
+	thighR: "右大腿",
+	thigh: "大腿",
+	legs: "腿部",
+	legL: "左腿",
+	legR: "右腿",
+	leg: "腿",
+
+	feet: "双脚",
+	footL: "左脚",
+	footR: "右脚",
 	foot: "脚",
-	hairs: "头发",
-	neck: "脖子",
-	hand: "手",
+	hoofs: "双蹄",
+	hoof: "蹄",
+	hoofL: "左蹄",
+	hoofR: "右蹄",
+	ankles: "脚踝",
+	ankleL: "左脚踝",
+	ankleR: "右脚踝",
+
+	//extra parts
+	wings: "翅膀",
+	wingL: "左翼",
+	wingR: "右翼",
+	horns: "角",
+	horn: "角",
+	hornL: "左角",
+	hornR: "右角",
+
+	tails: "尾巴",
+	tail: "尾巴",
+	tentacles: "触手",
 };</script>
 <script id="script-module-skinlayer" type="text/javascript">D.covergroupA = {
 	//覆盖度。 决定肌肤暴露部位。
@@ -3896,6 +4209,126 @@ D.skinlayer = [
 	"vagina",
 	"anus",
 ];</script>
+<script id="script-module-xml2Obj" type="text/javascript">function xml2Obj(obj) {
+	const language = ["CN", "EN", "JP"];
+	const isText = (obj) => obj && obj["#text"] && Object.keys(obj).length === 1;
+	const isLiArr = (obj) => obj && obj.li && Object.keys(obj).length === 1 && Array.isArray(obj.li);
+	const isLi = (obj) => obj && obj.li && Object.keys(obj).length === 1;
+
+	const convertObj = function (obj, objname = "group") {
+		const result = {};
+
+		for (let key in obj) {
+			//convert li to array
+			//console.log("converting: ", key, obj[key]);
+
+			if (isLiArr(obj[key])) {
+				result[key] = convertArr(obj[key], key);
+			}
+			//convert li obj to array
+			else if (isLi(obj[key])) {
+				let li = obj[key].li;
+				result[key] = [convertObj(li, key)];
+			}
+
+			//delect #comment
+			else if (key == "#comment") {
+				continue;
+			}
+
+			//convert language array
+			else if (Array.isArray(obj[key]) && obj[key][0].lan) {
+				const arr = [];
+				obj[key].forEach((item) => {
+					const lan = item.lan;
+					const txt = item["#text"];
+					arr[language.indexOf(lan)] = txt;
+				});
+				result[key] = arr;
+			}
+
+			//convert array
+			else if (Array.isArray(obj[key])) {
+				let _key = key;
+				if (key === "li") {
+					key = objname;
+				}
+				result[key] = convertArr(obj[_key], objname);
+			}
+
+			//convert { #text: 'xxx' } to 'xxx', ensure no other key
+			else if (isText(obj[key])) {
+				result[key] = txt(obj[key]);
+			}
+
+			//convert { #text: 'xxx' } to  key: 'xxx', when has other key
+			else if (key == "#text") {
+				result[objname] = txt(obj[key]);
+			}
+
+			//if is object, convert it
+			else if (typeof obj[key] === "object") {
+				result[key] = convertObj(obj[key], key);
+			}
+
+			//other case
+			else {
+				result[key] = txt(obj[key]);
+			}
+		}
+
+		return result;
+	};
+
+	//convert xxx,xxx to array, and convert number to number
+	const arr = function (arg) {
+		const arr = arg.split("|");
+		//if the array is number, convert it to number
+		if (!isNaN(arr[0])) {
+			return arr.map((item) => Number(item));
+		}
+		return arr;
+	};
+
+	const boolen = function (arg) {
+		return arg === "true";
+	};
+
+	//convert { #text: 'xxx' } to 'xxx'
+	const txt = function (obj) {
+		let ctx;
+
+		if (obj && obj["#text"]) ctx = obj["#text"];
+		else if (typeof obj === "string") ctx = obj;
+		else return obj;
+
+		if (!isNaN(ctx)) return Number(ctx);
+		else if (ctx.includes("|")) return arr(ctx);
+		else if (groupmatch(ctx, "true", "false")) return boolen(ctx);
+		return ctx;
+	};
+
+	const convertArr = function (arr, objname = "group") {
+		const result = [];
+		//console.log("converting array: ", arr, objname);
+
+		arr.forEach((item) => {
+			if (isText(item)) {
+				result.push(txt(item));
+			} else if (Array.isArray(item)) {
+				result.push(convertArr(item, objname));
+			} else if (typeof item === "object") {
+				result.push(convertObj(item, objname));
+			} else {
+				result.push(item);
+			}
+		});
+
+		return result;
+	};
+
+	return convertObj(obj, "root");
+}</script>
 <link type="image/png" rel="icon" sizes="24x24" href="icon.svg" />
 <link rel="stylesheet" href="css/jquery-ui.css">
 <link rel="stylesheet" href="css/shake-macro-set.css">
@@ -3998,28 +4431,64 @@ window.test = async function () {
 };
 /* twine-user-script #2: "00-namespace.js" */
 /**
- * As part of my various refactors, I ended up introducing a bunch of
- * global namespace-esk variables.
  *
- * Having a single spot to document them makes sense. By convention,
- * if you need to make a new top-level namespace, declare it here.
+ * All the global shortcuts are defined here.
+ * You can extend any variable or function by adding it to the list below.
+ * Don't try to edit any variable under the window.scEra namespace.
+ *
  */
 
-/**
- * Declare everything in a root namespace, so that things can still be found
- * if shadowed, and for "documentation" purposes
- */
+const list = ["Base", "Stats", "Palam", "Source", "Sup", "Cflag", "Tsv", "Exp", "Juel", "Using", "Liquid", "Skin"];
 
 Object.defineProperties(window.game, {
 	State: { value: State },
 	setup: { value: setup },
-	Wikifier: { value: Wikifier },
 });
 
-game.Errors = {};
-game.Perflog = {};
+Object.defineProperties(window.scEra, {
+	Story: { get: () => Story },
+	Wikifier: { get: () => Wikifier },
+	Errors: { value: {} },
+	Perflog: { value: {} },
+});
+
+list.forEach((name) => {
+	window.game[name] = {};
+});
 
 defineGlobalNamespaces(window.game);
+
+const shortcuts = {
+	S: setup,
+	V: State.variables,
+	T: State.temporary,
+	Story: Story,
+	Wikifier: Wikifier,
+
+	Errors: window.scEra.Errors,
+	Perflog: window.scEra.Perflog,
+};
+
+defineGlobalShortcuts(shortcuts);
+
+// those properties are not defined at this point, so we just define them as empty objects
+Object.defineProperties(window, {
+	C: { get: () => State.variables.chara },
+	Flag: {
+		get: () => State.variables.flag,
+	},
+	tc: { get: () => State.variables.tc, set: (v) => (State.variables.tc = v) },
+	pc: {
+		get: () => State.variables.pc,
+		set: (v) => (State.variables.pc = v),
+	},
+	player: {
+		get: () => State.variables.chara[pc],
+	},
+	target: {
+		get: () => State.variables.chara[tc],
+	},
+});
 /* twine-user-script #3: "01-error.js" */
 /**
  * Error reporter utility that provides enriched error messages to the user as a simple sugarcube plugin app
@@ -4167,7 +4636,7 @@ function DefineMacro(macroName, macroFunction, tags, skipArgs) {
 		tags,
 		skipArgs,
 		handler() {
-			game.Perflog.logWidgetStart(macroName);
+			scEra.Perflog.logWidgetStart(macroName);
 			try {
 				const oldArgs = State.temporary.args;
 				State.temporary.args = this.args.slice();
@@ -4178,7 +4647,7 @@ function DefineMacro(macroName, macroFunction, tags, skipArgs) {
 					State.temporary.args = oldArgs;
 				}
 			} finally {
-				game.Perflog.logWidgetEnd(macroName);
+				scEra.Perflog.logWidgetEnd(macroName);
 			}
 		},
 	});
@@ -4200,22 +4669,19 @@ function DefineMacroS(macroName, macroFunction, tags, skipArgs, maintainContext)
 
 window.wikifier = function (widget, arg1, arg2, arg3) {
 	if (arg3 !== undefined) {
-		new Wikifier(null, '<<' + widget + ' ' + arg1 + ' ' + arg2 + ' ' + arg3 + '>>');
+		new Wikifier(null, "<<" + widget + " " + arg1 + " " + arg2 + " " + arg3 + ">>");
+	} else if (arg2 !== undefined) {
+		new Wikifier(null, "<<" + widget + " " + arg1 + " " + arg2 + ">>");
+	} else if (arg1 !== undefined) {
+		new Wikifier(null, "<<" + widget + " " + arg1 + ">>");
+	} else if (arg1 === undefined) {
+		new Wikifier(null, "<<" + widget + ">>");
 	}
-	else if (arg2 !== undefined) {
-		new Wikifier(null, '<<' + widget + ' ' + arg1 + ' ' + arg2 + '>>');
-	}
-	else if (arg1 !== undefined) {
-		new Wikifier(null, '<<' + widget + ' ' + arg1 + '>>');
-	}
-	else if (arg1 === undefined) {
-		new Wikifier(null, '<<' + widget + '>>');
-	}
-}
+};
 
 window.wikifier2 = function (str) {
 	new Wikifier(null, str);
-}
+};
 
 /*
  * Similar to <<script>>, but preprocesses the contents, so $variables are accessible.
@@ -4226,18 +4692,17 @@ window.wikifier2 = function (str) {
  *     output.textContent = $text
  * <</twinescript>>
  */
-Macro.add('twinescript', {
-	skipArgs : true,
-	tags     : null,
+Macro.add("twinescript", {
+	skipArgs: true,
+	tags: null,
 
 	handler() {
 		const output = document.createDocumentFragment();
 
 		try {
 			Scripting.evalTwineScript(this.payload[0].contents, output);
-		}
-		catch (ex) {
-			return this.error(`bad evaluation: ${typeof ex === 'object' ? ex.message : ex}`);
+		} catch (ex) {
+			return this.error(`bad evaluation: ${typeof ex === "object" ? ex.message : ex}`);
 		}
 		// Custom debug view setup.
 		if (Config.debug) {
@@ -4247,7 +4712,7 @@ Macro.add('twinescript', {
 		if (output.hasChildNodes()) {
 			this.output.appendChild(output);
 		}
-	}
+	},
 });
 
 /*
@@ -4261,21 +4726,21 @@ Macro.add('twinescript', {
  */
 Macro.add("radiovar", {
 	tags: null,
-	handler: function() {
+	handler: function () {
 		if (this.args.length < 2) return this.error("missing <<radiovar>> arguments");
 		var varname = this.args[0];
 		var value = this.args[1];
 		var content = this.payload[0].contents;
 		var e = $("<input>")
 			.attr({
-				name: "radiovar"+Util.slugify(varname),
-				id: "radiovar"+Util.slugify(varname)+"-"+Util.slugify(value),
+				name: "radiovar" + Util.slugify(varname),
+				id: "radiovar" + Util.slugify(varname) + "-" + Util.slugify(value),
 				tabindex: 0,
-				type: "radio"
+				type: "radio",
 			})
-			.prop("checked", State.getVar(varname) ==  value)
+			.prop("checked", State.getVar(varname) == value)
 			.addClass("macro-radiovar")
-			.on('change.macros', function () {
+			.on("change.macros", function () {
 				if (this.checked) {
 					State.setVar(varname, value);
 					Wikifier.wikifyEval(content);
@@ -4283,148 +4748,9 @@ Macro.add("radiovar", {
 			});
 		if (this.args[2]) e = $("<label>").append(this.args[2], e);
 		e.appendTo(this.output);
-	}
-});
-/* twine-user-script #5: "03_statevars.js" */
-const source = {};
-const sup = {};
-const base = {};
-const palam = {};
-const cflag = {};
-const tsv = {};
-const stats = {};
-const exp = {};
-const juel = {};
-const using = {};
-const flag = {};
-
-Object.defineProperties(window, {
-	Story: {
-		get: function () {
-			return Story;
-		},
-	},
-	V: {
-		get: function () {
-			return State.variables;
-		},
-	},
-
-	T: {
-		get: function () {
-			return State.temporary;
-		},
-	},
-
-	S: {
-		get: function () {
-			return setup;
-		},
-	},
-
-	C: {
-		get: function () {
-			return State.variables.chara;
-		},
-	},
-
-	Flag: {
-		get: function () {
-			return State.variables.flag;
-		},
-	},
-
-	tc: {
-		get: function () {
-			return State.variables.tc;
-		},
-
-		set: function (v) {
-			State.variables.tc = v;
-		},
-	},
-
-	pc: {
-		get: function () {
-			return State.variables.pc;
-		},
-		set: function (v) {
-			State.variables.pc = v;
-		},
-	},
-
-	player: {
-		get: function () {
-			return C[pc];
-		},
-	},
-
-	target: {
-		get: function () {
-			return C[tc];
-		},
-	},
-
-	Base: {
-		get: function () {
-			return base;
-		},
-	},
-
-	Stats: {
-		get: function () {
-			return stats;
-		},
-	},
-
-	Palam: {
-		get: function () {
-			return palam;
-		},
-	},
-
-	Source: {
-		get: function () {
-			return source;
-		},
-	},
-
-	Sup: {
-		get: function () {
-			return sup;
-		},
-	},
-
-	Cflag: {
-		get: function () {
-			return cflag;
-		},
-	},
-	Tsv: {
-		get: function () {
-			return tsv;
-		},
-	},
-
-	Exp: {
-		get: function () {
-			return exp;
-		},
-	},
-
-	Juel: {
-		get: function () {
-			return juel;
-		},
-	},
-
-	Using: {
-		get: function () {
-			return using;
-		},
 	},
 });
-/* twine-user-script #6: "chs.min.js" */
+/* twine-user-script #5: "chs.min.js" */
 /*! chs.js – 简体中文, by: Liyro Pen. | Copyright © 2017 Thomas Michael Edwards <thomasmedwards@gmail.com>. All rights reserved. | Licensed under a BSD 2-clause "Simplified" License. */
 !(function () {
   (l10nStrings.identity = "游戏"),
@@ -4483,7 +4809,7 @@ Object.defineProperties(window, {
     (l10nStrings.macroBackText = "返回"),
     (l10nStrings.macroReturnText = "返回");
 })();
-/* twine-user-script #7: "newWidget.js" */
+/* twine-user-script #6: "newWidget.js" */
 /* eslint-disable jsdoc/require-description-complete-sentence */
 /**
  * Provides a magic variable `$_` that creates a custom scope for the current
@@ -4519,9 +4845,7 @@ function trace() {
 }
 
 function allMagical() {
-	return Object.keys(State.variables).filter(
-		key => key.startsWith(VIRTUAL_CURRENT) && key !== VIRTUAL_CURRENT
-	);
+	return Object.keys(State.variables).filter((key) => key.startsWith(VIRTUAL_CURRENT) && key !== VIRTUAL_CURRENT);
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -4557,9 +4881,9 @@ Macro.add("widget", {
 				handler: (function (widgetCode) {
 					return function () {
 						// Custom code
-						if(!game.Stack) game.Stack = []
-						game.Stack.push(widgetName);
-						game.Perflog.logWidgetStart(widgetName);
+						if (!scEra.Stack) scEra.Stack = [];
+						scEra.Stack.push(widgetName);
+						scEra.Perflog.logWidgetStart(widgetName);
 						const newFrame = {};
 						State.variables[VIRTUAL_CURRENT] = newFrame;
 						vStack.push(newFrame);
@@ -4575,16 +4899,12 @@ Macro.add("widget", {
 							trace(`saving ${d(magicals)} to ${d(priorFrame)}`);
 						}
 						if (priorFrame !== undefined) {
-							magicals.forEach(key => {
+							magicals.forEach((key) => {
 								priorFrame[key] = State.variables[key];
 								delete State.variables[key];
 							});
 						} else if (magicals.length > 0) {
-							console.warn(
-								`Found variables: ${JSON.stringify(magicals)} declared in :: ${
-									State.passage
-								}`
-							);
+							console.warn(`Found variables: ${JSON.stringify(magicals)} declared in :: ${State.passage}`);
 						}
 						// End custom code
 
@@ -4628,12 +4948,10 @@ Macro.add("widget", {
 							const errList = [];
 
 							// Wikify the widget's code.
-							const resFrag = Wikifier.wikifyEval(
-								widgetCode.replace(/^\n+|\n+$/g, "").replace(/\n+/g, " ")
-							);
+							const resFrag = Wikifier.wikifyEval(widgetCode.replace(/^\n+|\n+$/g, "").replace(/\n+/g, " "));
 
 							// Carry over the output, unless there were errors.
-							Array.from(resFrag.querySelectorAll(".error")).forEach(errEl => {
+							Array.from(resFrag.querySelectorAll(".error")).forEach((errEl) => {
 								errList.push(errEl.textContent);
 							});
 
@@ -4642,23 +4960,21 @@ Macro.add("widget", {
 							} else {
 								console.error(`Error rendering widget ${widgetName}`, errList);
 								return this.error(
-									`error${
-										errList.length > 1 ? "s" : ""
-									} within widget code (${errList.join("; ")})`
+									`error${errList.length > 1 ? "s" : ""} within widget code (${errList.join("; ")})`
 								);
 							}
 						} catch (ex) {
 							return this.error(`cannot execute widget: ${ex.message}`);
 						} finally {
 							// Custom code
-							game.Stack.pop();
+							scEra.Stack.pop();
 							vStack.pop();
 							vContext.pop();
 							State.variables[VIRTUAL_CURRENT] = priorFrame;
 							const magicals = allMagical();
 							if (magicals.length > 0) {
 								trace(`cleaning up ${d(magicals)}`);
-								magicals.forEach(key => {
+								magicals.forEach((key) => {
 									// don't pollute the global namespace
 									delete State.variables[key];
 								});
@@ -4668,7 +4984,7 @@ Macro.add("widget", {
 								// restore prior frame
 								Object.assign(State.variables, priorFrame);
 							}
-							game.Perflog.logWidgetEnd(widgetName);
+							scEra.Perflog.logWidgetEnd(widgetName);
 							// End custom code
 
 							// Revert the `_args` variable shadowing.
@@ -4715,11 +5031,17 @@ Macro.add("widget", {
 		}
 	},
 });
-/* twine-user-script #8: "perflog.js" */
+/* twine-user-script #7: "perflog.js" */
 // Time in milliseconds, float with microsecond precision if available.
-const millitime = (typeof performance === 'object' && typeof performance.now === 'function') ?
-	function() { return performance.now() } : function() { return new Date().getTime() };
-game.Perflog.millitime = millitime;
+const millitime =
+	typeof performance === "object" && typeof performance.now === "function"
+		? function () {
+				return performance.now();
+		  }
+		: function () {
+				return new Date().getTime();
+		  };
+scEra.Perflog.millitime = millitime;
 
 /**
  * Widget performance records for one passage.
@@ -4736,45 +5058,45 @@ wpRec[wpSelf.name] = wpSelf;
 /**
  * Global widget performance records
  */
-game.Perflog.globalRec = {};
-game.Perflog.lastRec = {};
-game.Perflog.enabled = true;
-game.Perflog.self = true; // Record own performance
+scEra.Perflog.globalRec = {};
+scEra.Perflog.lastRec = {};
+scEra.Perflog.enabled = true;
+scEra.Perflog.self = true; // Record own performance
 /**
  * Performance stack entry = { t0: widget start time, i: internal widget duration }
  */
 const wpStack = []; // Widget performance stack
-game.Perflog.nPassages = 0;
-$(document).on(':passageend', function() {
-	if (!game.Perflog.enabled) return;
+scEra.Perflog.nPassages = 0;
+$(document).on(":passageend", function () {
+	if (!scEra.Perflog.enabled) return;
 	try {
-		if (game.Perflog.self) game.Perflog.logWidgetStart("__perflog_passageEnd")
-		game.Perflog.nPassages++;
+		if (scEra.Perflog.self) scEra.Perflog.logWidgetStart("__perflog_passageEnd");
+		scEra.Perflog.nPassages++;
 		for (var name in wpRec) {
 			var rec = wpRec[name];
-			var grec = game.Perflog.globalRec[name];
+			var grec = scEra.Perflog.globalRec[name];
 			if (!grec) {
-				game.Perflog.globalRec[name] = rec;
+				scEra.Perflog.globalRec[name] = rec;
 			} else {
 				grec.n += rec.n;
 				grec.total += rec.total;
 				grec.own += rec.own;
 			}
 		}
-		game.Perflog.lastRec = wpRec;
+		scEra.Perflog.lastRec = wpRec;
 		wpRec = {};
 	} finally {
-		if (game.Perflog.self) game.Perflog.logWidgetEnd("__perflog_passageEnd")
+		if (scEra.Perflog.self) scEra.Perflog.logWidgetEnd("__perflog_passageEnd");
 	}
 });
-game.Perflog.logWidgetStart = function(widgetName) {
-	if (!game.Perflog.enabled) return;
+scEra.Perflog.logWidgetStart = function (widgetName) {
+	if (!scEra.Perflog.enabled) return;
 	wpStack.push({
 		name: widgetName,
 		t0: millitime(),
-		i: 0
+		i: 0,
 	});
-}
+};
 /**
  * Record that widget `widgetName` executed in `totaltime` ms,
  * including `internaltime` internal widget calls
@@ -4782,25 +5104,26 @@ game.Perflog.logWidgetStart = function(widgetName) {
  * @param {number} totaltime
  * @param {number=0} internaltime
  */
-game.Perflog.logWidgetTime = function(widgetName, totaltime, internaltime) {
+scEra.Perflog.logWidgetTime = function (widgetName, totaltime, internaltime) {
 	if (typeof internaltime !== "number") internaltime = 0;
 	const prevPerflog = wpStack[wpStack.length - 1];
 	if (prevPerflog) {
 		prevPerflog.i += totaltime;
 	}
 	var perfrec = wpRec[widgetName];
-	if (!perfrec) perfrec = wpRec[widgetName] = {
-		name:widgetName,
-		n:0,
-		total:0,
-		own:0
-	};
+	if (!perfrec)
+		perfrec = wpRec[widgetName] = {
+			name: widgetName,
+			n: 0,
+			total: 0,
+			own: 0,
+		};
 	perfrec.n++;
 	perfrec.total += totaltime;
 	perfrec.own += totaltime - internaltime;
-}
-game.Perflog.logWidgetEnd = function(widgetName) {
-	if (!game.Perflog.enabled) return;
+};
+scEra.Perflog.logWidgetEnd = function (widgetName) {
+	if (!scEra.Perflog.enabled) return;
 	const time = millitime();
 	const perflog = wpStack[wpStack.length - 1];
 	if (!perflog || perflog.name !== widgetName) {
@@ -4808,14 +5131,14 @@ game.Perflog.logWidgetEnd = function(widgetName) {
 		return;
 	}
 	wpStack.pop();
-	game.Perflog.logWidgetTime(widgetName, time-perflog.t0, perflog.i);
-	if (game.Perflog.self) {
-		const selfDt = millitime() - time
+	scEra.Perflog.logWidgetTime(widgetName, time - perflog.t0, perflog.i);
+	if (scEra.Perflog.self) {
+		const selfDt = millitime() - time;
 		wpSelf.n++;
 		wpSelf.own += selfDt;
 		wpSelf.total += selfDt;
 	}
-}
+};
 
 /**
  * Returns a "nice" string representation of a number without too much decimal digits.
@@ -4825,9 +5148,9 @@ function niceround(x) {
 	if (Math.floor(x) === x) return x; // Integers
 	if (-1 < x && x < 1) {
 		// Small number, round to 0.001 instead
-		return Math.round(x*1000)/1000;
+		return Math.round(x * 1000) / 1000;
 	}
-	return Math.round(x*10)/10;
+	return Math.round(x * 10) / 10;
 }
 /**
  * Return performance report. Can be viewed by DevTools table() function.
@@ -4850,66 +5173,69 @@ function niceround(x) {
  * @param {boolean} [options.round=true] Round to 0.1 precision
  * @param {string} [options.filter=null] A regular expression pattern that will be used to filter widgets
  */
-game.Perflog.report = function (options) {
-	options = Object.assign({
-		sort: 'own',
-		limit: 20,
-		global: true,
-		round: true,
-		filter: null
-	}, options);
-	const numfn = options.round ? niceround : (x)=>x;
+scEra.Perflog.report = function (options) {
+	options = Object.assign(
+		{
+			sort: "own",
+			limit: 20,
+			global: true,
+			round: true,
+			filter: null,
+		},
+		options
+	);
+	const numfn = options.round ? niceround : (x) => x;
 	var entries;
 	if (options.global) {
-		const np = game.Perflog.nPassages;
+		const np = scEra.Perflog.nPassages;
 		// Add 'per passage' metrics
-		entries = Object.values(game.Perflog.globalRec).map(e=>({
+		entries = Object.values(scEra.Perflog.globalRec).map((e) => ({
 			name: e.name,
 			n: e.n,
 			total: numfn(e.total),
 			own: numfn(e.own),
-			npp: numfn(e.n/np),
-			totalpp: numfn(e.total/np),
-			ownpp: numfn(e.own/np),
-			totalp1: numfn(e.total/e.n),
-			ownp1: numfn(e.own/e.n)
+			npp: numfn(e.n / np),
+			totalpp: numfn(e.total / np),
+			ownpp: numfn(e.own / np),
+			totalp1: numfn(e.total / e.n),
+			ownp1: numfn(e.own / e.n),
 		}));
 	} else {
-		entries = Object.values(game.Perflog.lastRec).map(e=>({
+		entries = Object.values(scEra.Perflog.lastRec).map((e) => ({
 			name: e.name,
 			n: e.n,
 			total: numfn(e.total),
 			own: numfn(e.own),
-			totalp1: numfn(e.total/e.n),
-			ownp1: numfn(e.own/e.n),
+			totalp1: numfn(e.total / e.n),
+			ownp1: numfn(e.own / e.n),
 		}));
 	}
 	if (options.filter) {
-		var matcher = new RegExp(options.filter)
-		entries = entries.filter(x => typeof x.name === 'string' && matcher.test(x.name))
+		var matcher = new RegExp(options.filter);
+		entries = entries.filter((x) => typeof x.name === "string" && matcher.test(x.name));
 	}
 	var comparator;
 	const sort = options.sort;
 	switch (sort) {
-		case 'own':
-		case 'total':
-		case 'n':
-		case 'npp':
-		case 'ownpp':
-		case 'totalpp':
-		case 'totalp1':
-		case 'ownp1':
-			comparator = (a,b)=>b[sort] - a[sort];
+		case "own":
+		case "total":
+		case "n":
+		case "npp":
+		case "ownpp":
+		case "totalpp":
+		case "totalp1":
+		case "ownp1":
+			comparator = (a, b) => b[sort] - a[sort];
 			break;
-		case 'name':
+		case "name":
 		default:
-			comparator = (a,b)=> a.name < b.name ? -1 : a.name > b.name ? +1 : 0;
+			comparator = (a, b) => (a.name < b.name ? -1 : a.name > b.name ? +1 : 0);
 	}
 	entries.sort(comparator);
 	if (options.limit > 0 && entries.length > options.limit) entries.splice(options.limit);
 	return entries;
-}
-/* twine-user-script #9: "sugarcubeConfig.js" */
+};
+/* twine-user-script #8: "sugarcubeConfig.js" */
 Config.history.controls = true;
 Config.history.maxStates = 3;
 
@@ -4950,7 +5276,7 @@ Config.saves.isAllowed = function () {
 
 // delete parser that adds unneeded line breaks -ng
 Wikifier.Parser.delete("lineBreak");
-/* twine-user-script #10: "Flags.js" */
+/* twine-user-script #9: "Flags.js" */
 //保存到存档中的变量设置。
 
 //系统变量设置。 GameInit的时候会批量注册到 $system下。
@@ -4992,12 +5318,11 @@ D.gameFlag = [
 ];
 
 //角色类变量看modules的flags.js
-/* twine-user-script #11: "Option.js" */
+/* twine-user-script #10: "Option.js" */
 //经典era模式下的分类设置
-D.ComTypes = ["常规", "挑逗", "性交", "肛门", "尿道", "触手", "道具", "SM", "魔法", "情景", "其他"];
-
 D.ComFilterGeneral = ["常规", "挑逗", "魔法", "其他"];
 D.ComFilterTrain = ["前戏", "道具", "性交", "尿道", "SM", "鬼畜", "触手", "情景"];
+D.ComTypes = D.ComFilterGeneral.concat(D.ComFilterTrain);
 
 //scEra动作模式下的分类设置
 D.ActionTypes = [
@@ -5053,7 +5378,7 @@ S.orderConfig = {
 	tentacles: 50,
 	pose: 50,
 };
-/* twine-user-script #12: "Tflag.js" */
+/* twine-user-script #11: "Tflag.js" */
 //不会被保存的临时变量。刷新页面就自动无了。
 //都是即插即拔的变量。并不会批量生成。
 //纯记录和检查有无冲突用。 为了方便就放这里了。
@@ -5111,7 +5436,352 @@ D.tflag = [
 	"comcount",
 	"comCancel",
 ];
-/* twine-user-script #13: "02-mapdata.js" */
+/* twine-user-script #12: "00-data.js" */
+D.race = {
+	human: ["人类", "Human"],
+	elvin: ["精灵", "Elvin"],
+	deamon: ["魔人", "Half Deamon"],
+	wolves: ["狼人", "Wolves"],
+	drawf: ["矮人", "Drawf"],
+	goblin: ["地精", "Goblin"],
+	catvinx: ["狐猫", "Catvinx"],
+	centaur: ["马头人", "Centaur"],
+	bestiary: ["兽化人", "Bestiary Human"],
+	orc: ["奥克人", "Orc"],
+	titan: ["巨人", "Titan"],
+	dracon: ["龙人", "Dracon"],
+	kijin: ["`鬼人", "Kijin"],
+};
+
+D.stats = ["ATK", "DEF", "MTK", "MDF", "STR", "CON", "DEX", "INT", "WIL", "PSY", "ALR", "LUK"];
+
+D.basicNeeds = {
+	health: ["健康", "HP."],
+	stamina: ["体力", "SP."],
+	sanity: ["理智", "San."],
+	mana: ["魔力", "MP."],
+
+	hydration: ["水分", "Hyd."],
+	nutrition: ["营养", "Nutr."],
+	clean: ["清洁", "Cln."],
+};
+
+D.basicPalam = {
+	drug: ["药物", "Drg."],
+	alcohol: ["酒精", "Alc."],
+	stress: ["压力", "Str."],
+	libido: ["性欲", "Lbd."],
+};
+
+D.base = {};
+D.base = Object.assign(D.base, D.basicNeeds, D.basicPalam);
+
+D.palam = {
+	ecstacy: ["快感", "Ecs."], //快感值总条。 与射精or潮吹绑定。
+	//受方palam
+	lust: ["欲情", "Lust."], //欲望值，根据累积flag升级欲望lv。指令执行成功时概率获得依存值。
+	surrend: ["屈从", "Srr."], //根据累积flag升级顺从Lv。屈从palamlv累计到一定值时获得刻印。指令执行成功时概率获得服从值/支配值。
+	fear: ["恐惧", "Fear."], //恐惧刻印
+	mortify: ["羞耻", "Mtf."], //羞耻刻印。露出类指令。
+	humiliate: ["受辱", "Hml."], //耻辱刻印。 羞辱类指令
+	pain: ["疼痛", "Pain."], //痛苦刻印
+	depress: ["抑郁", "Dpr."], //压力值
+	resist: ["抵触", "Rst."], //反抗刻印
+	favo: ["好意", "Favo"], //好感转换
+	uncomfort: ["不适", "Ucm."], //减少mood，根据情况转换为疼痛、抵触、压抑。影响体力与健康的消耗。可能触发生病flag
+
+	//攻方palam
+	eager: ["渴望", "Egr."], //行为时间拉长，动作变急切。依存up
+	angry: ["愤怒", "Angr."], //mood down，动作会变粗暴。
+	satisfy: ["满意", "Sat."], //评价up 好感up
+	superior: ["优越", "Sup."], // 支配度up
+
+	//部位palam。各种高潮判定主要看这边。高潮时获得性依存度，快乐刻印
+	esM: ["快M", "ecsM."],
+	esB: ["快B", "ecsB."], //同时也是喷乳判定条
+	esC: ["快C", "ecsC."],
+	esU: ["快U", "ecsU."],
+	esV: ["快V", "ecsV."],
+	esA: ["快A", "ecsA."],
+
+	//各部位疼痛值。抖M会转化为部位快感。否则抵消部分快感。总值算入pain中。
+	paM: ["痛M", "pnM."],
+	paB: ["痛B", "pnB."],
+	paC: ["痛C", "pnC."],
+	paU: ["痛U", "pnU."],
+	paV: ["痛V", "pnV."],
+	paA: ["痛A", "pnA."],
+};
+
+D.basecolor = {
+	health: [255, 92, 79],
+	stamina: [223, 236, 15],
+	sanity: [12, 163, 238],
+	mana: [160, 35, 231],
+
+	hydration: [65, 255, 233],
+	nutrient: [134, 255, 79],
+
+	ecstacy: [255, 95, 202],
+	esM: [255, 95, 202],
+	esB: [255, 95, 202],
+	esC: [255, 95, 202],
+	esU: [255, 95, 202],
+	esV: [255, 95, 202],
+	esA: [255, 95, 202],
+
+	pain: [87, 29, 243],
+	paM: [87, 29, 243],
+	paB: [87, 29, 243],
+	paC: [87, 29, 243],
+	paU: [87, 29, 243],
+	paV: [87, 29, 243],
+	paA: [87, 29, 243],
+};
+
+D.mark = {
+	hypno: ["催眠刻印", "Hypnosis Mark"],
+	ecstacy: ["快乐刻印", "Ecstacy Mark"], //the ecstacy ethed on mind
+	surrend: ["屈服刻印", "Surrender Mark"],
+	pain: ["痛苦刻印", "Pain Mark"],
+	fear: ["恐惧刻印", "Fear Mark"],
+	humiliate: ["耻辱刻印", "Humiliated Mark"],
+	mortify: ["羞耻刻印", "Mortify Mark"],
+	resist: ["反抗刻印", "Resistance Mark"],
+};
+
+D.abl = {
+	magica: ["魔法等级", "Magica"],
+	lumen: ["光魔法", "Lumen Magic"],
+	ark: ["暗魔法", "Ark Magic"],
+	flare: ["火魔法", "Flare Magic"],
+	ions: ["水魔法", "Ions Magic"],
+	vitae: ["木魔法", "Vitae Magic"],
+	terra: ["土魔法", "Terra Magic"],
+	electron: ["电魔法", "Electron Magic"],
+	//--------------------------------
+	//Physical Skill
+	sword: ["剑术", "Sword"],
+	wrestle: ["格斗", "Wrestle"],
+	running: ["跑步", "Running"],
+	//--------------------------------
+	//life skill
+	cooking: ["料理", "Cooking"],
+	plant: ["种植", "Plant"],
+	medicine: ["药物", "Medicine"],
+	craft: ["制作", "Craft"],
+	fishing: ["钓鱼", "Fishing"],
+	gather: ["采集", "Gather"],
+	sing: ["歌唱", "Sing"],
+	dance: ["舞蹈", "Dance"],
+	instrument: ["乐器", "Instrument"],
+	paint: ["绘画", "Paint"],
+};
+
+D.sbl = {
+	//sexual mental ability
+	//性欲心理能力, max level 12
+	//basic
+	technique: ["性技巧", "Technique"],
+	endurance: ["性耐性", "Endurance"],
+	submissive: ["顺从", "Submissive"],
+	refuse: ["抗拒", "Refuse"],
+	//refuse特指对性行为的抗拒度。影响指令执行与心理数值、素质、刻印的获得。
+
+	//mental degrees
+	hypnosis: ["催眠", "Hypnosis"],
+	desire: ["欲望", "Desire"],
+	serve: ["侍奉", "Serve"],
+	exhibition: ["露出", "Exhibition"],
+	promscuity: ["滥交", "Promiscuity"],
+	masochism: ["受虐", "Masochism"],
+	sadicism: ["虐待", "Sadicism"],
+
+	//addiction
+	bestial: ["兽奸中毒", "Bestial"],
+	gangbang: ["轮奸中毒", "GangBang"],
+	tentacles: ["触手中毒", "Tentacles"],
+	sexaddic: ["性瘾", "Sex Addict"],
+	drugaddic: ["药瘾", "Drug Addict"],
+
+	cumaddic: ["饮精中毒", "Swallow Cum"],
+	Vcumpie: ["内射中毒", "V Cumpie"],
+	Acumpie: ["肛射中毒", "A Cumpie"],
+};
+
+D.initials = ["M", "B", "C", "U", "V", "A"];
+/* twine-user-script #13: "00-exp.js" */
+D.expGroup = {
+	basic: {
+		M: ["M经验", "Exp M."],
+		B: ["B经验", "Exp B."],
+		C: ["C经验", "Exp C."],
+		U: ["U经验", "Exp U."],
+		V: ["V经验", "Exp V."],
+		A: ["A经验", "Exp A."],
+	},
+	orgasm: {
+		orgasm: ["高潮", "Orgasm"],
+		orgM: ["M高潮", "Org M."],
+		orgB: ["B高潮", "Org B."],
+		orgC: ["C高潮", "Org C."],
+		orgU: ["U高潮", "Org U."],
+		orgV: ["V高潮", "Org V."],
+		orgA: ["A高潮", "Org A."],
+		strongOrg: ["强高潮", "Strong Orgasm"],
+		deepOrg: ["深度高潮", "Deep Orgasm"],
+		multiOrg: ["多重高潮", "Multi Orgasm"],
+	},
+	general: {
+		kiss: ["接吻", "Kiss"],
+		cum: ["射精", "Cum"],
+		milk: ["喷乳", "Milk"],
+		pee: ["放尿", "Pee"],
+		swallow: ["饮精", "Swallowed"],
+
+		analsex: ["肛交", "Anal Sex"],
+		vagisex: ["性交", "Vagina Sex"],
+		titjob: ["乳交", "Tit Job"],
+		oraljob: ["口交", "Oral Job"],
+
+		ejacV: ["V内射", "V Ejaculated"],
+		ejacA: ["A内射", "A Ejaculated"],
+		devB: ["乳头开发", "Tits Trained"],
+		devA: ["后穴开发", "Anal Trained"],
+		devU: ["尿道开发", "Urethral Trained"],
+		devV: ["子宫开发", "Uterus Trainded"],
+
+		tentacles: ["触手", "Tentacles"],
+		insertion: ["插入", "Insertion"],
+		sextoy: ["道具", "Sextoy Used"],
+		filmed: ["被拍摄", "be Filmed"],
+	},
+	extra: {
+		mascho: ["受虐", "Get Pain"],
+		expose: ["露出", "Exposed"],
+		pregnant: ["怀孕", "Pregnant"],
+		spawn: ["产卵", "Spawned"],
+		gangbang: ["轮奸", "Gangbang"],
+		bestial: ["兽奸", "Bestial"],
+
+		sleepsex: ["眠奸", "Sleep Sex"],
+		raped: ["强奸", "Be Raped"],
+		TS: ["性转", "Trans Sex"],
+		homo: ["同性", "Homo Sex"],
+		love: ["爱情", "Be Loved"],
+		serve: ["侍奉", "Served"],
+		onani: ["自慰", "Masturbated"],
+		drugs: ["嗑药", "Drugs Taken"],
+		submi: ["服从", "Submissive"],
+		hypno: ["催眠", "Be Hypnosis"],
+		train: ["调教", "Be Trained"],
+		sadic: ["施虐", "Pain Given"],
+	},
+};
+
+D.exp = {};
+D.exp = Object.assign(D.exp, D.expGroup.basic, D.expGroup.orgasm, D.expGroup.general, D.expGroup.extra);
+/* twine-user-script #14: "00-gamedata.js" */
+D.itemGroup = ["weapon", "shield", "clothes", "accesory", "items", "material", "recipies", "books"];
+
+D.equip = {
+	weapon: "武器",
+	shield: "护盾",
+
+	head: "头饰",
+	cover: "外套",
+	outfitUp: "上衣",
+	outfitBt: "下衣",
+	innerUp: "内衣",
+	innerBt: "内裤",
+	hands: "手套",
+	legs: "袜子",
+
+	face: "面具",
+	ears: "耳饰",
+	chest: "乳饰", //乳环、跳弹
+	bottom: "插件", //跳弹、肛塞、震动棒
+};
+
+D.virginity = ["kiss", "oral", "penis", "anal", "analsex", "vigina", "viginasex", "handholding", "footjob"];
+
+//战斗技能。 战斗中使用。
+D.skill = {
+	fire_ball: "火球术",
+	light_shower: "光雨",
+	magica_shield: "魔力屏障",
+	green_grow: "生长术",
+	lightning: "闪电",
+	fire_sowrd: "火焰剑",
+	dark_cage: "黑暗牢笼",
+	clear_mind: "清心咒",
+	water_bubble: "水球术",
+	ice_arrow: "冰箭术",
+	clean_body: "净身咒",
+	object_control: "念动术",
+};
+
+D.liquidtype = ["juice", "cum", "rub", "slime", "nectar"];
+
+//string[]管理，用has检测。方便对应多个状态。
+//事件判定用, 临时计时器在tsv. 长期计时器在flag
+D.state = [
+	"睡眠", //睡觉时，受到一定刺激可能会醒来。
+	"疲劳", //体力低于5% 并持续 3小时
+	"生病", //健康低于80% 并持续 5天
+	"缺魔", //魔力低于10% 并持续 3天
+	"失眠", //连续三天不睡觉
+	"欲求不满", //欲求(flag值) 大于80%
+	"营养不良", //营养低于30% 并持续 2天
+	"缺水", //水分低于 10%并持续 2小时
+	"晕厥", //体力与理智低于5% 持续五小时，或双双归零后会晕厥过去。受强烈刺激可能醒来。
+	"昏睡", //药物效果。药效散之前绝对不会醒来。虽然无知觉但身体依然有反应。
+
+	"发情", //周期 or 药物
+	"自闭", //压力到达上限 100%
+	"精神崩溃", // 压力达到上限 200%
+	"梦魇", // 高压力状态睡觉概率触发
+	"毒瘾发作", // 药隐Lv2后, 断药计时器到达阈值
+	"性瘾发作", // 性瘾Lv2后, 禁断计时器到达阈值
+	"寸止", // 允许快感超过上限, 解除时获得强高潮
+	"性兴奋", // 欲情超过上限时
+
+	"失明", //看不到, 长久状态, 影响指令
+	"失聪", //听不到
+	"失声", //不能说
+	"石化", //全身无法动弹
+	"口球", //装备效果, 不能说
+	"眼罩", //不能看
+	"束缚", //动弹不得
+	"怀孕",
+	"肠内受孕",
+	"寄生",
+	"中毒", //中毒计时器作用期间,健康持续减少
+];
+
+D.Psize = [
+	[60, 15], //0，微型
+	[90, 22], //1, 迷你
+	[120, 32], //2, 短小
+	[140, 42], //3, 普通
+	[160, 52], //4, 大
+	[180, 62], //5, 巨大
+	[210, 74], //6, 马屌
+	[250, 86], //7, 深渊
+];
+
+D.mutant = ["光滑", "吸盘", "口器", "隆起", "针", "软刺", "阴茎"];
+
+D.actAbleParts = ["handR", "handL", "mouth", "penis", "vagina", "anal", "foot"];
+
+D.selectAbleParts = ["breast", "critoris", "urin", "ears", "neck", "butts", "nipple", "thighs", "abdomen"].concat(
+	D.actAbleParts
+);
+
+D.scarType = ["kissmark", "scar", "whip", "wound", "pen", "bruise", "tattoo", "band"];
+/* twine-user-script #15: "01-mapdata.js" */
+Init.WorldMap();
+
 worldMap.Orlania.mapdata = {
 	road: [
 		[1, 17],
@@ -5387,7 +6057,7 @@ worldMap.Academy.mapdata = {
 	DiningHall: [[5, 22]],
 	"ClassBuildingR1|passable": [[6, 4]],
 };
-/* twine-user-script #14: "clothesTemplet.js" */
+/* twine-user-script #16: "clothesTemplet.js" */
 
 
 D.category = {
@@ -5477,310 +6147,7 @@ D.clothesheet = {
     cursed:0, //是否诅咒物品。如果是则无法脱下
     effect:[],//衣服特殊效果。functionname, source
 }
-/* twine-user-script #15: "gamedata.js" */
-D.race = ["human", "elvin", "deamon", "wolves", "drawf", "goblin", "catvinx", "centaur", "orc", "titan", "dracon"];
-
-D.basicneeds = ["health", "stamina", "sanity", "mana", "hydration", "nutrient", "dirty"];
-D.basicpalam = ["drug", "alcohol", "stress", "libido", "ecstacy", "cum", "milk"];
-
-D.itemGroup = ["weapon", "shield", "clothes", "accesory", "items", "material", "recipies", "books"];
-
-D.base = {
-	health: "健康",
-	stamina: "体力",
-	sanity: "理智",
-	mana: "魔力",
-
-	hydration: "水分",
-	nutrient: "营养",
-	dirty: "污迹",
-
-	drug: "药物",
-	alcohol: "酒精",
-	stress: "压力",
-	libido: "性欲", //平日积累的性欲。跟调教时的欲情不是一个系统。
-};
-
-D.palam = {
-	esctacy: "快感", //快感值总条。 与射精or潮吹绑定。
-	//受方palam
-	arousal: "欲情", //欲望值，根据累积flag升级欲望lv。指令执行成功时概率获得依存值。
-	surrend: "屈从", //根据累积flag升级顺从Lv。屈从palamlv累计到一定值时获得刻印。指令执行成功时概率获得服从值/支配值。
-	fear: "恐惧", //恐惧刻印
-	mortify: "羞耻", //羞耻刻印。露出类指令。
-	humiliate: "受辱", //耻辱刻印。 羞辱类指令
-	pain: "疼痛", //痛苦刻印
-	depress: "抑郁", //压力值
-	resist: "抵触", //反抗刻印
-	favo: "好意", //好感转换
-	uncomfort: "不适", //减少mood，根据情况转换为疼痛、抵触、压抑。影响体力与健康的消耗。可能触发生病flag
-
-	//攻方palam
-	eager: "渴望", //行为时间拉长，动作变急切。依存up
-	angry: "愤怒", //mood down，动作会变粗暴。
-	satisfy: "满意", //评价up 好感up
-	superior: "优越", // 支配度up
-
-	//部位palam。各种高潮判定主要看这边。高潮时获得性依存度，快乐刻印
-	esM: "快M",
-	esB: "快B", //同时也是喷乳判定条
-	esC: "快C",
-	esU: "快U",
-	esV: "快V",
-	esA: "快A",
-
-	//各部位疼痛值。抖M会转化为部位快感。否则抵消部分快感。总值算入pain中。
-	paM: "痛M",
-	paB: "痛B",
-	paC: "痛C",
-	paU: "痛U",
-	paV: "痛V",
-	paA: "痛A",
-};
-
-D.basecolor = {
-	health: [255, 92, 79],
-	stamina: [223, 236, 15],
-	sanity: [12, 163, 238],
-	mana: [160, 35, 231],
-
-	hydration: [65, 255, 233],
-	nutrient: [134, 255, 79],
-
-	ecstacy: [255, 95, 202],
-	esM: [255, 95, 202],
-	esB: [255, 95, 202],
-	esC: [255, 95, 202],
-	esU: [255, 95, 202],
-	esV: [255, 95, 202],
-	esA: [255, 95, 202],
-
-	pain: [87, 29, 243],
-	paM: [87, 29, 243],
-	paB: [87, 29, 243],
-	paC: [87, 29, 243],
-	paU: [87, 29, 243],
-	paV: [87, 29, 243],
-	paA: [87, 29, 243],
-};
-
-D.mark = {
-	hypno: ["催眠刻印", "Hypnosis Mark"],
-	ecstacy: ["快乐刻印", "Ecstacy Mark"], //the ecstacy ethed on mind
-	surrend: ["屈服刻印", "Surrender Mark"],
-	pain: ["痛苦刻印", "Pain Mark"],
-	fear: ["恐惧刻印", "Fear Mark"],
-	humiliate: ["耻辱刻印", "Humiliated Mark"],
-	mortify: ["羞耻刻印", "Mortify Mark"],
-	resist: ["反抗刻印", "Resistance Mark"],
-};
-
-D.stats = ["ATK", "DEF", "MTK", "MDF", "STR", "CON", "DEX", "INT", "WIL", "PSY", "ALR", "LUK"];
-
-D.abl = {
-	//max 20
-	magica: "魔法等级", //影响魔法技能上限
-	lumen: "光魔法",
-	ark: "暗魔法",
-	flare: "火魔法",
-	ions: "水魔法",
-	vitae: "木魔法",
-	terra: "土魔法",
-	electron: "电魔法",
-	//-----
-	sword: "剑术",
-	wrestle: "格斗",
-	//-----
-	cooking: "料理",
-	plant: "种植",
-	medicine: "药物",
-	craft: "制作",
-	fishing: "钓鱼",
-	gathering: "采集",
-	sing: "歌唱",
-	dance: "舞蹈",
-	instrument: "乐器",
-	painting: "绘画",
-};
-
-D.sbl = {
-	// max 12, sens max 20
-	knowledge: "性知识",
-	technique: "性技巧",
-	endurance: "性耐性",
-	submissive: "顺从",
-	refuse: "抗拒", //影响指令执行与心理数值、素质的获得
-	hypnosis: "催眠",
-	desire: "欲望",
-	service: "侍奉",
-	exhibition: "露出",
-	promscuity: "滥交",
-	sexaddic: "性瘾",
-	drugaddic: "药瘾",
-	masochist: "受虐",
-	semenaddic: "饮精中毒",
-	vagiejac: "内射中毒",
-	analejac: "肛射中毒",
-	deviancy: "兽奸中毒",
-	gangbang: "轮奸中毒",
-	tentacles: "触手中毒",
-};
-
-D.exp = [
-	"M",
-	"B",
-	"C",
-	"U",
-	"V",
-	"A",
-	"M高潮",
-	"B高潮",
-	"C高潮",
-	"U高潮",
-	"V高潮",
-	"A高潮",
-	"高潮",
-	"强烈高潮",
-	"深度强烈高潮",
-	"多重高潮",
-	"接吻",
-	"射精",
-	"喷乳",
-	"放尿",
-	"饮精",
-	"肛交",
-	"性交",
-	"乳交",
-	"口交",
-	"内射",
-	"肛射",
-	"乳头开发",
-	"后穴开发",
-	"尿道开发",
-	"子宫开发",
-	"触手",
-
-	"插入",
-	"道具",
-	"受虐",
-	"露出",
-	"被拍摄",
-	"怀孕",
-	"产卵",
-	"轮奸",
-	"兽奸",
-
-	"眠奸",
-	"强奸",
-	"迷奸",
-	"性转",
-	"同性",
-	"爱情",
-	"侍奉",
-	"自慰",
-	"嗑药",
-	"服从",
-	"催眠",
-	"调教",
-	"施虐",
-];
-
-D.equip = {
-	weapon: "武器",
-	shield: "护盾",
-
-	head: "头饰",
-	cover: "外套",
-	outfitUp: "上衣",
-	outfitBt: "下衣",
-	innerUp: "内衣",
-	innerBt: "内裤",
-	hands: "手套",
-	legs: "袜子",
-
-	face: "面具",
-	ears: "耳饰",
-	chest: "乳饰", //乳环、跳弹
-	bottom: "插件", //跳弹、肛塞、震动棒
-};
-
-D.virginity = ["kiss", "oral", "penis", "anal", "analsex", "vigina", "viginasex", "handholding", "footjob"];
-
-//战斗技能。 战斗中使用。
-D.skill = {
-	fire_ball: "火球术",
-	light_shower: "光雨",
-	magica_shield: "魔力屏障",
-	green_grow: "生长术",
-	lightning: "闪电",
-	fire_sowrd: "火焰剑",
-	dark_cage: "黑暗牢笼",
-	clear_mind: "清心咒",
-	water_bubble: "水球术",
-	ice_arrow: "冰箭术",
-	clean_body: "净身咒",
-	object_control: "念动术",
-};
-
-D.liquidtype = ["juice", "cum", "rub", "slime", "nectar"];
-
-//string[]管理，用has检测。方便对应多个状态。
-//事件判定用, 临时计时器在tsv. 长期计时器在flag
-D.state = [
-	"睡眠", //睡觉时，受到一定刺激可能会醒来。
-	"疲劳", //体力低于5% 并持续 3小时
-	"生病", //健康低于80% 并持续 5天
-	"缺魔", //魔力低于10% 并持续 3天
-	"失眠", //连续三天不睡觉
-	"欲求不满", //欲求(flag值) 大于80%
-	"营养不良", //营养低于30% 并持续 2天
-	"缺水", //水分低于 10%并持续 2小时
-	"晕厥", //体力与理智低于5% 持续五小时，或双双归零后会晕厥过去。受强烈刺激可能醒来。
-	"昏睡", //药物效果。药效散之前绝对不会醒来。虽然无知觉但身体依然有反应。
-
-	"发情", //周期 or 药物
-	"自闭", //压力到达上限 100%
-	"精神崩溃", // 压力达到上限 200%
-	"梦魇", // 高压力状态睡觉概率触发
-	"毒瘾发作", // 药隐Lv2后, 断药计时器到达阈值
-	"性瘾发作", // 性瘾Lv2后, 禁断计时器到达阈值
-	"寸止", // 允许快感超过上限, 解除时获得强高潮
-	"性兴奋", // 欲情超过上限时
-
-	"失明", //看不到, 长久状态, 影响指令
-	"失聪", //听不到
-	"失声", //不能说
-	"石化", //全身无法动弹
-	"口球", //装备效果, 不能说
-	"眼罩", //不能看
-	"束缚", //动弹不得
-	"怀孕",
-	"肠内受孕",
-	"寄生",
-	"中毒", //中毒计时器作用期间,健康持续减少
-];
-
-D.Psize = [
-	[60, 15], //0，微型
-	[90, 22], //1, 迷你
-	[120, 32], //2, 短小
-	[140, 42], //3, 普通
-	[160, 52], //4, 大
-	[180, 62], //5, 巨大
-	[210, 74], //6, 马屌
-	[250, 86], //7, 深渊
-];
-
-D.mutant = ["光滑", "吸盘", "口器", "隆起", "针", "软刺", "阴茎"];
-
-D.actAbleParts = ["handR", "handL", "mouth", "penis", "vagina", "anal", "foot"];
-
-D.selectAbleParts = ["breast", "critoris", "urin", "ears", "neck", "butts", "nipple", "thighs", "abdomen"].concat(
-	D.actAbleParts
-);
-
-D.scarType = ["kissmark", "scar", "whip", "wound", "pen", "bruise", "tattoo", "band"];
-/* twine-user-script #16: "raceTemplet.js" */
+/* twine-user-script #17: "raceTemplet.js" */
 const racesheet = {
     name:'high-elf',
 
@@ -5899,7 +6266,7 @@ const PlayerSpecies = [
 const NPCSpecies = [
     'human','elvins','high-elf','drawf','goblin','orc','wolves','deamon','centra','titan','kijin'//'slimen','jellish','dracon','linlog','lepios
 ]
-/* twine-user-script #17: "tips.js" */
+/* twine-user-script #18: "tips.js" */
 D.tips = {
 	mage: {
 		title: ["法师"],
@@ -5949,7 +6316,7 @@ D.tips = {
 		],
 	},
 };
-/* twine-user-script #18: "traitList.js" */
+/* twine-user-script #19: "traitList.js" */
 D.traits = [
 	//体质类
 	{
@@ -6006,7 +6373,7 @@ D.traits = [
 		des: "没有世俗的欲望。",
 		sourceEffect: [
 			["libido", 0.3],
-			["arousal", 0.3],
+			["lust", 0.3],
 			["libido", 2, "lose"],
 		],
 	},
@@ -6016,7 +6383,7 @@ D.traits = [
 		des: "身体很容易被刺激到。",
 		sourceEffect: [
 			["libido", 1.5],
-			["arousal", 1.5],
+			["lust", 1.5],
 			["libido", 0.5, "lose"],
 		],
 	},
@@ -6081,7 +6448,7 @@ D.traits = [
 		conflic: ["放纵", "冲动", "高调", "强欲"],
 		order: 0,
 		sourceEffect: [
-			["arousal", 0.75],
+			["lust", 0.75],
 			["eager", 0.8],
 			["satisfy", 1.2],
 		],
@@ -6092,7 +6459,7 @@ D.traits = [
 		des: "小孩才做选择，我全都要！",
 		order: 0,
 		sourceEffect: [
-			["arousal", 1.25],
+			["lust", 1.25],
 			["eager", 1.2],
 			["satisfy", 0.8],
 		],
@@ -6127,7 +6494,7 @@ D.traits = [
 		sourceEffect: [
 			["paAll", 0.9],
 			["fear", 0.9],
-			["arousal", 0.9],
+			["lust", 0.9],
 			["esAll", 0.9],
 		],
 	},
@@ -6151,7 +6518,7 @@ D.traits = [
 			["sanity", 0.8, "lose"],
 			["paAll", 0.9],
 			["fear", 0.9],
-			["arousal", 0.9],
+			["lust", 0.9],
 			["esAll", 0.9],
 		],
 	},
@@ -6263,7 +6630,7 @@ D.traits = [
 		des: "神啊，请原谅我的罪恶！",
 		order: -2,
 		sourceEffect: [
-			["arousal", 0.2],
+			["lust", 0.2],
 			["esAll", 1.2],
 		],
 	},
@@ -6273,7 +6640,7 @@ D.traits = [
 		des: "性自由今天就要实现！",
 		order: 2,
 		sourceEffect: [
-			["arousal", 1.8],
+			["lust", 1.8],
 			["esAll", 0.5],
 		],
 	},
@@ -6283,7 +6650,7 @@ D.traits = [
 		des: "脏死了，别碰我！",
 		order: 0,
 		sourceEffect: [
-			["arousal", 0.2],
+			["lust", 0.2],
 			["resist", 2],
 			["esAll", 0.9],
 		],
@@ -6294,7 +6661,7 @@ D.traits = [
 		des: "快，正面上我！！",
 		order: 10,
 		sourceEffect: [
-			["arousal", 2.5],
+			["lust", 2.5],
 			["libido", 3],
 		],
 	},
@@ -6364,7 +6731,7 @@ D.traits = [
 		group: "行为",
 		des: "性行为只能跟结婚对象做，而且必须得婚后。",
 		order: 0,
-		sourceEffect: [["arousal", 0.9]],
+		sourceEffect: [["lust", 0.9]],
 	},
 	{
 		name: "放荡", //欲情up，好意很容易提升，非正常play需求值--
@@ -6372,7 +6739,7 @@ D.traits = [
 		des: "想做就做，没人可以约束我。",
 		order: 5,
 		sourceEffect: [
-			["arousal", 1.5],
+			["lust", 1.5],
 			["favo", 1.5],
 		],
 	},
@@ -6459,8 +6826,9 @@ D.traits = [
 	},
 ];
 
-//对调教数值没啥影响. 天赋才能, 成就称号类
-//class表里只有 名字, 说明, 效果三项目?
+//对调教数值没影响，只在特定情况起效果的类型。
+//天赋才能、特殊特征、荣誉称号等。
+//跟trait共用一个class，只是不用那么多属性。
 D.talent = [
 	"天才", //学习效果up
 	"光属性",
@@ -6484,6 +6852,8 @@ D.talent = [
 	"发光", //自带发光特效。不怕黑暗了呢！
 	"精力旺盛", //体力和精子量up!
 	"洞察力", //更容易获得线索（包括出轨证据）
+	"泌乳", //可以泌乳
+	"天然泌乳", //可以泌乳
 ];
 
 D.traitConflicGroup = [
@@ -6505,10 +6875,10 @@ D.traitConflicGroup = [
 	["贞洁", "放荡"],
 	["忠诚", "善嫉"],
 ];
-/* twine-user-script #19: "audioloopto-macro-set.min.js" */
+/* twine-user-script #20: "audioloopto-macro-set.min.js" */
 /*! <<audioloopto>> macro set for SugarCube 2.x */
 !function(){"use strict";if("undefined"==typeof version||void 0===version.title||"SugarCube"!==version.title||void 0===version.major||version.major<2||void 0===version.minor||version.minor<28)throw new Error("<<audioloopto>> macro set requires SugarCube 2.28.0 or greater, aborting load");if(Has.audio){var _transitions=new Map;Macro.add("audioloopto",{handler:function(){if(this.args.length<3){var errors=[];return this.args.length<1&&errors.push("loop track ID"),this.args.length<2&&errors.push("passage name"),this.args.length<3&&errors.push("next track ID"),this.error("no "+errors.join(" or ")+" specified")}var loopId=this.args[0],passage=this.args[1],nextId=this.args[2],loopTrack=SimpleAudio.tracks.get(loopId),nextTrack=SimpleAudio.tracks.get(nextId);if(!loopTrack)return this.error('loop track "'+loopId+'" does not exist');if(!Story.has(passage))return this.error('passage "'+passage+'" does not exist');if(!nextTrack)return this.error('next track "'+nextId+'" does not exist');loopTrack.loop(!1),nextTrack.play(),nextTrack.pause();var loopMap=void 0;_transitions.has(loopId)?loopMap=_transitions.get(loopId):(loopMap=new Map,_transitions.set(loopId,loopMap),loopTrack.on("ended.macro-audioloopto",function(){loopMap.has(State.passage)?loopMap.get(State.passage).play():loopTrack.play()})),loopMap.set(passage,nextTrack)}}),Macro.add("audiounloopto",{handler:function(){if(0===this.args.length)return this.error("no loop track ID specified");var loopId=this.args[0],passage=this.args[1],loopTrack=SimpleAudio.tracks.get(loopId);if(!loopTrack)return this.error('loop track "'+loopId+'" does not exist');if(passage&&!Story.has(passage))return this.error('passage "'+passage+'" does not exist');if(passage){var loopMap=_transitions.get(loopId);loopMap&&loopMap.delete(passage)}else _transitions.delete(loopId),loopTrack.off("ended.macro-audioloopto")}})}else Macro.add(["audioloopto","audiounloopto"],{handler:function(){}})}();
-/* twine-user-script #20: "error.js" */
+/* twine-user-script #21: "error.js" */
 /**
  * Jimmy: To be used in Twee files to print an error, where the error container mimics SugarCube's own error handler.
  * 		   Leaving the second argument out will grab a snippet of the code before it, up to 128 characters.
@@ -6609,7 +6979,7 @@ const ErrorSystem = ((Scripting, Errors) => {
 		getTargetSource,
 	});
 })(Scripting, Errors);
-/* twine-user-script #21: "eventpool.js" */
+/* twine-user-script #22: "eventpool.js" */
 /*
  * Usage:
  *
@@ -6738,7 +7108,7 @@ Macro.add("runeventpool", {
 		jQuery(this.output).wiki(pick.content);
 	},
 });
-/* twine-user-script #22: "keyboardbinder.js" */
+/* twine-user-script #23: "keyboardbinder.js" */
 /* 允许键盘操作 */
 (function (window, define, exports) {
 
@@ -6845,7 +7215,7 @@ function numberify(selector) {
 }
 DefineMacroS("numberify", numberify);
 
-/* twine-user-script #23: "numberpool-sugarcube-addon.js" */
+/* twine-user-script #24: "numberpool-sugarcube-addon.js" */
 if ("undefined" == typeof version || "undefined" == typeof version.title || "SugarCube" !== version.title || "undefined" == typeof version.major || version.major < 2 || "undefined" == typeof version.minor || version.minor < 5)
   throw new Error("<<numberpool>> macro set requires SugarCube 2.5.0 or greater, aborting load");
 if (version.major <= 2 && version.minor < 33) {
@@ -7096,13 +7466,13 @@ Macro.add("numberslider", {
 		}));
   },
 });
-/* twine-user-script #24: "replacelink-macro-set.min.js" */
+/* twine-user-script #25: "replacelink-macro-set.min.js" */
 /*! <<replacelink>> macro set for SugarCube 2.x */
 !function(){"use strict";function showVer(n,notrans){n&&(n.innerHTML="",new Wikifier(n,n.tweecode),n.setAttribute("data-enabled","true"),n.style.display="inline",n.classList.remove("revision-span-out"),notrans||(n.classList.add("revision-span-in"),n.timeout&&clearTimeout(n.timeout),n.timeout=setTimeout(function(){n.classList.remove("revision-span-in"),n=null},20)))}function hideVer(n,notrans){n&&(n.setAttribute("data-enabled","false"),n.classList.remove("revision-span-in"),n.timeout&&clearTimeout(n.timeout),notrans?(n.style.display="none",n.innerHTML="",n=null):(n.classList.add("revision-span-out"),n.timeout=setTimeout(function(){"false"===n.getAttribute("data-enabled")&&(n.classList.remove("revision-span-out"),n.style.display="none",n.innerHTML=""),n=null},1e3)))}function tagcontents(b,starttags,desttags,endtags,k){function tagfound(i,e,endtag){for(var j=0;j<e.length;j++)if(a.indexOf("<<"+e[j]+(endtag?">>":""),i)===i)return e[j]}for(var tg,l=0,c="",a=b.source.slice(k),i=0;i<a.length;i++){if(tg=tagfound(i,starttags))l++;else{if((tg=tagfound(i,desttags,!0))&&0===l)return b.nextMatch=k+i+tg.length+4,[c,tg];if((tg=tagfound(i,endtags,!0))&&(l--,l<0))return null}c+=a.charAt(i)}return null}function revisionSpanHandler(g,e,f,b){function mkspan(vtype){return h=insertElement(m,"span",null,"revision-span "+vtype),h.setAttribute("data-enabled",!1),h.style.display="none",h.tweecode="",h}var becomes,c,cn,m,h,vsn,k=b.source.indexOf(">>",b.matchStart)+2,vsns=[],vtype=e,flen=f.length;if(this.shorthand&&flen)for(;f.length>0;)vsns.push([f.shift(),"insert"===this.flavour?"gains":"becomes"]);else("insert"===this.flavour||"continue"===this.flavour&&"time"===this.trigger)&&vsns.push(["","becomes"]);if("continue"===this.flavour&&flen)b.nextMatch=k+b.source.slice(k).length,vsns.push([b.source.slice(k),vtype]);else{if(becomes=["becomes","gains"],c=tagcontents(b,begintags,becomes.concat(endtags),endtags,k),c&&endtags.indexOf(c[1])===-1){for(;c;)vsns.push(c),c=tagcontents(b,begintags,becomes,endtags,b.nextMatch);c=tagcontents(b,begintags,["/"+e,"end"+e],endtags,b.nextMatch)}if(!c)return void throwError(g,"<<"+e+">>: cannot find a matching close tag");vsns.push(c),"continue"===this.flavour&&(k=b.nextMatch,b.nextMatch=k+b.source.slice(k).length,vsns.push([b.source.slice(k),""]))}for("remove"===this.flavour&&vsns.push(["","becomes"]),cn=0,m=insertElement(g,"span",null,e),m.setAttribute("data-flavour",this.flavour),h=mkspan("initial"),vsn=vsns.shift(),h.tweecode=vsn[0],showVer(h,!0);vsns.length>0;)vsn&&(vtype=vsn[1]),vsn=vsns.shift(),h=mkspan(vtype),h.tweecode=vsn[0];"function"==typeof this.setup&&this.setup(m,g,e,f)}function revisionSetup(m,g,e,f){m.className+=" "+f[0].replace(" ","_")}function keySetup(m,g,e,f){f[0];m.setEventListener("keydown",function l(e){var done=!revise("revise",m);done&&m.removeEventListener("keydown",l)})}function timeSetup(m,g,e,f){function cssTimeUnit(s){if("string"==typeof s){if("ms"===s.slice(-2).toLowerCase())return Number(s.slice(0,-2))||0;if("s"===s.slice(-1).toLowerCase())return 1e3*Number(s.slice(0,-1))||0}return throwError(g,"<<"+e+'>>: "'+s+'" is not a valid CSS time unit'),0}var tm=cssTimeUnit(f[0]),s=passage();setTimeout(function timefn(){if(passage()===s){var done=!revise("revise",m);done||setTimeout(timefn,tm)}},tm)}function hoverSetup(m){var fn,noMouseEnter=null!==document.head.onmouseenter,m1=m.children[0],m2=m.children[1],gains=m2.className.indexOf("gains")>-1;m1&&m2&&(m1.onmouseenter=function(e){for(var efp=document.elementFromPoint(e.clientX,e.clientY);efp&&efp!==this;)efp=efp.parentNode;efp&&"false"!==this.getAttribute("data-enabled")&&revise("revise",this.parentNode)},m2.onmouseleave=function(e){for(var efp=document.elementFromPoint(e.clientX,e.clientY);efp&&efp!==this;)efp=efp.parentNode;efp||"false"!==this.getAttribute("data-enabled")&&revise("revert",this.parentNode)},gains&&(m1.onmouseleave=m2.onmouseleave),noMouseEnter&&(fn=function(n){return function(e){event.relatedTarget&&(event.relatedTarget===this||this.compareDocumentPosition(event.relatedTarget)&Node.DOCUMENT_POSITION_CONTAINED_BY)||this[n]()}},m1.onmouseover=fn("onmouseenter"),m2.onmouseout=fn("onmouseleave"),gains&&(m1.onmouseout=m2.onmouseout)),m=null)}function mouseSetup(m){var evt=null===document.head.onmouseenter?"onmouseenter":"onmouseover";m[evt]=function(){var done=!revise("revise",this);done&&(this[evt]=null)},m=null}function linkSetup(m,g,e,f){var l=document.createElement("a"),p=m.parentNode;l.className="link-internal replaceLink",p.insertBefore(l,m),l.insertBefore(m,null),jQuery(l).ariaClick(function(){var done=!1;m&&m.parentNode===this&&(done=!revise("revise",m),scrollWindowTo(m)),done&&(this.parentNode.insertBefore(m,this),this.parentNode.removeChild(this))}),l=null}function visitedSetup(m,g,e,f){var done,sav=State.variables,os="once seen",d=m.firstChild&&("insert"===this.flavour?m.firstChild.nextSibling:m.firstChild).tweecode;if(sav[os]=sav[os]||{},d&&!sav[os].hasOwnProperty(d))sav[os][d]=1;else{for(var i=sav[os][d];i>0&&!done;i--)done=!revise("revise",m,!0);sav[os].hasOwnProperty(d)&&(sav[os][d]+=1)}}function insideDepartingSpan(elem){for(var r=elem.parentNode;!r.classList.contains("passage");){if(r.classList.contains("revision-span-out"))return!0;r=r.parentNode}}function reviseAll(rt,rname){for(var rall=document.querySelectorAll(".passage [data-flavour]."+rname),ret=!1,i=0;i<rall.length;i++)insideDepartingSpan(rall[i])||(ret=revise(rt,rall[i])||ret);return ret}function revise(rt,r,notrans){function doToGainerSpans(n,fn){for(var k=n-1;k>=0&&rc[k+1].classList.contains("gains");k--)fn(rc[k],notrans)}for(var ind2,curr,next,ind=-1,rev="revert"===rt,rnd=rt.indexOf("random")>-1,fl=r.getAttribute("data-flavour"),rc=r.childNodes,cyc="cycle"===fl,rcl=rc.length-1,k=0;k<=rcl;k++)"true"===rc[k].getAttribute("data-enabled")&&(ind=k);rev&&(ind-=1),curr=ind>=0?rc[ind]:cyc?rc[rcl]:null,ind2=ind,rnd&&(ind2=(ind+Math.floor(Math.random()*rcl))%rcl),next=ind2<rcl?rc[ind2+1]:cyc?rc[0]:null;var docurr=rev?showVer:hideVer,donext=rev?hideVer:showVer,currfn=function(){next&&next.classList.contains("gains")&&!rnd||(docurr(curr,notrans),doToGainerSpans(ind,docurr,notrans))},nextfn=function(){donext(next,notrans),rnd&&doToGainerSpans(ind2+1,donext,notrans)};return rev?(nextfn(),currfn()):(currfn(),nextfn()),!!cyc||(rev?ind>0:ind2<rcl-1)}if("undefined"==typeof version||"undefined"==typeof version.title||"SugarCube"!==version.title||"undefined"==typeof version.major||version.major<2)throw new Error("<<replacelink>> macro set requires SugarCube 2.0.0 or greater, aborting load");version.extensions.replacelinkMacroSet={major:1,minor:1,revision:7};var begintags=[],endtags=[];[{name:"insertlink",flavour:"insert",trigger:"link",setup:linkSetup},{name:"timedinsert",flavour:"insert",trigger:"time",setup:timeSetup},{name:"insertion",flavour:"insert",trigger:"revisemacro",setup:revisionSetup},{name:"later",flavour:"insert",trigger:"visited",setup:visitedSetup},{name:"keyinsert",flavour:"insert",trigger:"key",setup:keySetup},{name:"replacelink",flavour:"replace",trigger:"link",setup:linkSetup},{name:"timedreplace",flavour:"replace",trigger:"time",setup:timeSetup},{name:"mousereplace",flavour:"replace",trigger:"mouse",setup:mouseSetup},{name:"hoverreplace",flavour:"replace",trigger:"hover",setup:hoverSetup},{name:"revision",flavour:"replace",trigger:"revisemacro",setup:revisionSetup},{name:"keyreplace",flavour:"replace",trigger:"key",setup:keySetup},{name:"timedremove",flavour:"remove",trigger:"time",setup:timeSetup},{name:"mouseremove",flavour:"remove",trigger:"mouse",setup:mouseSetup},{name:"hoverremove",flavour:"remove",trigger:"hover",setup:hoverSetup},{name:"removal",flavour:"remove",trigger:"revisemacro",setup:revisionSetup},{name:"once",flavour:"remove",trigger:"visited",setup:visitedSetup},{name:"keyremove",flavour:"remove",trigger:"key",setup:keySetup},{name:"continuelink",flavour:"continue",trigger:"link",setup:linkSetup},{name:"timedcontinue",flavour:"continue",trigger:"time",setup:timeSetup},{name:"mousecontinue",flavour:"continue",trigger:"mouse",setup:mouseSetup},{name:"keycontinue",flavour:"continue",trigger:"key",setup:keySetup},{name:"cycle",flavour:"cycle",trigger:"revisemacro",setup:revisionSetup},{name:"mousecycle",flavour:"cycle",trigger:"mouse",setup:mouseSetup},{name:"timedcycle",flavour:"cycle",trigger:"time",setup:timeSetup},{name:"keycycle",flavour:"replace",trigger:"key",setup:keySetup}].forEach(function(e){e.handler=revisionSpanHandler,e.shorthand=["link","mouse","hover"].indexOf(e.trigger)>-1,macros[e.name]=e,Macro.tags.register(e.name),begintags.push(e.name),endtags.push("/"+e.name,"end"+e.name)}),macros.revertlink=macros.reviselink=macros.randomiselink=macros.randomizelink={handler:function(a,b,c){function disableLink(l){l.style.display="none"}function enableLink(l){l.style.display="inline"}function updateLink(l){if(l.className.indexOf("random")>-1)return void enableLink(l);for(var cannext,canprev,r,fl,rall=document.querySelectorAll(".passage [data-flavour]."+rname),i=0;i<rall.length;i++)r=rall[i],fl=r.getAttribute("data-flavour"),insideDepartingSpan(r)||("cycle"===fl?cannext=canprev=!0:("false"===r.firstChild.getAttribute("data-enabled")&&(canprev=!0),"false"===r.lastChild.getAttribute("data-enabled")&&(cannext=!0)));var can=l.classList.contains("revert")?canprev:cannext;(can?enableLink:disableLink)(l)}function toggleText(w){w.classList.toggle(rl+"Enabled"),w.classList.toggle(rl+"Disabled"),w.style.display="none"===w.style.display?"inline":"none"}if(c.length<2)return void throwError(a,"<<"+b+">>: insufficient arguments (requires at least 2)");var l,rname,actName=b.slice(0,-4),rl="reviseLink",v="",end=!1,out=!1;switch(rname=c.shift().replace(" ","_"),l=insertElement(a,"a"),l.className="link-internal "+rl+" "+rl+"_"+rname+" "+actName,c.length>1&&"$"===c[0][0]&&(v=c[0].slice(1),c.shift()),c[c.length-1]){case"end":end=!0,c.pop();break;case"out":out=!0,c.pop()}for(var h=State.variables,i=0;i<c.length;i++){var on=i===Math.max(c.indexOf(h[v]),0),d=insertElement(null,"span",null,rl+(on?"En":"Dis")+"abled");on?(h[v]=c[i],l.setAttribute("data-cycle",i)):d.style.display="none",insertText(d,c[i]),l.appendChild(d)}jQuery(l).ariaClick(function(){reviseAll(actName,rname);var lall,t=this.childNodes,u=this.getAttribute("data-cycle")-0,m=t.length;if((end||out)&&u>=m-(end?2:1)){if(!end)return void this.parentNode.removeChild(this);var n=this.removeChild(t[u+1]||t[u]);n.className=rl+"End",n.style.display="inline",this.parentNode.replaceChild(n,this)}else toggleText(t[u]),u=(u+1)%m,v&&(h[v]=c[u]),toggleText(t[u]),this.setAttribute("data-cycle",u);lall=document.getElementsByClassName(rl+"_"+rname);for(var i=0;i<lall.length;i++)updateLink(lall[i])}),disableLink(l),setTimeout(function(l){return function(){updateLink(l)}}(l),1),l=null}},macros.mouserevise=macros.hoverrevise={handler:function(a,b,c,d){var endtags=["/"+b,"end"+b],evt=null===window.onmouseenter?"onmouseenter":"onmouseover",t=tagcontents(d,[b],endtags,endtags,d.source.indexOf(">>",d.matchStart)+2);if(t){var rname=c[0].replace(" ","_"),h=insertElement(a,"span",null,"hoverrevise hoverrevise_"+rname),f=function(){var done=!reviseAll("revise",rname);"hoverrevise"!=b&&done&&(this[evt]=null)};new Wikifier(h,t[0]),"hoverrevise"===b?(h.onmouseover=f,h.onmouseout=function(){reviseAll("revert",rname)}):h[evt]=f,h=null}}},Macro.tags.register("mouserevise"),Macro.tags.register("hoverrevise"),macros.instantrevise={handler:function(a,b,c,d){reviseAll("revise",c[0].replace(" ","_"))}}}();
-/* twine-user-script #25: "shake-macro-set.min.js" */
+/* twine-user-script #26: "shake-macro-set.min.js" */
 /*! <<shake>> macro set for SugarCube 2.x */
 !function(){"use strict";if("undefined"==typeof version||"undefined"==typeof version.title||"SugarCube"!==version.title||"undefined"==typeof version.major||version.major<2||"undefined"==typeof version.minor||version.minor<5)throw new Error("<<shake>> macro requires SugarCube 2.5.0 or greater, aborting load");Macro.add("shake",{tags:null,handler:function(){var duration=this.args.length>0?this.args[0]:1/0,shakeClass="shake";if(1/0!==duration)try{duration=Math.max(Engine.minDomActionDelay,Util.fromCssTime(duration))}catch(e){return this.error(e.message)}Config.debug&&this.debugView.modes({block:!0});var $wrapper=jQuery(document.createElement("span"));$wrapper.addClass("macro-"+this.name+" "+shakeClass).wiki(this.payload[0].contents).appendTo(this.output),1/0!==duration&&setTimeout(function(){$wrapper.removeClass(shakeClass)},Engine.minDomActionDelay+duration)}}),Macro.add(["shakescreen","shaketarget"],{handler:function(){var $targets,duration,shakeClass;if("shakescreen"===this.name)$targets=jQuery("#passages"),duration=this.args.length>0?this.args[0]:1/0,shakeClass="shake-block";else{if(0===this.args.length)return this.error("no selector specified");if($targets=jQuery(this.args[0]),0===$targets.length)return this.error('no elements matched the selector "'+this.args[0]+'"');duration=this.args.length>1?this.args[1]:1/0,shakeClass="block"===jQuery($targets[0]).css("display")?"shake-block":"shake"}if("stop"===duration)return void $targets.removeClass(shakeClass);if(1/0!==duration)try{duration=Math.max(Engine.minDomActionDelay,Util.fromCssTime(duration))}catch(e){return this.error(e.message)}$targets.addClass(shakeClass),1/0!==duration&&setTimeout(function(){$targets.removeClass(shakeClass)},Engine.minDomActionDelay+duration)}})}();
-/* twine-user-script #26: "00-initUlts.js" */
+/* twine-user-script #27: "00-initUlts.js" */
 F.makeList = function (path, option) {
 	const rawtxt = Story.get(path).text.split("\n");
 
@@ -7274,7 +7644,7 @@ Fix.reveals = function (reveal, equip) {
 
 	return reveal;
 };
-/* twine-user-script #27: "01-actions.js" */
+/* twine-user-script #28: "01-actions.js" */
 const extendTags = function (raw) {
 	if (!raw) return [];
 	return raw.split("|");
@@ -7479,7 +7849,7 @@ Action.data = actList;
 Action.kojo = {};
 
 Action.initdata();
-/* twine-user-script #28: "01-initItems.js" */
+/* twine-user-script #29: "01-initItems.js" */
 Items.init();
 
 $.getJSON("./json/items.json", function (data) {
@@ -7508,104 +7878,7 @@ $.getJSON("./json/items.json", function (data) {
 
 	console.log(Db); // Map(2) {1 => Items, 2 => Items}
 });
-/* twine-user-script #29: "01-trait.js" */
-const traitdata = {};
-
-window.findConflic = function (source, conflicGroup) {
-	let conflicArr = source.filter((val) => conflicGroup.includes(val));
-	if (conflicArr.length < 2) {
-		return source;
-	} else {
-		let index = random(conflicArr.length - 1);
-		source.delete(conflicGroup);
-		source.push(conflicArr[index]);
-		return source;
-	}
-};
-//特征class
-class Trait {
-	//获取特征数据
-	static get(name, key = null, event) {
-		if (!key) return Trait.data[name];
-		if (event) return Trait.data[name][key](event);
-		else if (key && Trait.data[name][key]) return Trait.data[name][key];
-		else return;
-	}
-	//通过关键词获取特征列表
-	static list(type) {
-		const grouplist = [];
-
-		if (type == "group") {
-			Object.values(Trait.data).forEach((data) => {
-				if (grouplist.includes(data.group) == false) grouplist.push(data.group);
-			});
-			return grouplist;
-		}
-
-		return Object.values(Trait.data).filter((data) => data.group == type);
-	}
-	static set(name) {
-		return Trait.data[name];
-	}
-	//初始化
-	static init() {
-		D.traits.forEach((obj) => {
-			Trait.data[obj.name] = new Trait(obj);
-		});
-		console.log(Trait.data);
-	}
-	//构造
-	constructor({ name, des = "", order = 0, sourceEffect = [], group = "全部" } = {}) {
-		this.name = name;
-		this.des = des;
-		this.order = order;
-		this.group = group;
-
-		this.get = {};
-		this.lose = {};
-
-		if (sourceEffect.length) {
-			sourceEffect.forEach((set) => {
-				if (set[2]) {
-					this.lose[set[0]] = set[1];
-				} else {
-					this.get[set[0]] = set[1];
-				}
-			});
-		}
-	}
-
-	Effect(callback) {
-		this.effect = callback;
-		return this;
-	}
-	Fix(callback) {
-		this.onFix = callback;
-		return this;
-	}
-	Order(callback) {
-		this.onOrder = callback;
-		return this;
-	}
-	Source(callback) {
-		this.onSource = callback;
-		return this;
-	}
-	Rest(callback) {
-		this.onRest = callback;
-		return this;
-	}
-}
-
-window.Trait = Trait;
-Object.defineProperties(Trait, {
-	data: {
-		get: function () {
-			return traitdata;
-		},
-	},
-});
-
+/* twine-user-script #30: "01-trait.js" */
 //traits 主要特征
 //talent 能力,天赋
 Trait.init();
@@ -7651,15 +7924,12 @@ Trait.set("理智")
 	.Fix((base, ...args) => {
 		base.sanity[1] *= 1.2;
 	})
-	.Rest((arg, ...args) => {
-		const list = ["fear", "mortify", "humilate", "depress", "resist", "uncomfort", "angry"];
-	})
 	.Order((id, ...args) => {
 		if (Cond.isWeaker(tc, pc)) return 10;
 		else if (Cond.baseLt(tc, "health", 0.3) || Cond.baseLt(tc, "stamina", 0.1)) return 15;
 		else return 2;
 	});
-/* twine-user-script #30: "02-initChara.js" */
+/* twine-user-script #31: "02-initChara.js" */
 Chara.data = {};
 
 Chara.data.Ayres = function () {
@@ -7690,13 +7960,13 @@ Chara.data.Ayres = function () {
 			wrestle: 12,
 			cooking: 10,
 			craft: 8,
-			gathering: 9,
+			gather: 9,
 			dance: 10,
 		})
 		.setSexAbl({ knowledge: 10, technique: 10, endurance: 8, desire: 8 })
 		.setOrgan("p", { type: "魔鬼阴茎", trait: ["隆起", "浓厚"], size: 4, d: 48, l: 182 })
 		.setOrgan("m", { size: 3 })
-		.setExp({ 调教: random(100, 300), 插入: random(50, 120), 施虐: random(50, 120) })
+		.setExp({ train: random(100, 300), insertion: random(50, 120), sadic: random(50, 120) })
 		.setFame("job", 30)
 		.setFame("school", 50)
 		.setFame("public", 20);
@@ -7770,7 +8040,7 @@ Chara.data.Isil = function () {
 			plant: 4,
 			medicine: 14,
 			craft: 8,
-			gathering: 12,
+			gather: 12,
 			sing: 10,
 		})
 		.setSexAbl({ knowledge: 1, endurance: 2, refuse: 8 })
@@ -7791,7 +8061,7 @@ Chara.data.m0 = function () {
 
 	return chara;
 };
-/* twine-user-script #31: "02-initGame.js" */
+/* twine-user-script #32: "02-initGame.js" */
 game.init = function () {
 	//-------->> 记录类变量 <<-----------//
 	S.dialog = {};
@@ -7933,7 +8203,7 @@ game.start = function (skip) {
 	}
 	if (T.futa == 2) {
 		for (let i in V.chara) {
-			V.chara[i].gender = "inter";
+			V.chara[i].gender = "herm";
 			V.chara[i].initSexOrgan("v");
 			if (V.chara[i].resetVirginity) {
 				V.chara[i].resetVirginity();
@@ -8008,7 +8278,7 @@ F.initSquareData = function () {
 		}
 	}
 };
-/* twine-user-script #32: "03-initplayer.js" */
+/* twine-user-script #33: "03-initplayer.js" */
 //beauty=ALR*100+wearbuff+traitbuff
 Chara.onLoad = function () {
 	for (let i in V.chara) {
@@ -8214,17 +8484,17 @@ Fix.stats = function (chara) {
 };
 
 F.raceBonus = function (race, type) {
-	const races = D.race;
+	const races = Object.keys(D.race);
 	const P = {
 		//health+stamina+mana = 3.3
 		//atk+def+mtk+mdf=4.4
-		health: [1.1, 0.7, 1, 1.3, 1, 0.8, 1, 1.3, 1.6, 1.4, 1],
-		stamina: [1.1, 0.6, 1, 1.3, 1.5, 2, 1, 2, 1.6, 1.4, 1],
-		mana: [1.1, 2, 1.3, 0.5, 0.8, 0.5, 1.3, 0.7, 0.1, 0.5, 1.3],
-		ATK: [1.1, 0.5, 1, 1.4, 1.2, 1, 1, 1.4, 2, 1.4, 1],
-		DEF: [1.1, 0.6, 1, 1, 1.6, 1, 0.8, 1.2, 1.8, 1.5, 1],
-		MTK: [1.1, 1.8, 1.2, 0.8, 0.6, 1, 1.4, 0.8, 0.1, 0.5, 1],
-		MDF: [1.1, 1.5, 1.2, 1.2, 1, 2, 1.2, 1, 0.5, 0.6, 1.4],
+		health: [1.1, 0.7, 1, 1.3, 1, 0.8, 1, 1.3, 1.6, 1.4, 1, 1],
+		stamina: [1.1, 0.6, 1, 1.3, 1.5, 2, 1, 2, 1.6, 1.4, 1, 1.2],
+		mana: [1.1, 2, 1.3, 0.5, 0.8, 0.5, 1.3, 0.7, 0.1, 0.5, 1.3, 1.1],
+		ATK: [1.1, 0.5, 1, 1.4, 1.2, 1, 1, 1.4, 2, 1.4, 1, 1.2],
+		DEF: [1.1, 0.6, 1, 1, 1.6, 1, 0.8, 1.2, 1.8, 1.5, 1, 1.1],
+		MTK: [1.1, 1.8, 1.2, 0.8, 0.6, 1, 1.4, 0.8, 0.1, 0.5, 1, 1],
+		MDF: [1.1, 1.5, 1.2, 1.2, 1, 2, 1.2, 1, 0.5, 0.6, 1.4, 1.1],
 	};
 
 	return P[type][races.indexOf(race)];
@@ -8283,7 +8553,7 @@ Chara.initGlobal = function () {
 		});
 	}
 };
-/* twine-user-script #33: "ActionTool.js" */
+/* twine-user-script #34: "ActionTool.js" */
 Action.create = function (data, mode) {
 	const { name, templet, targetPart, actPart, type } = data;
 
@@ -8395,7 +8665,7 @@ Action.output = function (mode, type) {
 
 	download(txt, "ActionTemplet" + (type ? `_${type}` : ""), "twee");
 };
-/* twine-user-script #34: "makeCharaSheet.js" */
+/* twine-user-script #35: "makeCharaSheet.js" */
 window.initCSV = function (cid) {
 	const _raw = Story.get(`CharaSheet_${cid}`).text.replace(/\n/g, "#L#").replace(/\s/g, "");
 	const raw = _raw.split("#L#");
@@ -8542,7 +8812,7 @@ Chara.initCSV = function (cid) {
 
 	return chara;
 };
-/* twine-user-script #35: "0-ActionGlobalFilter.js" */
+/* twine-user-script #36: "0-ActionGlobalFilter.js" */
 //全局过滤器
 Action.globalFilter = function (id) {
 	const data = Action.data[id];
@@ -8710,7 +8980,7 @@ Action.globalPartAble = function (id, part, cid) {
 
 	return Using[cid][part]?.action == "" || Using[cid][part]?.action == id;
 };
-/* twine-user-script #36: "0-ActionUI.js" */
+/* twine-user-script #37: "0-ActionUI.js" */
 const selectedActionBtn = function (name) {
 	return `<div class='actions selectAct'>[ ${name} ]</div>`;
 };
@@ -8949,7 +9219,7 @@ Action.redraw = function () {
 	Ui.replace("showtime", "<<showtime>><<showmoney>>");
 	return "";
 };
-/* twine-user-script #37: "0-ActionUtils.js" */
+/* twine-user-script #38: "0-ActionUtils.js" */
 Action.typeFilter = function (...types) {
 	return Object.values(Action.data).filter((action) => types.includes(action.type));
 };
@@ -9048,7 +9318,7 @@ Action.SelectableParts = function (actionId, filterMode) {
 	}
 	return selectAbleParts;
 };
-/* twine-user-script #38: "0-InitAction.js" */
+/* twine-user-script #39: "0-InitAction.js" */
 Action.initMode = function () {
 	T.actionTypeFilter = "all";
 	T.select = {};
@@ -9143,7 +9413,7 @@ Action.unset = function (cid, part, id) {
 
 	Using[cid][part] = { action: "", target: "", onPart: "", actor: "" };
 };
-/* twine-user-script #39: "ActionSystem.js" */
+/* twine-user-script #40: "ActionSystem.js" */
 Cond.hasSelectableParts = function (parts) {
 	let arr = Array.from(new Set(parts));
 	if (!parts || parts.length <= 1) return false;
@@ -9553,7 +9823,7 @@ Action.Failed = function (id) {
 };
 
 //---------->> 设置finish事件 <<----------//
-/* twine-user-script #40: "0-command.js" */
+/* twine-user-script #41: "0-command.js" */
 //添加macro com
 Macro.add("com", {
 	tags: null,
@@ -9752,7 +10022,7 @@ Com.updateMovement = function () {
 
 	return "";
 };
-/* twine-user-script #41: "1-commandEvent.js" */
+/* twine-user-script #42: "1-commandEvent.js" */
 //----->> 初始化 <<---------------------------//
 
 //刷新指令目录
@@ -10020,7 +10290,7 @@ Com.endEvent = function () {
 	P.msg(resetHtml);
 	Com.next();
 };
-/* twine-user-script #42: "utils.js" */
+/* twine-user-script #43: "utils.js" */
 //----->> 小功能 <<---------------------------//
 
 Com.shownext = function () {
@@ -10064,7 +10334,7 @@ Com.reset = function () {
 	//刷新画面
 	Com.resetScene();
 };
-/* twine-user-script #43: "DialogSystem.js" */
+/* twine-user-script #44: "DialogSystem.js" */
 // 信息流控制
 P.flow = function (txt, time, dashline) {
 	if (!time) time = 60;
@@ -10333,7 +10603,7 @@ Dlog.next = function () {
 		if (e.afterselect) delete e.afterselect;
 	}
 };
-/* twine-user-script #44: "Kojo.js" */
+/* twine-user-script #45: "Kojo.js" */
 class Kojo {
 	static data = {};
 	static set(id, color) {
@@ -10538,7 +10808,7 @@ F.convertKojo = function (txt) {
 
 	return txt;
 };
-/* twine-user-script #45: "charaEvent.js" */
+/* twine-user-script #46: "charaEvent.js" */
 F.summonChara = function () {
 	const local = V.location;
 
@@ -10637,7 +10907,7 @@ F.charaEvent = function (cid) {
 		}
 	});
 };
-/* twine-user-script #46: "inventory.js" */
+/* twine-user-script #47: "inventory.js" */
 F.getItems = function (cid, itemId) {
 	const item = Items.get(itemId);
 	if (!item) return false;
@@ -10665,7 +10935,7 @@ F.listupItem = function (cid) {
 	const list = inv.map((i) => Items.get(i.id).name[0] + " x " + i.amount).join("");
 	return list;
 };
-/* twine-user-script #47: "locations.js" */
+/* twine-user-script #48: "locations.js" */
 //const { Maps } = require("Code/game/map");
 
 F.getLocationMsg = function (fullId) {
@@ -10853,7 +11123,7 @@ F.DisplayMiniMap = function () {
 	const end = { x: pos.x + Math.floor(size / 2), y: pos.y + Math.floor(size / 2) };
 	let output = "";
 };
-/* twine-user-script #48: "setEvent.js" */
+/* twine-user-script #49: "setEvent.js" */
 
 F.resetEvent = function () {
 	V.event = {
@@ -10904,7 +11174,7 @@ F.setMemory = function (id, title, chara) {
 		};
 	}
 };
-/* twine-user-script #49: "sourceTrack.js" */
+/* twine-user-script #50: "sourceTrack.js" */
 F.sourceCheck = function (chara, cid) {
 	//source的处理。根据条件对source的获得值进行加减。
 
@@ -10981,7 +11251,7 @@ F.sourceUp = function (chara) {
 };
 
 F.trackCheck = function (chara, cid) {};
-/* twine-user-script #50: "timeprocess.js" */
+/* twine-user-script #51: "timeprocess.js" */
 F.timeProcess = function (t) {
 	const date = V.date;
 
@@ -11042,7 +11312,7 @@ F.timeEffects = function (t, mode) {
 	//对不在场的角色进行时间经过处理。
 	//charas = F.getNoActiveChara()
 };
-/* twine-user-script #51: "UI.js" */
+/* twine-user-script #52: "UI.js" */
 Ui.replace = function (label, html) {
 	new Wikifier(null, `<<replace #${label}>>${html}<</replace>>`);
 };
@@ -11062,7 +11332,7 @@ Ui.showhtml = function (tag, menu) {
 		$(`#${tag}`).addClass("hidden");
 	}
 };
-/* twine-user-script #52: "condition.js" */
+/* twine-user-script #53: "condition.js" */
 Cond.isClasstime = function () {
 	const date = V.date;
 	if (inrange(date.week, 1, 5)) {
@@ -11271,7 +11541,7 @@ Cond.StallBusinessTime = function () {
 	if (V.date.week == 1) return Cond.betweenTime(5.5, 16);
 	else return Cond.betweenTime(13, 17);
 };
-/* twine-user-script #53: "getInfo.js" */
+/* twine-user-script #54: "getInfo.js" */
 function statsRank(v) {
 	const select = new SelectCase();
 	select
@@ -11415,7 +11685,7 @@ P.mutants = function (level) {
 	}
 	return txt;
 };
-/* twine-user-script #54: "getTime.js" */
+/* twine-user-script #55: "getTime.js" */
 const weeks = ["暗", "光", "火", "水", "木", "雷", "土"];
 const weekcolor = ["C770FF", "F9FEA8", "FF7447", "8FE1F9", "BFE83F", "E4FCFE", "E1C57A"];
 
@@ -11481,7 +11751,7 @@ F.timePhase = function () {
 
 	return select.has(h);
 };
-/* twine-user-script #55: "newutil.js" */
+/* twine-user-script #56: "newutil.js" */
 F.playtime = function () {
 	let time = V.gametime;
 
@@ -11567,7 +11837,7 @@ F.setActor = function (cid, tid, ...parts) {
 	else T.actPart = "hands";
 };
 DefineMacroS("setActor", F.setActor);
-/* twine-user-script #56: "palamChange.js" */
+/* twine-user-script #57: "palamChange.js" */
 //根据温度变化，调整水分消耗速度。
 //设人体最佳适应温度为24℃，当温度高于最佳适应温度时，每3℃ 增加10%的水分消耗速度。
 F.hydrationLoseMult = function (currentTemp, bestTemp) {
@@ -11751,7 +12021,7 @@ F.levelMp = function (lv) {
 	let a = lv * lv * 10 + Math.pow(lv, 3);
 	return Math.floor(a / 10 + 0.5) * 10;
 };
-/* twine-user-script #57: "selection.js" */
+/* twine-user-script #58: "selection.js" */
 Macro.add("selection", {
 	tags: ["pick"],
 	handler: function () {
@@ -11938,7 +12208,7 @@ Macro.add("eventSelect", {
 		jQuery(this.output).wiki(html);
 	},
 });
-/* twine-user-script #58: "shortcut.js" */
+/* twine-user-script #59: "shortcut.js" */
 F.baseUp = function (chara, key, val) {
 	chara.base[key][0] += val;
 };
@@ -12014,7 +12284,7 @@ F.metToday = function (cid) {
 F.tentaclesNum = function () {
 	return V.cursedLord.abl.num + 2;
 };
-/* twine-user-script #59: "hover.js" */
+/* twine-user-script #60: "hover.js" */
 /* HoverTxt - Start */
 var HTIntervalID = 0;
 $(document).on(":passagerender", function (ev) {
@@ -12065,7 +12335,7 @@ function UpdateHoverTxt(Container) {
 	}
 }
 /* HoverTxt - End */
-/* twine-user-script #60: "kojoeditor.js" */
+/* twine-user-script #61: "kojoeditor.js" */
 F.initKojoEditor = function () {
 	const data = Object.values(Action.data).filter((action) => !groupmatch(action.type, "常规", "目录", "其他", "固有"));
 	const list = data.map((action) => action.id + "|" + action.name);
@@ -12291,7 +12561,7 @@ F.insertBR = function () {
 	//光标的位置也要挪一下，跟在br后面
 	$("#kojotext").prop("selectionEnd", cursorPos + 3);
 };
-/* twine-user-script #61: "mapeditor.js" */
+/* twine-user-script #62: "mapeditor.js" */
 window.confirmNewmap = function () {
 	T.mapsizeX = parseInt(T.mapsizeX);
 	T.mapsizeY = parseInt(T.mapsizeY);
@@ -12473,7 +12743,7 @@ window.showPathMap = function () {
 		}, i * 150);
 	});
 };
-/* twine-user-script #62: "textProcessor.js" */
+/* twine-user-script #63: "textProcessor.js" */
 /**
  *
  * @param {string} text
@@ -12677,11 +12947,11 @@ P.txt = function (text) {
 	return txt.join("");
 };
 
-P.splitSex = function (chara, male, female, inter) {
+P.splitSex = function (chara, male, female, futa) {
 	if (chara.gender === "male") return male;
 	else {
-		if (inter && chara.gender === "inter") {
-			return inter;
+		if (futa && chara.gender === "herm") {
+			return futa;
 		}
 		return female;
 	}
@@ -12733,7 +13003,7 @@ P.inTime = function (...args) {
 	}
 	return retxt;
 };
-/* twine-user-script #63: "Common.js" */
+/* twine-user-script #64: "Common.js" */
 /* 放松 */
 Action.set("Relax")
 	.Filter(() => {
@@ -12925,7 +13195,7 @@ Action.set("Mine")
 	.Order(() => {
 		return 0;
 	});
-/* twine-user-script #64: "Interaction.js" */
+/* twine-user-script #65: "Interaction.js" */
 /* 闲聊 */
 Action.set("Talk").Check(() => {
 	let rate = random(1, 100);
@@ -13021,7 +13291,7 @@ Action.set("AskMoney")
 Action.set("Payback").Filter(() => {
 	return pc == "Ayres" && player.wallet > target.flag.debt;
 });
-/* twine-user-script #65: "Items.js" */
+/* twine-user-script #66: "Items.js" */
 
 /* 跳蛋 */
 Action.set('Rotor')
@@ -13046,7 +13316,7 @@ Action.set('Vibrator')
      .Order(()=>{
          return 0
       })
-/* twine-user-script #66: "Magic.js" */
+/* twine-user-script #67: "Magic.js" */
 /* 静心咒 */
 Action.set("m0")
 	.Filter(() => {
@@ -13070,7 +13340,7 @@ Action.set("m1")
 	.Order(() => {
 		return 0;
 	});
-/* twine-user-script #67: "Main.js" */
+/* twine-user-script #68: "Main.js" */
 /* 交流 */
 Action.set("Interaction")
 	.Filter(() => {
@@ -13283,7 +13553,7 @@ Action.set("Other")
 	.Event(() => {
 		T.actionTypeFilter = "其他";
 	});
-/* twine-user-script #68: "Other.js" */
+/* twine-user-script #69: "Other.js" */
 //:: Action_Command_Option[script]
 /* 直播 */
 Action.set("Stream")
@@ -13345,7 +13615,7 @@ Action.set("GetNude")
 	.Order(() => {
 		return 0;
 	});
-/* twine-user-script #69: "Pose.js" */
+/* twine-user-script #70: "Pose.js" */
 //根据角色的动作状态，判断能否执行某些动作。
 //例如对方被捆绑中时，可选体位根据捆绑姿势受限。
 //:: Action_Pose_Option[script]
@@ -13417,7 +13687,7 @@ Action.set("pose11").Filter(() => {
 
 	return 1;
 });
-/* twine-user-script #70: "Reverse.js" */
+/* twine-user-script #71: "Reverse.js" */
 //:: Action_Reverse_Option[script]
 /* 口交 */
 Action.set("r0")
@@ -13454,7 +13724,7 @@ Action.set("r2")
 	.Order(() => {
 		return 0;
 	});
-/* twine-user-script #71: "System.js" */
+/* twine-user-script #72: "System.js" */
 //:: Action_Event[script]
 Action.set("reset")
 	.Filter(() => {
@@ -13531,7 +13801,7 @@ Action.set("stopTouch")
 		Flag.mode = 1;
 		//new Wikifier(null, `<<run P.flow(P.playerName()+'<<you>>把手从$target.name身上挪开了。',30,1)>>`)
 	});
-/* twine-user-script #72: "Tentacles.js" */
+/* twine-user-script #73: "Tentacles.js" */
 //:: Action_Tentacles_Option[script]
 /* 揉捏 */
 Action.set("x0")
@@ -13700,7 +13970,7 @@ Action.set("x13")
 	.Order(() => {
 		return 0;
 	});
-/* twine-user-script #73: "Touch.js" */
+/* twine-user-script #74: "Touch.js" */
 //:: Action_Touch_Option[script]
 
 /* 接吻 */
@@ -13880,7 +14150,7 @@ Action.set("t13")
 	.Order(() => {
 		return 0;
 	});
-/* twine-user-script #74: "RegistAllCom" */
+/* twine-user-script #75: "RegistAllCom" */
 //批处理多个指令。
 Com.init()
 
@@ -13954,7 +14224,7 @@ Com.globalCond = function(id){
 
     return true
 }
-/* twine-user-script #75: "Com_G1:Script" */
+/* twine-user-script #76: "Com_G1:Script" */
 /* 注册指令事件*/
 Com.set('G1')
     .Check(()=>{ 
@@ -13965,7 +14235,7 @@ Com.set('G1')
     })
 
 /* 事件文本，before执行前文本，after执行后文本，cancel执行取消时文本 */
-/* twine-user-script #76: "Com_G2:Script" */
+/* twine-user-script #77: "Com_G2:Script" */
 Com.set('G2')
     .Check(()=>{
         return random(1,100) <= target.mood + 10 && !target.state.contains('失声','失聪')
@@ -13973,12 +14243,12 @@ Com.set('G2')
     .Effect(()=>{
         Source[tc].favo += 10
     })
-/* twine-user-script #77: "Com_T4:Script" */
+/* twine-user-script #78: "Com_T4:Script" */
 Com.set('T4')
    .Filter(()=>{
         return target.gender !== 'female'
    })
-/* twine-user-script #78: "Com_T99:Script" */
+/* twine-user-script #79: "Com_T99:Script" */
 Com.set('T99')
    .Name(()=>{
         if(V.mode !== 'train'){
@@ -14022,7 +14292,7 @@ Com.set('T99')
             }
         }
    })
-/* twine-user-script #79: "Com_X1:Script" */
+/* twine-user-script #80: "Com_X1:Script" */
 Com.set('X1')
     .Check(()=>{
         //能跑进来时已经过滤掉的情况：非合意且对象具备抵抗能力
@@ -14045,7 +14315,7 @@ Com.set('X1')
         Chara.getexp(target, 'B', random(2));
     })
     .ForceAble()
-/* twine-user-script #80: "Com_X2:Script" */
+/* twine-user-script #81: "Com_X2:Script" */
 Com.set('X2')
     .Check(()=>{
         //能跑进来时已经过滤掉的情况：非合意且对象具备抵抗能力
@@ -14067,7 +14337,7 @@ Com.set('X2')
         Chara.getexp(target, '触手', random(3));
         Chara.getexp(target, 'B', random(2));
     })
-/* twine-user-script #81: "Kojo_Ayres_Regist" */
+/* twine-user-script #82: "Kojo_Ayres_Regist" */
 Kojo.set('Ayres')
     .Intro('出身不明的鬼人（？），在大贤者的推荐下来到奥兰尼亚第一魔法学院研究魔药学。')
     .Home('宿舍,S303')
@@ -14084,14 +14354,14 @@ Kojo.set('Ayres')
 
     //自定义动作
     .Action(0, {id:'Ayres_PotionExperience', name:'魔药研究', type:'G'})
-/* twine-user-script #82: "Kojo_Ayres_Actions_Option" */
+/* twine-user-script #83: "Kojo_Ayres_Actions_Option" */
 Action.kojo.Ayres = function(){
    Action.set('Ayres_PotionExperience')
       .Filter(()=>{
          return pc === 'Ayres' && V.location.name === '综合研究所'
       })
 }
-/* twine-user-script #83: "Kojo_Isil_Regist" */
+/* twine-user-script #84: "Kojo_Isil_Regist" */
 /* 代码区，用于注册角色颜色、额外的设定、flag信息等 */
 Kojo.set('Isil','#F9F570')
     //角色介绍
@@ -14149,14 +14419,14 @@ Kojo.set('Isil','#F9F570')
     .Action(0,{id:'Isil_MagicaResearch',name:'研究魔法',type:'G'})
     
 //自定义动作的设置
-/* twine-user-script #84: "Kojo_Isil_Actions_Option" */
+/* twine-user-script #85: "Kojo_Isil_Actions_Option" */
 Action.kojo.Isil = function(){
    Action.set('Isil_MagicaResearch')
       .Filter(()=>{
          return pc === 'Isil' && V.location.name === '魔法研究所'
       })
 }
-/* twine-user-script #85: "Kojo_Nanaly_Regist" */
+/* twine-user-script #86: "Kojo_Nanaly_Regist" */
 /* 纯代码区,用于注册角色信息 */
 /*注意：娜娜莉是姛，如果条件允许应当当玩家是女性/双性时才可攻略*/
 Kojo.set('Nanaly', '#66CCFF') //角色id与 名牌颜色
@@ -14168,7 +14438,7 @@ Kojo.set('Nanaly', '#66CCFF') //角色id与 名牌颜色
     //日程表填写顺序, 日程id(从0开始), [ '地点', [ 星期几 ], 起始时间,  结束时间,  滞留时长,  出现概率 ]
 
     .Event()
-/* twine-user-script #86: "startconfig.js" */
+/* twine-user-script #87: "startconfig.js" */
 game.version = "0.3.2";
 l10nStrings.errorTitle = game.version + " Error";
 console.log("Game Version:", game.version);
@@ -15553,14 +15823,14 @@ abl.lumen, 5
 abl.wrestle, 10
 abl.cooking, 2
 abl.medicine, 4
-abl.gathering, 6
+abl.gather, 6
 
 sbl.knowledge, 5
 sbl.technique, 2
 sbl.endurance, 2
 
-exp.自慰, 30+random(100)
-exp.同性, 30+random(100)
+exp.onani, 30+random(100)
+exp.homo, 30+random(100)
 
 organ.v.size, 1
 
@@ -15614,7 +15884,7 @@ abl.wrestle, 16
 abl.cooking, 6
 abl.craft, 12
 abl.fishing, 12
-abl.gathering, 10
+abl.gather, 10
 
 sbl.knowledge, 5
 sbl.endurance, 2
@@ -15630,10 +15900,10 @@ organ.m.size, 4
 
 flag.jobfame, 40
 
-exp.自慰, 30+random(100)
-exp.同性, 5+random(30)
-exp.肛交, 5+random(30)
-exp.插入, 10+random(30)
+exp.onani, 30+random(100)
+exp.homo, 5+random(30)
+exp.analsex, 5+random(30)
+exp.insertion, 10+random(30)
 
 scar.face, scar
 scar.back, scar
@@ -15699,7 +15969,7 @@ sbl.techinque, 6
 sbl.endurance, 2
 sbl.desire, 2
 
-exp.自慰, 30+random(30)
+exp.onani, 30+random(30)
 
 virginity.anal, 震动棒, 不明, 以某人为幻想对象,用震动棒自行破处</tw-passagedata><tw-passagedata pid="140" name="CharaSheet_Rena" tags="csv" position="1225,1725" size="100,100">/* 正确的注释打开方式 */
 
@@ -15751,14 +16021,14 @@ abl.lumen, 5
 abl.wrestle, 10
 abl.cooking, 2
 abl.medicine, 4
-abl.gathering, 6
+abl.gather, 6
 
 sbl.knowledge, 5
 sbl.technique, 2
 sbl.endurance, 2
 
-exp.自慰, 30+random(100)
-exp.同性, 30+random(100)
+exp.onani, 30+random(100)
+exp.homo, 30+random(100)
 
 organ.v.size, 1
 

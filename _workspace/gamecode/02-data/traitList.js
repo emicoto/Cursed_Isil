@@ -54,7 +54,7 @@ D.traits = [
 		des: "没有世俗的欲望。",
 		sourceEffect: [
 			["libido", 0.3],
-			["arousal", 0.3],
+			["lust", 0.3],
 			["libido", 2, "lose"],
 		],
 	},
@@ -64,7 +64,7 @@ D.traits = [
 		des: "身体很容易被刺激到。",
 		sourceEffect: [
 			["libido", 1.5],
-			["arousal", 1.5],
+			["lust", 1.5],
 			["libido", 0.5, "lose"],
 		],
 	},
@@ -129,7 +129,7 @@ D.traits = [
 		conflic: ["放纵", "冲动", "高调", "强欲"],
 		order: 0,
 		sourceEffect: [
-			["arousal", 0.75],
+			["lust", 0.75],
 			["eager", 0.8],
 			["satisfy", 1.2],
 		],
@@ -140,7 +140,7 @@ D.traits = [
 		des: "小孩才做选择，我全都要！",
 		order: 0,
 		sourceEffect: [
-			["arousal", 1.25],
+			["lust", 1.25],
 			["eager", 1.2],
 			["satisfy", 0.8],
 		],
@@ -175,7 +175,7 @@ D.traits = [
 		sourceEffect: [
 			["paAll", 0.9],
 			["fear", 0.9],
-			["arousal", 0.9],
+			["lust", 0.9],
 			["esAll", 0.9],
 		],
 	},
@@ -199,7 +199,7 @@ D.traits = [
 			["sanity", 0.8, "lose"],
 			["paAll", 0.9],
 			["fear", 0.9],
-			["arousal", 0.9],
+			["lust", 0.9],
 			["esAll", 0.9],
 		],
 	},
@@ -311,7 +311,7 @@ D.traits = [
 		des: "神啊，请原谅我的罪恶！",
 		order: -2,
 		sourceEffect: [
-			["arousal", 0.2],
+			["lust", 0.2],
 			["esAll", 1.2],
 		],
 	},
@@ -321,7 +321,7 @@ D.traits = [
 		des: "性自由今天就要实现！",
 		order: 2,
 		sourceEffect: [
-			["arousal", 1.8],
+			["lust", 1.8],
 			["esAll", 0.5],
 		],
 	},
@@ -331,7 +331,7 @@ D.traits = [
 		des: "脏死了，别碰我！",
 		order: 0,
 		sourceEffect: [
-			["arousal", 0.2],
+			["lust", 0.2],
 			["resist", 2],
 			["esAll", 0.9],
 		],
@@ -342,7 +342,7 @@ D.traits = [
 		des: "快，正面上我！！",
 		order: 10,
 		sourceEffect: [
-			["arousal", 2.5],
+			["lust", 2.5],
 			["libido", 3],
 		],
 	},
@@ -412,7 +412,7 @@ D.traits = [
 		group: "行为",
 		des: "性行为只能跟结婚对象做，而且必须得婚后。",
 		order: 0,
-		sourceEffect: [["arousal", 0.9]],
+		sourceEffect: [["lust", 0.9]],
 	},
 	{
 		name: "放荡", //欲情up，好意很容易提升，非正常play需求值--
@@ -420,7 +420,7 @@ D.traits = [
 		des: "想做就做，没人可以约束我。",
 		order: 5,
 		sourceEffect: [
-			["arousal", 1.5],
+			["lust", 1.5],
 			["favo", 1.5],
 		],
 	},
@@ -507,8 +507,9 @@ D.traits = [
 	},
 ];
 
-//对调教数值没啥影响. 天赋才能, 成就称号类
-//class表里只有 名字, 说明, 效果三项目?
+//对调教数值没影响，只在特定情况起效果的类型。
+//天赋才能、特殊特征、荣誉称号等。
+//跟trait共用一个class，只是不用那么多属性。
 D.talent = [
 	"天才", //学习效果up
 	"光属性",
@@ -532,6 +533,8 @@ D.talent = [
 	"发光", //自带发光特效。不怕黑暗了呢！
 	"精力旺盛", //体力和精子量up!
 	"洞察力", //更容易获得线索（包括出轨证据）
+	"泌乳", //可以泌乳
+	"天然泌乳", //可以泌乳
 ];
 
 D.traitConflicGroup = [

@@ -11,36 +11,12 @@ import {
 	race,
 	sblkey,
 	statskey,
+	creaturetype,
+	sexStats,
+	appearance,
 } from "./types";
 
-export interface sexStats {
-	lv: number;
-	type?: string;
-	trait?: string[];
-
-	size?: number;
-	d?: number;
-	l?: number;
-
-	wet?: number;
-	cum?: number;
-	maxcum?: number;
-	milk?: number;
-	maxmilk?: number;
-}
-
-export interface appearance {
-	eyecolor?: string;
-
-	haircolor?: string;
-	hairstlye?: string;
-
-	skincolor?: string;
-	beauty?: number;
-	bodysize?: number; //0=tiny 137~147, 1=small 147~164, 2=normal 164~174, 3=tall 174~184, 4=verytall 184~200, 5=huge 200~220, 6=giant 220+
-	tall?: number; //mm
-	weight?: number; //kg
-}
+declare function groupmatch(arg, ...args): boolean;
 
 export interface Creature {
 	type: creaturetype;
@@ -117,9 +93,6 @@ interface iName {
 	n?: string; //nick
 	c?: string; //call master
 }
-
-export type creaturetype = "chara" | "nnpc" | "monster";
-declare function groupmatch(arg, ...args): boolean;
 
 export class Creature {
 	static data: Dict<Creature> = {};
@@ -436,7 +409,6 @@ export class Chara extends Creature {
 			best: 23,
 			current: 36,
 		}; //最低适应温度， 最高适应温度, 最佳适应温度， 当前体温. 单位摄氏度
-
 		return this;
 	}
 
@@ -448,7 +420,7 @@ export class Chara extends Creature {
 	}
 
 	initExp() {
-		D.exp.forEach((k) => {
+		Object.keys(D.exp).forEach((k) => {
 			this.exp[k] = { aware: 0, total: 0 };
 		});
 		return this;
@@ -710,12 +682,15 @@ export class Chara extends Creature {
 	}
 }
 
-Object.defineProperties(window.scEra.modules, {
-	Creature: { value: Creature },
-	Chara: { value: Chara },
-});
+const modules = {
+	name: "Creatures",
+	version: "1.0.0",
+	des: "A module for generating creatures, including characters, monsters, and NPCs.",
+	classObj: {
+		Creature,
+		Chara,
+	},
+};
 
-Object.defineProperties(window, {
-	Creature: { get: () => window.scEra.modules.Creature },
-	Chara: { get: () => window.scEra.modules.Chara },
-});
+declare function registModule(mod): boolean;
+registModule(modules);

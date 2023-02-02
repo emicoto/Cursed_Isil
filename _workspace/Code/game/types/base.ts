@@ -7,50 +7,61 @@ export type Dict<T = any, K extends string = any> = {
 export type race =
 	| "human"
 	| "elvin"
+	| "deamon"
 	| "wolves"
 	| "drawf"
 	| "goblin"
 	| "catvinx"
 	| "centaur"
-	| "deamon"
+	| "bestiary"
 	| "orc"
-	| "titan";
+	| "titan"
+	| "dracon"
+	| "kijin";
 
 export type jobclass = "scholar" | "mage" | "ranger" | "medics" | "warrior" | "alchemist" | "";
 
 export type statskey = "ATK" | "DEF" | "MTK" | "MDF" | "STR" | "CON" | "DEX" | "INT" | "WIL" | "PSY" | "ALR" | "LUK";
+
+export type bonuskey = "health" | "stamina" | "mana" | "ATK" | "DEF" | "MTK" | "MDF";
 
 export type basekey =
 	| "health"
 	| "stamina"
 	| "sanity"
 	| "mana"
+	| "hydration"
+	| "nutrition"
+	| "clean"
 	| "drug"
 	| "alcohol"
-	| "dirty"
 	| "stress"
-	| "hydration"
-	| "nutrient";
+	| "libido";
 
 export type palamkey =
 	| "ecstacy"
-	| "arousal"
+	| "lust"
 	| "surrend"
 	| "fear"
 	| "mortify"
+	| "humiliate"
 	| "pain"
 	| "depress"
 	| "resist"
 	| "favo"
+	| "uncomfort"
 	| "eager"
 	| "angry"
 	| "satisfy"
-	| "ecM"
-	| "ecB"
-	| "ecC"
-	| "ecU"
-	| "ecV"
-	| "ecA"
+	| "superior"
+	//ecstacy track
+	| "esM"
+	| "esB"
+	| "esC"
+	| "esU"
+	| "esV"
+	| "esA"
+	//pain track
 	| "paM"
 	| "paB"
 	| "paC"
@@ -59,6 +70,9 @@ export type palamkey =
 	| "paA";
 
 export type ablkey =
+	//基础能力, max level 20
+	//Magic Skill, limited by Magica
+	//魔法技能，受魔法等级限制
 	| "magica"
 	| "lumen"
 	| "ark"
@@ -67,90 +81,105 @@ export type ablkey =
 	| "vitae"
 	| "terra"
 	| "electron"
+	//Physical Skill
 	| "sword"
 	| "wrestle"
+	| "running"
+	//life skill
 	| "cooking"
 	| "plant"
 	| "medicine"
 	| "craft"
 	| "fishing"
-	| "gathering";
+	| "gather"
+	| "sing"
+	| "dance"
+	| "instrument"
+	| "paint";
 
 export type sblkey =
-	| "knowledge"
 	| "technique"
 	| "endurance"
 	| "submissive"
 	| "refuse"
+
+	//mental
 	| "hypnosis"
 	| "desire"
-	| "service"
+	| "serve"
 	| "exhibition"
 	| "promscuity"
+	| "masochism"
+	| "sadicism"
+
+	//extra
+	| "bestial"
+	| "gangbang"
+	| "tentacles"
 	| "sexaddic"
 	| "drugaddic"
-	| "masochist"
-	| "semenaddic"
-	| "analejac"
-	| "vagiejac"
-	| "deviancy"
-	| "gangbang"
-	| "tentacles";
+	| "cumaddic"
+	| "Vcumpie"
+	| "Acumpie";
 
 export type expkey =
+	//basic
 	| "M"
 	| "B"
 	| "C"
 	| "U"
 	| "V"
 	| "A"
-	| "M高潮"
-	| "B高潮"
-	| "C高潮"
-	| "U高潮"
-	| "V高潮"
-	| "A高潮"
-	| "高潮"
-	| "强烈高潮"
-	| "深度强烈高潮"
-	| "多重高潮"
-	| "接吻"
-	| "射精"
-	| "喷乳"
-	| "放尿"
-	| "饮精"
-	| "肛交"
-	| "性交"
-	| "乳交"
-	| "口交"
-	| "内射"
-	| "肛射"
-	| "乳头开发"
-	| "后穴开发"
-	| "尿道开发"
-	| "子宫开发"
-	| "插入"
-	| "道具"
-	| "受虐"
-	| "露出"
-	| "被拍摄"
-	| "怀孕"
-	| "产卵"
-	| "轮奸"
-	| "兽奸"
-	| "触手奸"
-	| "眠奸"
-	| "强奸"
-	| "迷奸"
-	| "性转"
-	| "同性"
-	| "爱情"
-	| "侍奉"
-	| "自慰"
-	| "嗑药"
-	| "服从"
-	| "催眠"
-	| "调教"
-	| "施虐";
+	| "orgasm"
+	| "orgM"
+	| "orgB"
+	| "orgC"
+	| "orgU"
+	| "orgV"
+	| "orgA"
+	| "strongOrg"
+	| "deepOrg"
+	| "multiOrg"
+	//general
+	| "kiss"
+	| "cum"
+	| "milk"
+	| "pee"
+	| "swallow"
+	| "analsex"
+	| "vagisex"
+	| "titjob"
+	| "oraljob"
+	//
+	| "ejacV"
+	| "ejacA"
+	| "devB"
+	| "devA"
+	| "devU"
+	| "devV"
+	| "tentacles"
+	| "insertion"
+	| "sextoy"
+	| "filmed"
 
-export type markkey = "hypno" | "ecstacy" | "surrend" | "pain" | "fear" | "humil" | "resit";
+	//extra
+	| "mascho"
+	| "expose"
+	| "pregnant"
+	| "spawn"
+	| "gangbang"
+	| "bestial"
+	| "sleepsex"
+	| "raped"
+	| "TS"
+	| "homo"
+	| "love"
+	| "serve"
+	| "onani"
+	| "drugs"
+	| "submi"
+	| "hypno"
+	| "train"
+	| "sadic";
+
+export type markkey = "hypno" | "ecstacy" | "surrend" | "pain" | "fear" | "humiliate" | "mortify" | "resist";

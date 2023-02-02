@@ -206,3 +206,66 @@ window.defineGlobalShortcuts = (shortcuts) => {
 
 	defineGlobalShortcuts(shortcuts);
 })();
+
+//------------------------------------------------------------------------------
+//
+//   scEra.regist
+//
+//------------------------------------------------------------------------------
+window.registModule = function (modules) {
+	//check if the module is already loaded before registering it
+	if (window.scEra.modules[modules.name]) {
+		console.warn(`Module ${modules.name} is already loaded. Skipping this registration.`);
+		return false;
+	}
+
+	//register the module
+	const { name, data, classObj, functions, config, version, des } = modules;
+
+	window.scEra.modules[name] = {
+		info: {
+			name,
+			version,
+			des,
+		},
+		data: data,
+	};
+
+	//ensure the class at the top level
+	Object.keys(classObj).forEach((key) => {
+		window.scEra.modules[name][key] = classObj[key];
+	});
+
+	//ensure the functions at the top level
+	if (functions) {
+		Object.keys(functions).forEach((key) => {
+			window.scEra.modules[name][key] = functions[key];
+		});
+	}
+
+	//check the config
+	if (config?.globalfunction) {
+		Object.keys(functions).forEach((key) => {
+			Object.defineProperty(window, key, {
+				get: () => window.scEra.modules[name][key],
+			});
+		});
+	}
+
+	if (config?.globaldata) {
+		Object.keys(data).forEach((key) => {
+			Object.defineProperty(window, key.toUpperFirst() + "Data", {
+				get: () => window.scEra.modules[name].data[key],
+			});
+		});
+	}
+
+	//make the class available at the top level
+	Object.keys(classObj).forEach((key) => {
+		Object.defineProperty(window, key, {
+			get: () => window.scEra.modules[name][key],
+		});
+	});
+
+	return true;
+};

@@ -277,32 +277,17 @@ export class Clothes extends Items {
 	}
 }
 
-Object.defineProperties(window.scEra.modules, {
-	Items: { value: Items },
-	Clothes: { value: Clothes },
-	Potion: { value: Potion },
-	SexToy: { value: SexToy },
-});
+const modules = {
+	name: "Items",
+	version: "1.0.0",
+	des: "A module for items.",
+	classObj: {
+		Items,
+		Clothes,
+		Potion,
+		SexToy,
+	},
+};
 
-Object.defineProperties(window, {
-	Items: {
-		get() {
-			return window.scEra.modules.Items;
-		},
-	},
-	Clothes: {
-		get() {
-			return window.scEra.modules.Clothes;
-		},
-	},
-	Potion: {
-		get() {
-			return window.scEra.modules.Potion;
-		},
-	},
-	SexToy: {
-		get() {
-			return window.scEra.modules.SexToy;
-		},
-	},
-});
+declare function registModule(modules: any): boolean;
+registModule(modules);

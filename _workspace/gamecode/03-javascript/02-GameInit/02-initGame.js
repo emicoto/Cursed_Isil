@@ -139,7 +139,7 @@ game.start = function (skip) {
 	}
 	if (T.futa == 2) {
 		for (let i in V.chara) {
-			V.chara[i].gender = "inter";
+			V.chara[i].gender = "herm";
 			V.chara[i].initSexOrgan("v");
 			if (V.chara[i].resetVirginity) {
 				V.chara[i].resetVirginity();

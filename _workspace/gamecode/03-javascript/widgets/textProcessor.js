@@ -201,11 +201,11 @@ P.txt = function (text) {
 	return txt.join("");
 };
 
-P.splitSex = function (chara, male, female, inter) {
+P.splitSex = function (chara, male, female, futa) {
 	if (chara.gender === "male") return male;
 	else {
-		if (inter && chara.gender === "inter") {
-			return inter;
+		if (futa && chara.gender === "herm") {
+			return futa;
 		}
 		return female;
 	}

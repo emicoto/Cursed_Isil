@@ -83,7 +83,7 @@ export interface Chara extends Creature {
 	wallet?: number;
 	debt?: number;
 	inventory?: any;
-	tempture?: { low: number; high: number; best: number; current: number };
+	tempe?: { low: number; high: number; best: number; current: number };
 }
 
 interface iName {
@@ -322,7 +322,7 @@ export class Creature {
 
 	GenerateBodysize(_tall?) {
 		const tall = _tall ? _tall : this.appearance.tall;
-		return Math.floor((tall - 1350) / 150);
+		return Math.floor((tall - 1350) / 150) + 1;
 	}
 
 	GenerateWeight(_tall) {
@@ -403,7 +403,7 @@ export class Chara extends Creature {
 		this.initFlag();
 		this.wallet = 1000;
 		this.inventory = [];
-		this.tempture = {
+		this.tempe = {
 			low: 16,
 			high: 28,
 			best: 23,

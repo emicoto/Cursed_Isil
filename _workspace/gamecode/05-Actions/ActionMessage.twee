@@ -21,7 +21,7 @@
 /* 吸舔 */
 <<actor>>
 <<switch T.selectPart>>
-<<case 'penis', 'critoris', 'nipple'>>
+<<case 'penis', 'clitoris', 'nipple'>>
 吸住了<<target>>的<<targetPart>>，在上面用舌头反复舔舐着。<br>
 <<case 'vagina', 'anal'>>
 把头埋在<<target>>的跨间，把舌头探入<<targetPart>>，贪婪地吸舔着<<target>>的汁液与气息。<br>
@@ -38,7 +38,7 @@
 /* 吸咬 */
 <<actor>>
 <<switch T.selectPart>>
-<<case 'penis', 'critoris', 'nipple', 'ears'>>
+<<case 'penis', 'clitoris', 'nipple', 'ears'>>
 含住<<target>>的<<targetPart>>，吸吮轻咬着。<br>
 <<default>>
 轻咬在<<target>>的<<targetPart>>上，品味着对方的气息，不时轻啃慢咬试图留下自己的痕迹。<br>
@@ -50,7 +50,7 @@
 <<switch T.selectPart>>
 <<case 'penis'>>
 用手套住<<target>>的龟头，不时用手指拨弄刺激在敏感带上。<br>
-<<case 'critoris', 'nipple'>>
+<<case 'clitoris', 'nipple'>>
 拨弄着<<target>>的<<targetPart>>，不时轻捏揉搓刺激在敏感的尖端。<br>
 <<case 'vagina', 'anal'>>
 将手指往内深入，在<<target>>的<<targetPart>>扣弄着，不时刺激在脆弱的敏感点上。<br>
@@ -126,7 +126,7 @@
 缠绕在<<target>>的胸部上，巧妙地反复揉捏给予刺激。<br>
 <<case 'penis'>>
 缠绕在<<target>>的阴茎上，巧妙地反复揉捏给予刺激。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 缠绕在<<target>>的阴蒂上，巧妙地反复揉捏给予刺激。<br>
 <<case 'nipple'>>
 缠绕在<<target>>的乳头上，巧妙地反复揉捏给予刺激。<br>
@@ -138,7 +138,7 @@
 <<switch T.selectPart>>
 <<case 'mouth'>>
 深入、缠绕、蠕动。触手反复逗弄着<<target>>的口腔，给予极大的刺激。<br>
-<<case 'penis', 'critoris', 'ears', 'nipple'>>
+<<case 'penis', 'clitoris', 'ears', 'nipple'>>
 缠绕、蠕动、拨弄。触手反复逗弄着<<target>>的<<targetPart>>，给予极大的刺激。<br>
 <<case 'vagina', 'anal'>>
 蠕动、摩擦、按揉。触手反复逗弄着<<target>>的<<targetPart>>，给予极大的刺激。<br>

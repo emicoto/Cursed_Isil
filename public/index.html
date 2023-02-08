@@ -4041,6 +4041,7 @@ D.cflag = [
 	nose: "鼻子",
 	mouth: "嘴巴",
 	hairs: "头发",
+	hair: "头发",
 	brain: "大脑",
 	beak: "喙",
 
@@ -4074,8 +4075,8 @@ D.cflag = [
 	slimebody: "史莱姆身",
 	snakebody: "蛇身",
 	tailbody: "尾身",
-	shoulder: "肩部",
-	breast: "胸部",
+	hoursebody: "马身",
+
 	abdomen: "腹部",
 	belly: "肚子",
 	back: "背部",
@@ -4084,8 +4085,13 @@ D.cflag = [
 	//chest group
 	chest: "胸腔",
 	nipple: "乳头",
+	breasts: "胸部",
+	breastL: "左胸",
+	breastR: "右胸",
 	breast: "胸部",
+
 	heart: "心脏",
+	hearts: "心脏",
 	lung: "肺",
 	lungs: "肺部",
 	lungL: "左肺",
@@ -4109,7 +4115,7 @@ D.cflag = [
 	crotch: "裆部",
 	private: "私处",
 	genital: "生殖器",
-	critoris: "阴蒂",
+	clitoris: "阴蒂",
 	anal: "肛门",
 	penis: "阴茎",
 	vagina: "阴道",
@@ -4156,6 +4162,10 @@ D.cflag = [
 	tails: "尾巴",
 	tail: "尾巴",
 	tentacles: "触手",
+
+	skin: "皮肤",
+	fur: "皮毛",
+	furs: "皮毛",
 };</script>
 <script id="script-module-skinlayer" type="text/javascript">D.covergroupA = {
 	//覆盖度。 决定肌肤暴露部位。
@@ -5774,7 +5784,7 @@ D.mutant = ["光滑", "吸盘", "口器", "隆起", "针", "软刺", "阴茎"];
 
 D.actAbleParts = ["handR", "handL", "mouth", "penis", "vagina", "anal", "foot"];
 
-D.selectAbleParts = ["breast", "critoris", "urin", "ears", "neck", "butts", "nipple", "thighs", "abdomen"].concat(
+D.selectAbleParts = ["breast", "clitoris", "urin", "ears", "neck", "butts", "nipple", "thighs", "abdomen"].concat(
 	D.actAbleParts
 );
 
@@ -6149,123 +6159,135 @@ D.clothesheet = {
 }
 /* twine-user-script #17: "raceTemplet.js" */
 const racesheet = {
-    name:'high-elf',
+	name: "high-elf",
 
-    // 0=tiny(120~140), 1=small(140~160), 2=normal(160~172), 3=tall(172~182),4=supertall(182~192),5=extratall(192~210),6=giant(210~230),7=supergaint(230~300)
-    avatarinfo:{
-        head:'human',
-        headtype:['round','square','pointy'],
-        ears:'elf',
-        body:'human',
-        skincolor:['health','white','pale','pink'],
-        leg:'human',
-        /*
+	// 0=tiny(120~140), 1=small(140~160), 2=normal(160~172), 3=tall(172~182),4=supertall(182~192),5=extratall(192~210),6=giant(210~230),7=supergaint(230~300)
+	avatarinfo: {
+		head: "human",
+		headtype: ["round", "square", "pointy"],
+		ears: "elf",
+		body: "human",
+		skincolor: ["health", "white", "pale", "pink"],
+		leg: "human",
+		/*
         tail:'',
         wing:'',
         */
-        /*
+		/*
         hairstyle:[front,back],
         hairlength:[front,back],
         haircolor:colorcode,
 
          */
-    },
+	},
 
-    bodyshape:{
-        size:[1,4],
-        breast:[0,8],
-        hips:[0,6],
-    },
+	bodyshape: {
+		size: [1, 4],
+		breast: [0, 8],
+		hips: [0, 6],
+	},
 
-    body:{ 
-    //type:natural/artifact/chimera/parasite/slime/fog/hideable;
-    /*  adj对指定部位进行微调， 有hideable才添加到指定的部位设置里
+	body: {
+		//type:natural/artifact/chimera/parasite/slime/fog/hideable;
+		/*  adj对指定部位进行微调， 有hideable才添加到指定的部位设置里
         其他种族部位：tailbody, tail ,wings,horns, tentacles,
-     */    
-        type:'natural',
-        group:{
-            head:['face','eyeL','eyeR','nose','mouth','earL','earR'], 
-            torso:['shoulder','breast','abdomen','armL','armR','legL','legR'],
-            organ:['penis','vagina','womb','anus','urin'],       
-        },
-        /*adj:{
+     */
+		type: "natural",
+		group: {
+			head: ["face", "eyeL", "eyeR", "nose", "mouth", "earL", "earR"],
+			torso: ["shoulder", "breast", "abdomen", "armL", "armR", "legL", "legR"],
+			organ: ["penis", "vagina", "womb", "anus", "urin"],
+		},
+		/*adj:{
             organ:'slime',
             penis:'natural/hideable',
         },*/
-    },
+	},
 
-    bodyadjusment:function(newbody){
-        const bodygroup = Object.keys(this.body.group)
-        const obj = this.body.adj
-        
-        for(let i in obj){
+	bodyadjusment: function (newbody) {
+		const bodygroup = Object.keys(this.body.group);
+		const obj = this.body.adj;
 
-            if(bodygroup.includes(i)){
-                const list = this.body.group[i]
-                list.forEach(v => {
-                   newbody[v] = obj[i] 
-                });
-            }
-            else{
-                newbody[i] = obj[i]
-            }
-        }
-    },
+		for (let i in obj) {
+			if (bodygroup.includes(i)) {
+				const list = this.body.group[i];
+				list.forEach((v) => {
+					newbody[v] = obj[i];
+				});
+			} else {
+				newbody[i] = obj[i];
+			}
+		}
+	},
 
-    genitals:{
-        //normal, horse, deamonic, tentacle, knot, barbs, bumps, sharp, drill
-        pshape:'normal', 
-        //normal, cute, suji, pretty, raffle, deamonic, monster,
-        vshape:'normal',
+	genitals: {
+		//normal, horse, deamonic, tentacle, knot, barbs, bumps, sharp, drill
+		pshape: "normal",
+		//normal, cute, suji, pretty, raffle, deamonic, monster,
+		vshape: "normal",
 
+		psize: [0, 4],
+		//长度: 0=micro,1=tiny,2=small,3=average, 4=big,5=large, 6=huge, 7=deamonic, 8=horse, 9=giant
+		//实际计算：长度=(bit+1)*4.6 +rng, 直径=长度/4.28 +rng
 
-        psize:[0,4],
-        //长度: 0=micro,1=tiny,2=small,3=average, 4=big,5=large, 6=huge, 7=deamonic, 8=horse, 9=giant
-        //实际计算：长度=(bit+1)*4.6 +rng, 直径=长度/4.28 +rng
+		bsize: [1, 4],
+		//大小: 0=mini, 1=tiny, 2=small, 3=average, 4=big, 5=large, 6=massive, 7=huge, 8:gigantic, 9:enormous
 
-        bsize:[1,4],
-        //大小: 0=mini, 1=tiny, 2=small, 3=average, 4=big, 5=large, 6=massive, 7=huge, 8:gigantic, 9:enormous
+		vsize: [0, 4],
+		//实际计算：(bit+1)*1.46 +rng
 
-        vsize:[0,4],
-        //实际计算：(bit+1)*1.46 +rng
+		teste: true,
+		clitoris: true,
 
-        teste:true,
-        critoris:true,
+		futaHasTeste: false, //双性人是否有阴囊/阴蒂
+		futaHasclitoris: false,
+	},
 
-        futaHasTeste:false, //双性人是否有阴囊/阴蒂
-        futaHasCritoris:false,
-    },
+	warmth: [16, 25],
 
-    warmth:[16, 25],
+	pregnancy: {
+		type: "menst",
+		basedays: 28,
+		rng: 4,
 
-    pregnancy:{
-        type:'menst',
-        basedays:28,
-        rng:4,
+		//月经周期/安全期= stages[1]-stages[0], 排卵/危险期=stages[last]-stages[last-1]， 中间是准备期。
+		stages: [0, 5, 14, 28],
 
-        //月经周期/安全期= stages[1]-stages[0], 排卵/危险期=stages[last]-stages[last-1]， 中间是准备期。        
-        stages:[0,5,14,28], 
+		ovulate: 1, //单次排卵数
+		frng: 1, //排卵乱数
+		//wormslot=bodysize*2, parasiteslot=bodysize*3。
+	},
 
-        ovulate:1, //单次排卵数
-        frng:1, //排卵乱数
-        //wormslot=bodysize*2, parasiteslot=bodysize*3。
-    }, 
+	adjust: {
+		STR: 0,
+		CON: 0,
+		DEX: 0,
+		SPD: 0,
+		WIL: 0,
+		INT: 0,
+		PSY: 0,
+		ALR: 0,
+	},
 
-    adjust:{
-        STR:0, CON:0, DEX:0, SPD:0, WIL:0, INT:0, PSY:0, ALR:0
-    },
+	traits: ["快速适应", "快速学习"],
+	traitpoints: 1, //种族特征可用点
+};
 
-    traits:['快速适应','快速学习'],
-    traitpoints:1, //种族特征可用点
-}
-
-const PlayerSpecies = [
-    'human','high-elf',
-]
+const PlayerSpecies = ["human", "high-elf"];
 
 const NPCSpecies = [
-    'human','elvins','high-elf','drawf','goblin','orc','wolves','deamon','centra','titan','kijin'//'slimen','jellish','dracon','linlog','lepios
-]
+	"human",
+	"elvins",
+	"high-elf",
+	"drawf",
+	"goblin",
+	"orc",
+	"wolves",
+	"deamon",
+	"centra",
+	"titan",
+	"kijin", //'slimen','jellish','dracon','linlog','lepios
+];
 /* twine-user-script #18: "tips.js" */
 D.tips = {
 	mage: {
@@ -7676,7 +7698,7 @@ const extendParts = function (raw) {
 		m: "mouth",
 		b: "breast",
 		p: "penis",
-		c: "critoris",
+		c: "clitoris",
 		v: "vagina",
 		a: "anal",
 		u: "urin",
@@ -8965,7 +8987,7 @@ Action.globalPartAble = function (id, part, cid) {
 	if (!Using[cid][part]) return 1;
 
 	switch (part) {
-		case "critoris":
+		case "clitoris":
 			if (chara.gender !== "female") return 0;
 		case "penis":
 			if (part == "penis" && chara.gender == "female") return 0;
@@ -15546,7 +15568,7 @@ $(&#39;action&#39;).on(&#39;finish&#39;, ()=&gt;{
 &lt;&lt;actor&gt;&gt;揉捏着&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;。&lt;br&gt;</tw-passagedata><tw-passagedata pid="70" name="Msg_PCAction_t4" tags="" position="1225,850" size="100,100">/* 吸舔 */
 &lt;&lt;actor&gt;&gt;
 &lt;&lt;switch T.selectPart&gt;&gt;
-&lt;&lt;case &#39;penis&#39;, &#39;critoris&#39;, &#39;nipple&#39;&gt;&gt;
+&lt;&lt;case &#39;penis&#39;, &#39;clitoris&#39;, &#39;nipple&#39;&gt;&gt;
 吸住了&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;，在上面用舌头反复舔舐着。&lt;br&gt;
 &lt;&lt;case &#39;vagina&#39;, &#39;anal&#39;&gt;&gt;
 把头埋在&lt;&lt;target&gt;&gt;的跨间，把舌头探入&lt;&lt;targetPart&gt;&gt;，贪婪地吸舔着&lt;&lt;target&gt;&gt;的汁液与气息。&lt;br&gt;
@@ -15559,7 +15581,7 @@ $(&#39;action&#39;).on(&#39;finish&#39;, ()=&gt;{
 &lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="71" name="Msg_PCAction_t5" tags="" position="100,975" size="100,100">/* 吸咬 */
 &lt;&lt;actor&gt;&gt;
 &lt;&lt;switch T.selectPart&gt;&gt;
-&lt;&lt;case &#39;penis&#39;, &#39;critoris&#39;, &#39;nipple&#39;, &#39;ears&#39;&gt;&gt;
+&lt;&lt;case &#39;penis&#39;, &#39;clitoris&#39;, &#39;nipple&#39;, &#39;ears&#39;&gt;&gt;
 含住&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;，吸吮轻咬着。&lt;br&gt;
 &lt;&lt;default&gt;&gt;
 轻咬在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;上，品味着对方的气息，不时轻啃慢咬试图留下自己的痕迹。&lt;br&gt;
@@ -15568,7 +15590,7 @@ $(&#39;action&#39;).on(&#39;finish&#39;, ()=&gt;{
 &lt;&lt;switch T.selectPart&gt;&gt;
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
 用手套住&lt;&lt;target&gt;&gt;的龟头，不时用手指拨弄刺激在敏感带上。&lt;br&gt;
-&lt;&lt;case &#39;critoris&#39;, &#39;nipple&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;, &#39;nipple&#39;&gt;&gt;
 拨弄着&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;，不时轻捏揉搓刺激在敏感的尖端。&lt;br&gt;
 &lt;&lt;case &#39;vagina&#39;, &#39;anal&#39;&gt;&gt;
 将手指往内深入，在&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;扣弄着，不时刺激在脆弱的敏感点上。&lt;br&gt;
@@ -15607,7 +15629,7 @@ $(&#39;action&#39;).on(&#39;finish&#39;, ()=&gt;{
 缠绕在&lt;&lt;target&gt;&gt;的胸部上，巧妙地反复揉捏给予刺激。&lt;br&gt;
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
 缠绕在&lt;&lt;target&gt;&gt;的阴茎上，巧妙地反复揉捏给予刺激。&lt;br&gt;
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
 缠绕在&lt;&lt;target&gt;&gt;的阴蒂上，巧妙地反复揉捏给予刺激。&lt;br&gt;
 &lt;&lt;case &#39;nipple&#39;&gt;&gt;
 缠绕在&lt;&lt;target&gt;&gt;的乳头上，巧妙地反复揉捏给予刺激。&lt;br&gt;
@@ -15615,7 +15637,7 @@ $(&#39;action&#39;).on(&#39;finish&#39;, ()=&gt;{
 &lt;&lt;switch T.selectPart&gt;&gt;
 &lt;&lt;case &#39;mouth&#39;&gt;&gt;
 深入、缠绕、蠕动。触手反复逗弄着&lt;&lt;target&gt;&gt;的口腔，给予极大的刺激。&lt;br&gt;
-&lt;&lt;case &#39;penis&#39;, &#39;critoris&#39;, &#39;ears&#39;, &#39;nipple&#39;&gt;&gt;
+&lt;&lt;case &#39;penis&#39;, &#39;clitoris&#39;, &#39;ears&#39;, &#39;nipple&#39;&gt;&gt;
 缠绕、蠕动、拨弄。触手反复逗弄着&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;，给予极大的刺激。&lt;br&gt;
 &lt;&lt;case &#39;vagina&#39;, &#39;anal&#39;&gt;&gt;
 蠕动、摩擦、按揉。触手反复逗弄着&lt;&lt;target&gt;&gt;的&lt;&lt;targetPart&gt;&gt;，给予极大的刺激。&lt;br&gt;
@@ -16303,7 +16325,7 @@ flagname替换成对应的变量名&lt;br&gt;
    /*&lt;&lt;you&gt;&gt;亲吻在了&lt;&lt;NanalyName&gt;&gt;的胸部上，轻吮吸舔，试图留下自己的印记。&lt;br&gt;*/
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;亲吻在了&lt;&lt;NanalyName&gt;&gt;的阴茎上，轻吮吸舔，试图留下自己的印记。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;亲吻在了&lt;&lt;NanalyName&gt;&gt;的阴蒂上，轻吮吸舔，试图留下自己的印记。&lt;br&gt;*/
 &lt;&lt;case &#39;ears&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;亲吻在了&lt;&lt;NanalyName&gt;&gt;的耳朵上，轻吮吸舔，试图留下自己的印记。&lt;br&gt;*/
@@ -16332,7 +16354,7 @@ flagname替换成对应的变量名&lt;br&gt;
    少女的声音像是呻吟，又像是叹息，随着胸前的柔软任由&lt;&lt;you&gt;&gt;的揉搓变形而完全沉醉其中&lt;br&gt;
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;的手轻抚着&lt;&lt;NanalyName&gt;&gt;的阴茎。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;的手轻抚着&lt;&lt;NanalyName&gt;&gt;的阴蒂。&lt;br&gt;*/
 &lt;&lt;case &#39;vagina&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;的手轻抚着&lt;&lt;NanalyName&gt;&gt;的阴道。&lt;br&gt;*/
@@ -16360,7 +16382,7 @@ flagname替换成对应的变量名&lt;br&gt;
    /*&lt;&lt;you&gt;&gt;揉捏着&lt;&lt;NanalyName&gt;&gt;的胸部。&lt;br&gt;*/
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;揉捏着&lt;&lt;NanalyName&gt;&gt;的阴茎。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;揉捏着&lt;&lt;NanalyName&gt;&gt;的阴蒂。&lt;br&gt;*/
 &lt;&lt;case &#39;ears&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;揉捏着&lt;&lt;NanalyName&gt;&gt;的耳朵。&lt;br&gt;*/
@@ -16370,7 +16392,7 @@ flagname替换成对应的变量名&lt;br&gt;
 &lt;&lt;switch T.selectPart&gt;&gt;
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;吸住了&lt;&lt;NanalyName&gt;&gt;的阴茎，在上面用舌头反复舔舐着。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;吸住了&lt;&lt;NanalyName&gt;&gt;的阴蒂，在上面用舌头反复舔舐着。&lt;br&gt;*/
 &lt;&lt;case &#39;vagina&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;吸住了&lt;&lt;NanalyName&gt;&gt;的阴道，在上面用舌头反复舔舐着。&lt;br&gt;*/
@@ -16403,7 +16425,7 @@ flagname替换成对应的变量名&lt;br&gt;
 &lt;&lt;switch T.selectPart&gt;&gt;
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*/*&lt;&lt;you&gt;&gt;含住&lt;&lt;NanalyName&gt;&gt;的阴茎，吸吮轻咬着。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;含住&lt;&lt;NanalyName&gt;&gt;的阴蒂，吸吮轻咬着。&lt;br&gt;*/
 &lt;&lt;case &#39;ears&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;含住&lt;&lt;NanalyName&gt;&gt;的耳朵，吸吮轻咬着。&lt;br&gt;*/
@@ -16425,7 +16447,7 @@ flagname替换成对应的变量名&lt;br&gt;
 &lt;&lt;switch T.selectPart&gt;&gt;
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;反复逗弄着&lt;&lt;NanalyName&gt;&gt;的阴茎。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;反复逗弄着&lt;&lt;NanalyName&gt;&gt;的阴蒂。&lt;br&gt;*/
 &lt;&lt;case &#39;vagina&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;反复逗弄着&lt;&lt;NanalyName&gt;&gt;的阴道。&lt;br&gt;*/
@@ -16660,7 +16682,7 @@ flagname替换成对应的变量名&lt;br&gt;
    /*&lt;&lt;you&gt;&gt;将跳蛋贴在&lt;&lt;NanalyName&gt;&gt;的乳头，刺激着。&lt;br&gt;*/
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;将跳蛋贴在&lt;&lt;NanalyName&gt;&gt;的阴茎，刺激着。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;将跳蛋贴在&lt;&lt;NanalyName&gt;&gt;的阴蒂，刺激着。&lt;br&gt;*/
 &lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="225" name="Kojo_Nanaly_Action_Vibrator" tags="noMsg" position="600,2850" size="100,100">/* 震动棒 */
 &lt;&lt;switch T.selectPart&gt;&gt;
@@ -16674,7 +16696,7 @@ flagname替换成对应的变量名&lt;br&gt;
    /*触手缠绕在&lt;&lt;NanalyName&gt;&gt;的胸部上，巧妙地反复揉捏给予刺激。&lt;br&gt;*/
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*触手缠绕在&lt;&lt;NanalyName&gt;&gt;的阴茎上，巧妙地反复揉捏给予刺激。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*触手缠绕在&lt;&lt;NanalyName&gt;&gt;的阴蒂上，巧妙地反复揉捏给予刺激。&lt;br&gt;*/
 &lt;&lt;case &#39;nipple&#39;&gt;&gt;
    /*触手缠绕在&lt;&lt;NanalyName&gt;&gt;的乳头上，巧妙地反复揉捏给予刺激。&lt;br&gt;*/
@@ -16684,7 +16706,7 @@ flagname替换成对应的变量名&lt;br&gt;
    /*蠕动、摩擦、按捏。触手反复逗弄着&lt;&lt;NanalyName&gt;&gt;的嘴巴，给予极大的刺激。&lt;br&gt;*/
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*蠕动、摩擦、按捏。触手反复逗弄着&lt;&lt;NanalyName&gt;&gt;的阴茎，给予极大的刺激。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*蠕动、摩擦、按捏。触手反复逗弄着&lt;&lt;NanalyName&gt;&gt;的阴蒂，给予极大的刺激。&lt;br&gt;*/
 &lt;&lt;case &#39;vagina&#39;&gt;&gt;
    /*蠕动、摩擦、按捏。触手反复逗弄着&lt;&lt;NanalyName&gt;&gt;的阴道，给予极大的刺激。&lt;br&gt;*/
@@ -16702,7 +16724,7 @@ flagname替换成对应的变量名&lt;br&gt;
    /*吸盘触手吸附在&lt;&lt;NanalyName&gt;&gt;的乳头上，反复吸舔着。&lt;br&gt;*/
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*吸盘触手吸附在&lt;&lt;NanalyName&gt;&gt;的阴茎上，反复吸舔着。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*吸盘触手吸附在&lt;&lt;NanalyName&gt;&gt;的阴蒂上，反复吸舔着。&lt;br&gt;*/
 &lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="229" name="Kojo_Nanaly_Action_x3" tags="noMsg" position="1100,2850" size="100,100">/* 吸咬 */
 &lt;&lt;switch T.selectPart&gt;&gt;
@@ -16710,7 +16732,7 @@ flagname替换成对应的变量名&lt;br&gt;
    /*口器触手含住&lt;&lt;NanalyName&gt;&gt;的乳头，吸吮轻咬着。&lt;br&gt;*/
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*口器触手含住&lt;&lt;NanalyName&gt;&gt;的阴茎，吸吮轻咬着。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*口器触手含住&lt;&lt;NanalyName&gt;&gt;的阴蒂，吸吮轻咬着。&lt;br&gt;*/
 &lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="230" name="Kojo_Nanaly_Action_x4" tags="noMsg" position="1225,2850" size="100,100">/* 撸动 */
 &lt;&lt;switch T.selectPart&gt;&gt;
@@ -16736,7 +16758,7 @@ flagname替换成对应的变量名&lt;br&gt;
    /*触手在&lt;&lt;NanalyName&gt;&gt;的胸部慢慢蠕动着。&lt;br&gt;*/
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*触手在&lt;&lt;NanalyName&gt;&gt;的阴茎慢慢蠕动着。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*触手在&lt;&lt;NanalyName&gt;&gt;的阴蒂慢慢蠕动着。&lt;br&gt;*/
 &lt;&lt;case &#39;vagina&#39;&gt;&gt;
    /*触手在&lt;&lt;NanalyName&gt;&gt;的阴道慢慢蠕动着。&lt;br&gt;*/
@@ -16792,7 +16814,7 @@ flagname替换成对应的变量名&lt;br&gt;
    /*触手甩动触鞭，用巧妙的力度鞭打在&lt;&lt;NanalyName&gt;&gt;的胸部上。&lt;br&gt;*/
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*触手甩动触鞭，用巧妙的力度鞭打在&lt;&lt;NanalyName&gt;&gt;的阴茎上。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*触手甩动触鞭，用巧妙的力度鞭打在&lt;&lt;NanalyName&gt;&gt;的阴蒂上。&lt;br&gt;*/
 &lt;&lt;case &#39;anal&#39;&gt;&gt;
    /*触手甩动触鞭，用巧妙的力度鞭打在&lt;&lt;NanalyName&gt;&gt;的肛门上。&lt;br&gt;*/
@@ -16806,7 +16828,7 @@ flagname替换成对应的变量名&lt;br&gt;
 &lt;&lt;switch T.selectPart&gt;&gt;
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*触手伸出尖锐的细针，狠狠地刺入了&lt;&lt;NanalyName&gt;&gt;的阴茎。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*触手伸出尖锐的细针，狠狠地刺入了&lt;&lt;NanalyName&gt;&gt;的阴蒂。&lt;br&gt;*/
 &lt;&lt;case &#39;vagina&#39;&gt;&gt;
    /*触手伸出尖锐的细针，狠狠地刺入了&lt;&lt;NanalyName&gt;&gt;的阴道。&lt;br&gt;*/
@@ -16832,7 +16854,7 @@ flagname替换成对应的变量名&lt;br&gt;
    /*触手伸出尖锐的针头，刺入&lt;&lt;NanalyName&gt;&gt;的胸部并注入药液。&lt;br&gt;*/
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*触手伸出尖锐的针头，刺入&lt;&lt;NanalyName&gt;&gt;的阴茎并注入药液。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*触手伸出尖锐的针头，刺入&lt;&lt;NanalyName&gt;&gt;的阴蒂并注入药液。&lt;br&gt;*/
 &lt;&lt;case &#39;vagina&#39;&gt;&gt;
    /*触手伸出尖锐的针头，刺入&lt;&lt;NanalyName&gt;&gt;的阴道并注入药液。&lt;br&gt;*/
@@ -17088,7 +17110,7 @@ flagname替换成对应的变量名&lt;br&gt;
    /*&lt;&lt;you&gt;&gt;亲吻在了&lt;&lt;NanalyName&gt;&gt;的胸部上，轻吮吸舔，试图留下自己的印记。&lt;br&gt;*/
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;亲吻在了&lt;&lt;NanalyName&gt;&gt;的阴茎上，轻吮吸舔，试图留下自己的印记。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;亲吻在了&lt;&lt;NanalyName&gt;&gt;的阴蒂上，轻吮吸舔，试图留下自己的印记。&lt;br&gt;*/
 &lt;&lt;case &#39;ears&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;亲吻在了&lt;&lt;NanalyName&gt;&gt;的耳朵上，轻吮吸舔，试图留下自己的印记。&lt;br&gt;*/
@@ -17114,7 +17136,7 @@ flagname替换成对应的变量名&lt;br&gt;
    /* 摸胸 */
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;的手轻抚着&lt;&lt;NanalyName&gt;&gt;的阴茎。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;的手轻抚着&lt;&lt;NanalyName&gt;&gt;的阴蒂。&lt;br&gt;*/
 &lt;&lt;case &#39;vagina&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;的手轻抚着&lt;&lt;NanalyName&gt;&gt;的阴道。&lt;br&gt;*/
@@ -17142,7 +17164,7 @@ flagname替换成对应的变量名&lt;br&gt;
    /*&lt;&lt;you&gt;&gt;揉捏着&lt;&lt;NanalyName&gt;&gt;的胸部。&lt;br&gt;*/
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;揉捏着&lt;&lt;NanalyName&gt;&gt;的阴茎。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;揉捏着&lt;&lt;NanalyName&gt;&gt;的阴蒂。&lt;br&gt;*/
 &lt;&lt;case &#39;ears&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;揉捏着&lt;&lt;NanalyName&gt;&gt;的耳朵。&lt;br&gt;*/
@@ -17152,7 +17174,7 @@ flagname替换成对应的变量名&lt;br&gt;
 &lt;&lt;switch T.counter.tgPart&gt;&gt;
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;吸住了&lt;&lt;NanalyName&gt;&gt;的阴茎，在上面用舌头反复舔舐着。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;吸住了&lt;&lt;NanalyName&gt;&gt;的阴蒂，在上面用舌头反复舔舐着。&lt;br&gt;*/
 &lt;&lt;case &#39;vagina&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;吸住了&lt;&lt;NanalyName&gt;&gt;的阴道，在上面用舌头反复舔舐着。&lt;br&gt;*/
@@ -17181,7 +17203,7 @@ flagname替换成对应的变量名&lt;br&gt;
 &lt;&lt;switch T.counter.tgPart&gt;&gt;
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*/*&lt;&lt;you&gt;&gt;含住&lt;&lt;NanalyName&gt;&gt;的阴茎，吸吮轻咬着。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;含住&lt;&lt;NanalyName&gt;&gt;的阴蒂，吸吮轻咬着。&lt;br&gt;*/
 &lt;&lt;case &#39;ears&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;含住&lt;&lt;NanalyName&gt;&gt;的耳朵，吸吮轻咬着。&lt;br&gt;*/
@@ -17203,7 +17225,7 @@ flagname替换成对应的变量名&lt;br&gt;
 &lt;&lt;switch T.counter.tgPart&gt;&gt;
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;反复逗弄着&lt;&lt;NanalyName&gt;&gt;的阴茎。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;反复逗弄着&lt;&lt;NanalyName&gt;&gt;的阴蒂。&lt;br&gt;*/
 &lt;&lt;case &#39;vagina&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;反复逗弄着&lt;&lt;NanalyName&gt;&gt;的阴道。&lt;br&gt;*/
@@ -17418,7 +17440,7 @@ flagname替换成对应的变量名&lt;br&gt;
    /*&lt;&lt;you&gt;&gt;将跳蛋贴在&lt;&lt;NanalyName&gt;&gt;的乳头，刺激着。&lt;br&gt;*/
 &lt;&lt;case &#39;penis&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;将跳蛋贴在&lt;&lt;NanalyName&gt;&gt;的阴茎，刺激着。&lt;br&gt;*/
-&lt;&lt;case &#39;critoris&#39;&gt;&gt;
+&lt;&lt;case &#39;clitoris&#39;&gt;&gt;
    /*&lt;&lt;you&gt;&gt;将跳蛋贴在&lt;&lt;NanalyName&gt;&gt;的阴蒂，刺激着。&lt;br&gt;*/
 &lt;&lt;/switch&gt;&gt;</tw-passagedata><tw-passagedata pid="297" name="Kojo_Nanaly_Counter_Vibrator" tags="noMsg" position="850,3725" size="100,100">/* 震动棒 */
 &lt;&lt;switch T.counter.tgPart&gt;&gt;

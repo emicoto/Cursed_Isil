@@ -58,7 +58,7 @@
    /*<<you>>亲吻在了<<NPCIDName>>的胸部上，轻吮吸舔，试图留下自己的印记。<br>*/
 <<case 'penis'>>
    /*<<you>>亲吻在了<<NPCIDName>>的阴茎上，轻吮吸舔，试图留下自己的印记。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*<<you>>亲吻在了<<NPCIDName>>的阴蒂上，轻吮吸舔，试图留下自己的印记。<br>*/
 <<case 'ears'>>
    /*<<you>>亲吻在了<<NPCIDName>>的耳朵上，轻吮吸舔，试图留下自己的印记。<br>*/
@@ -87,7 +87,7 @@
    /* 摸胸 */
 <<case 'penis'>>
    /*<<you>>的手轻抚着<<NPCIDName>>的阴茎。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*<<you>>的手轻抚着<<NPCIDName>>的阴蒂。<br>*/
 <<case 'vagina'>>
    /*<<you>>的手轻抚着<<NPCIDName>>的阴道。<br>*/
@@ -118,7 +118,7 @@
    /*<<you>>揉捏着<<NPCIDName>>的胸部。<br>*/
 <<case 'penis'>>
    /*<<you>>揉捏着<<NPCIDName>>的阴茎。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*<<you>>揉捏着<<NPCIDName>>的阴蒂。<br>*/
 <<case 'ears'>>
    /*<<you>>揉捏着<<NPCIDName>>的耳朵。<br>*/
@@ -132,7 +132,7 @@
 <<switch T.counter.tgPart>>
 <<case 'penis'>>
    /*<<you>>吸住了<<NPCIDName>>的阴茎，在上面用舌头反复舔舐着。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*<<you>>吸住了<<NPCIDName>>的阴蒂，在上面用舌头反复舔舐着。<br>*/
 <<case 'vagina'>>
    /*<<you>>吸住了<<NPCIDName>>的阴道，在上面用舌头反复舔舐着。<br>*/
@@ -164,7 +164,7 @@
 <<switch T.counter.tgPart>>
 <<case 'penis'>>
    /*/*<<you>>含住<<NPCIDName>>的阴茎，吸吮轻咬着。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*<<you>>含住<<NPCIDName>>的阴蒂，吸吮轻咬着。<br>*/
 <<case 'ears'>>
    /*<<you>>含住<<NPCIDName>>的耳朵，吸吮轻咬着。<br>*/
@@ -189,7 +189,7 @@
 <<switch T.counter.tgPart>>
 <<case 'penis'>>
    /*<<you>>反复逗弄着<<NPCIDName>>的阴茎。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*<<you>>反复逗弄着<<NPCIDName>>的阴蒂。<br>*/
 <<case 'vagina'>>
    /*<<you>>反复逗弄着<<NPCIDName>>的阴道。<br>*/
@@ -485,7 +485,7 @@
    /*<<you>>将跳蛋贴在<<NPCIDName>>的乳头，刺激着。<br>*/
 <<case 'penis'>>
    /*<<you>>将跳蛋贴在<<NPCIDName>>的阴茎，刺激着。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*<<you>>将跳蛋贴在<<NPCIDName>>的阴蒂，刺激着。<br>*/
 <</switch>>
 

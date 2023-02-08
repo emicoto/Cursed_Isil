@@ -219,7 +219,7 @@ export type bodypart =
 	| "vaginal"
 	| "anal"
 	| "penis"
-	| "critoris"
+	| "clitoris"
 	| "teste";
 
 //作为tag。可以合并。 fog|hidden 这样。

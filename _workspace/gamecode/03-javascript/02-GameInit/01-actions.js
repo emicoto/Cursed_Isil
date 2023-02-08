@@ -29,7 +29,7 @@ const extendParts = function (raw) {
 		m: "mouth",
 		b: "breast",
 		p: "penis",
-		c: "critoris",
+		c: "clitoris",
 		v: "vagina",
 		a: "anal",
 		u: "urin",

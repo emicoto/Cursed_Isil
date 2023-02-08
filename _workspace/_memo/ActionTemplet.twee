@@ -814,7 +814,7 @@ Action.set('t1')
 <<you>>亲吻在了$target.name的胸部上，轻吮吸舔，试图留下自己的印记。<br>
 <<case 'penis'>>
 <<you>>亲吻在了$target.name的阴茎上，轻吮吸舔，试图留下自己的印记。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 <<you>>亲吻在了$target.name的阴蒂上，轻吮吸舔，试图留下自己的印记。<br>
 <<case 'ears'>>
 <<you>>亲吻在了$target.name的耳朵上，轻吮吸舔，试图留下自己的印记。<br>
@@ -857,7 +857,7 @@ Action.set('t2')
 <<you>>的手轻抚着$target.name的胸部。<br>
 <<case 'penis'>>
 <<you>>的手轻抚着$target.name的阴茎。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 <<you>>的手轻抚着$target.name的阴蒂。<br>
 <<case 'vagina'>>
 <<you>>的手轻抚着$target.name的阴道。<br>
@@ -902,7 +902,7 @@ Action.set('t3')
 <<you>>揉捏着$target.name的胸部。<br>
 <<case 'penis'>>
 <<you>>揉捏着$target.name的阴茎。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 <<you>>揉捏着$target.name的阴蒂。<br>
 <<case 'ears'>>
 <<you>>揉捏着$target.name的耳朵。<br>
@@ -929,7 +929,7 @@ Action.set('t4')
 <<switch T.selectPart>>
 <<case 'penis'>>
 <<you>>吸住了$target.name的阴茎，在上面用舌头反复舔舐着。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 <<you>>吸住了$target.name的阴蒂，在上面用舌头反复舔舐着。<br>
 <<case 'vagina'>>
 <<you>>吸住了$target.name的阴道，在上面用舌头反复舔舐着。<br>
@@ -974,7 +974,7 @@ Action.set('t5')
 <<switch T.selectPart>>
 <<case 'penis'>>
 <<you>>含住$target.name的阴茎，吸吮轻咬着。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 <<you>>含住$target.name的阴蒂，吸吮轻咬着。<br>
 <<case 'ears'>>
 <<you>>含住$target.name的耳朵，吸吮轻咬着。<br>
@@ -1013,7 +1013,7 @@ Action.set('t6')
 <<switch T.selectPart>>
 <<case 'penis'>>
 <<you>>反复逗弄着$target.name的阴茎。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 <<you>>反复逗弄着$target.name的阴蒂。<br>
 <<case 'vagina'>>
 <<you>>反复逗弄着$target.name的阴道。<br>
@@ -1536,7 +1536,7 @@ Action.set('Rotor')
 <<you>>将跳蛋贴在$target.name的乳头，刺激着。<br>
 <<case 'penis'>>
 <<you>>将跳蛋贴在$target.name的阴茎，刺激着。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 <<you>>将跳蛋贴在$target.name的阴蒂，刺激着。<br>
 <</switch>>
 
@@ -1584,7 +1584,7 @@ Action.set('x0')
 触手缠绕在$target.name的胸部上，巧妙地反复揉捏给予刺激。<br>
 <<case 'penis'>>
 触手缠绕在$target.name的阴茎上，巧妙地反复揉捏给予刺激。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 触手缠绕在$target.name的阴蒂上，巧妙地反复揉捏给予刺激。<br>
 <<case 'nipple'>>
 触手缠绕在$target.name的乳头上，巧妙地反复揉捏给予刺激。<br>
@@ -1611,7 +1611,7 @@ Action.set('x1')
 蠕动、摩擦、按捏。触手反复逗弄着$target.name的嘴巴，给予极大的刺激。<br>
 <<case 'penis'>>
 蠕动、摩擦、按捏。触手反复逗弄着$target.name的阴茎，给予极大的刺激。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 蠕动、摩擦、按捏。触手反复逗弄着$target.name的阴蒂，给予极大的刺激。<br>
 <<case 'vagina'>>
 蠕动、摩擦、按捏。触手反复逗弄着$target.name的阴道，给予极大的刺激。<br>
@@ -1646,7 +1646,7 @@ Action.set('x2')
 吸盘触手吸附在$target.name的乳头上，反复吸舔着。<br>
 <<case 'penis'>>
 吸盘触手吸附在$target.name的阴茎上，反复吸舔着。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 吸盘触手吸附在$target.name的阴蒂上，反复吸舔着。<br>
 <</switch>>
 
@@ -1671,7 +1671,7 @@ Action.set('x3')
 口器触手含住$target.name的乳头，吸吮轻咬着。<br>
 <<case 'penis'>>
 口器触手含住$target.name的阴茎，吸吮轻咬着。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 口器触手含住$target.name的阴蒂，吸吮轻咬着。<br>
 <</switch>>
 
@@ -1748,7 +1748,7 @@ Action.set('x6')
 触手在$target.name的胸部慢慢蠕动着。<br>
 <<case 'penis'>>
 触手在$target.name的阴茎慢慢蠕动着。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 触手在$target.name的阴蒂慢慢蠕动着。<br>
 <<case 'vagina'>>
 触手在$target.name的阴道慢慢蠕动着。<br>
@@ -1872,7 +1872,7 @@ Action.set('x10')
 触手甩动触鞭，用巧妙的力度鞭打在$target.name的胸部上。<br>
 <<case 'penis'>>
 触手甩动触鞭，用巧妙的力度鞭打在$target.name的阴茎上。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 触手甩动触鞭，用巧妙的力度鞭打在$target.name的阴蒂上。<br>
 <<case 'anal'>>
 触手甩动触鞭，用巧妙的力度鞭打在$target.name的肛门上。<br>
@@ -1903,7 +1903,7 @@ Action.set('x11')
 <<switch T.selectPart>>
 <<case 'penis'>>
 触手伸出尖锐的细针，狠狠地刺入了$target.name的阴茎。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 触手伸出尖锐的细针，狠狠地刺入了$target.name的阴蒂。<br>
 <<case 'vagina'>>
 触手伸出尖锐的细针，狠狠地刺入了$target.name的阴道。<br>
@@ -1963,7 +1963,7 @@ Action.set('x13')
 触手伸出尖锐的针头，刺入$target.name的胸部并注入药液。<br>
 <<case 'penis'>>
 触手伸出尖锐的针头，刺入$target.name的阴茎并注入药液。<br>
-<<case 'critoris'>>
+<<case 'clitoris'>>
 触手伸出尖锐的针头，刺入$target.name的阴蒂并注入药液。<br>
 <<case 'vagina'>>
 触手伸出尖锐的针头，刺入$target.name的阴道并注入药液。<br>

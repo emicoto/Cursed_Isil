@@ -156,7 +156,7 @@ flagname替换成对应的变量名<br>
    /*<<you>>亲吻在了<<NanalyName>>的胸部上，轻吮吸舔，试图留下自己的印记。<br>*/
 <<case 'penis'>>
    /*<<you>>亲吻在了<<NanalyName>>的阴茎上，轻吮吸舔，试图留下自己的印记。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*<<you>>亲吻在了<<NanalyName>>的阴蒂上，轻吮吸舔，试图留下自己的印记。<br>*/
 <<case 'ears'>>
    /*<<you>>亲吻在了<<NanalyName>>的耳朵上，轻吮吸舔，试图留下自己的印记。<br>*/
@@ -188,7 +188,7 @@ flagname替换成对应的变量名<br>
    少女的声音像是呻吟，又像是叹息，随着胸前的柔软任由<<you>>的揉搓变形而完全沉醉其中<br>
 <<case 'penis'>>
    /*<<you>>的手轻抚着<<NanalyName>>的阴茎。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*<<you>>的手轻抚着<<NanalyName>>的阴蒂。<br>*/
 <<case 'vagina'>>
    /*<<you>>的手轻抚着<<NanalyName>>的阴道。<br>*/
@@ -219,7 +219,7 @@ flagname替换成对应的变量名<br>
    /*<<you>>揉捏着<<NanalyName>>的胸部。<br>*/
 <<case 'penis'>>
    /*<<you>>揉捏着<<NanalyName>>的阴茎。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*<<you>>揉捏着<<NanalyName>>的阴蒂。<br>*/
 <<case 'ears'>>
    /*<<you>>揉捏着<<NanalyName>>的耳朵。<br>*/
@@ -233,7 +233,7 @@ flagname替换成对应的变量名<br>
 <<switch T.selectPart>>
 <<case 'penis'>>
    /*<<you>>吸住了<<NanalyName>>的阴茎，在上面用舌头反复舔舐着。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*<<you>>吸住了<<NanalyName>>的阴蒂，在上面用舌头反复舔舐着。<br>*/
 <<case 'vagina'>>
    /*<<you>>吸住了<<NanalyName>>的阴道，在上面用舌头反复舔舐着。<br>*/
@@ -269,7 +269,7 @@ flagname替换成对应的变量名<br>
 <<switch T.selectPart>>
 <<case 'penis'>>
    /*/*<<you>>含住<<NanalyName>>的阴茎，吸吮轻咬着。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*<<you>>含住<<NanalyName>>的阴蒂，吸吮轻咬着。<br>*/
 <<case 'ears'>>
    /*<<you>>含住<<NanalyName>>的耳朵，吸吮轻咬着。<br>*/
@@ -294,7 +294,7 @@ flagname替换成对应的变量名<br>
 <<switch T.selectPart>>
 <<case 'penis'>>
    /*<<you>>反复逗弄着<<NanalyName>>的阴茎。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*<<you>>反复逗弄着<<NanalyName>>的阴蒂。<br>*/
 <<case 'vagina'>>
    /*<<you>>反复逗弄着<<NanalyName>>的阴道。<br>*/
@@ -608,7 +608,7 @@ flagname替换成对应的变量名<br>
    /*<<you>>将跳蛋贴在<<NanalyName>>的乳头，刺激着。<br>*/
 <<case 'penis'>>
    /*<<you>>将跳蛋贴在<<NanalyName>>的阴茎，刺激着。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*<<you>>将跳蛋贴在<<NanalyName>>的阴蒂，刺激着。<br>*/
 <</switch>>
 
@@ -628,7 +628,7 @@ flagname替换成对应的变量名<br>
    /*触手缠绕在<<NanalyName>>的胸部上，巧妙地反复揉捏给予刺激。<br>*/
 <<case 'penis'>>
    /*触手缠绕在<<NanalyName>>的阴茎上，巧妙地反复揉捏给予刺激。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*触手缠绕在<<NanalyName>>的阴蒂上，巧妙地反复揉捏给予刺激。<br>*/
 <<case 'nipple'>>
    /*触手缠绕在<<NanalyName>>的乳头上，巧妙地反复揉捏给予刺激。<br>*/
@@ -641,7 +641,7 @@ flagname替换成对应的变量名<br>
    /*蠕动、摩擦、按捏。触手反复逗弄着<<NanalyName>>的嘴巴，给予极大的刺激。<br>*/
 <<case 'penis'>>
    /*蠕动、摩擦、按捏。触手反复逗弄着<<NanalyName>>的阴茎，给予极大的刺激。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*蠕动、摩擦、按捏。触手反复逗弄着<<NanalyName>>的阴蒂，给予极大的刺激。<br>*/
 <<case 'vagina'>>
    /*蠕动、摩擦、按捏。触手反复逗弄着<<NanalyName>>的阴道，给予极大的刺激。<br>*/
@@ -662,7 +662,7 @@ flagname替换成对应的变量名<br>
    /*吸盘触手吸附在<<NanalyName>>的乳头上，反复吸舔着。<br>*/
 <<case 'penis'>>
    /*吸盘触手吸附在<<NanalyName>>的阴茎上，反复吸舔着。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*吸盘触手吸附在<<NanalyName>>的阴蒂上，反复吸舔着。<br>*/
 <</switch>>
 
@@ -673,7 +673,7 @@ flagname替换成对应的变量名<br>
    /*口器触手含住<<NanalyName>>的乳头，吸吮轻咬着。<br>*/
 <<case 'penis'>>
    /*口器触手含住<<NanalyName>>的阴茎，吸吮轻咬着。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*口器触手含住<<NanalyName>>的阴蒂，吸吮轻咬着。<br>*/
 <</switch>>
 
@@ -708,7 +708,7 @@ flagname替换成对应的变量名<br>
    /*触手在<<NanalyName>>的胸部慢慢蠕动着。<br>*/
 <<case 'penis'>>
    /*触手在<<NanalyName>>的阴茎慢慢蠕动着。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*触手在<<NanalyName>>的阴蒂慢慢蠕动着。<br>*/
 <<case 'vagina'>>
    /*触手在<<NanalyName>>的阴道慢慢蠕动着。<br>*/
@@ -776,7 +776,7 @@ flagname替换成对应的变量名<br>
    /*触手甩动触鞭，用巧妙的力度鞭打在<<NanalyName>>的胸部上。<br>*/
 <<case 'penis'>>
    /*触手甩动触鞭，用巧妙的力度鞭打在<<NanalyName>>的阴茎上。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*触手甩动触鞭，用巧妙的力度鞭打在<<NanalyName>>的阴蒂上。<br>*/
 <<case 'anal'>>
    /*触手甩动触鞭，用巧妙的力度鞭打在<<NanalyName>>的肛门上。<br>*/
@@ -793,7 +793,7 @@ flagname替换成对应的变量名<br>
 <<switch T.selectPart>>
 <<case 'penis'>>
    /*触手伸出尖锐的细针，狠狠地刺入了<<NanalyName>>的阴茎。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*触手伸出尖锐的细针，狠狠地刺入了<<NanalyName>>的阴蒂。<br>*/
 <<case 'vagina'>>
    /*触手伸出尖锐的细针，狠狠地刺入了<<NanalyName>>的阴道。<br>*/
@@ -825,7 +825,7 @@ flagname替换成对应的变量名<br>
    /*触手伸出尖锐的针头，刺入<<NanalyName>>的胸部并注入药液。<br>*/
 <<case 'penis'>>
    /*触手伸出尖锐的针头，刺入<<NanalyName>>的阴茎并注入药液。<br>*/
-<<case 'critoris'>>
+<<case 'clitoris'>>
    /*触手伸出尖锐的针头，刺入<<NanalyName>>的阴蒂并注入药液。<br>*/
 <<case 'vagina'>>
    /*触手伸出尖锐的针头，刺入<<NanalyName>>的阴道并注入药液。<br>*/

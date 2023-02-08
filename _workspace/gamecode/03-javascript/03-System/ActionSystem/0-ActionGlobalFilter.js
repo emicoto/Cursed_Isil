@@ -150,7 +150,7 @@ Action.globalPartAble = function (id, part, cid) {
 	if (!Using[cid][part]) return 1;
 
 	switch (part) {
-		case "critoris":
+		case "clitoris":
 			if (chara.gender !== "female") return 0;
 		case "penis":
 			if (part == "penis" && chara.gender == "female") return 0;

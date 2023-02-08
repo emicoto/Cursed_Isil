@@ -14,6 +14,7 @@ D.bodyparts = {
 	nose: "鼻子",
 	mouth: "嘴巴",
 	hairs: "头发",
+	hair: "头发",
 	brain: "大脑",
 	beak: "喙",
 
@@ -47,8 +48,8 @@ D.bodyparts = {
 	slimebody: "史莱姆身",
 	snakebody: "蛇身",
 	tailbody: "尾身",
-	shoulder: "肩部",
-	breast: "胸部",
+	hoursebody: "马身",
+
 	abdomen: "腹部",
 	belly: "肚子",
 	back: "背部",
@@ -57,8 +58,13 @@ D.bodyparts = {
 	//chest group
 	chest: "胸腔",
 	nipple: "乳头",
+	breasts: "胸部",
+	breastL: "左胸",
+	breastR: "右胸",
 	breast: "胸部",
+
 	heart: "心脏",
+	hearts: "心脏",
 	lung: "肺",
 	lungs: "肺部",
 	lungL: "左肺",
@@ -82,7 +88,7 @@ D.bodyparts = {
 	crotch: "裆部",
 	private: "私处",
 	genital: "生殖器",
-	critoris: "阴蒂",
+	clitoris: "阴蒂",
 	anal: "肛门",
 	penis: "阴茎",
 	vagina: "阴道",
@@ -129,4 +135,8 @@ D.bodyparts = {
 	tails: "尾巴",
 	tail: "尾巴",
 	tentacles: "触手",
+
+	skin: "皮肤",
+	fur: "皮毛",
+	furs: "皮毛",
 };

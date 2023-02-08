@@ -4,7 +4,7 @@
 <name lan='CN'>人类</name>
 <des lan='EN'>Human is the most ordinary intelligent species on this planet.</des>
 <des lan='CN'>人类是这个星球上最普遍的智慧生物。</des>
-<gender>male|female</gender>
+<gender>male||female</gender>
 <talent>
    <li>
       <name>FastAdaption</name>
@@ -78,10 +78,10 @@
    <wombSlot>3</wombSlot>
 </cycle>
 <avatar>
-   <headtype>pointy|round|square</headtype>
+   <headtype>pointy||round||square</headtype>
    <bodytype>human</bodytype>
    <eartype>human</eartype>
-   <skincolor>pale|white|health|black|chocolate|copper|sunset</skincolor>
+   <skincolor>pale||white||health||black||chocolate||copper||sunset</skincolor>
    <defaulthaircolor>brown</defaulthaircolor>
 </avatar>
 </race>

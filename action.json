@@ -1,0 +1,705 @@
+{
+	"Talk": {
+		"type": "Interact",
+		"id": "Talk",
+		"name": "闲聊",
+		"time": 5,
+		"setting": "canTrain"
+	},
+	"Look": {
+		"type": "Interact",
+		"id": "Look",
+		"name": "观察",
+		"time": 2,
+		"setting": "canTrain"
+	},
+	"Talk2": {
+		"type": "Interact",
+		"id": "Talk2",
+		"name": "近况",
+		"time": 5
+	},
+	"Interest": {
+		"type": "Interact",
+		"id": "Interest",
+		"name": "兴趣",
+		"time": 5
+	},
+	"PetHead": {
+		"type": "Interact",
+		"id": "PetHead",
+		"name": "摸头",
+		"time": 2
+	},
+	"Firm": {
+		"type": "Interact",
+		"id": "Firm",
+		"name": "调情",
+		"time": 3
+	},
+	"Gift": {
+		"type": "Interact",
+		"id": "Gift",
+		"name": "送礼",
+		"time": 2
+	},
+	"AskMoney": {
+		"type": "Interact",
+		"id": "AskMoney",
+		"name": "借钱",
+		"time": 3
+	},
+	"Payback": {
+		"type": "Interact",
+		"id": "Payback",
+		"name": "还钱",
+		"time": 3
+	},
+	"AskHelp": {
+		"type": "Interact",
+		"id": "AskHelp",
+		"name": "求助",
+		"time": 3
+	},
+	"Interact": {
+		"type": "Menu",
+		"id": "Interact",
+		"name": "交流"
+	},
+	"Touch": {
+		"type": "Menu",
+		"id": "Touch",
+		"name": "接触"
+	},
+	"TrySex": {
+		"type": "Menu",
+		"id": "TrySex",
+		"name": "推倒",
+		"setting": "alterName"
+	},
+	"Keep": {
+		"type": "Menu",
+		"id": "Keep",
+		"name": "持续",
+		"setting": "alterName"
+	},
+	"Coop": {
+		"type": "Menu",
+		"id": "Coop",
+		"name": "配合"
+	},
+	"Resit": {
+		"type": "Menu",
+		"id": "Resit",
+		"name": "抵抗"
+	},
+	"useHands": {
+		"type": "Menu",
+		"id": "useHands",
+		"name": "用手",
+		"setting": "alterName"
+	},
+	"useMouth": {
+		"type": "Menu",
+		"id": "useMouth",
+		"name": "用口"
+	},
+	"usePenis": {
+		"type": "Menu",
+		"id": "usePenis",
+		"name": "用阴茎"
+	},
+	"useVagina": {
+		"type": "Menu",
+		"id": "useVagina",
+		"name": "用阴道"
+	},
+	"useAnal": {
+		"type": "Menu",
+		"id": "useAnal",
+		"name": "用肛门"
+	},
+	"useFoot": {
+		"type": "Menu",
+		"id": "useFoot",
+		"name": "用脚"
+	},
+	"Combat": {
+		"type": "Menu",
+		"id": "Combat",
+		"name": "战斗",
+		"setting": "alterName"
+	},
+	"Magic": {
+		"type": "Menu",
+		"id": "Magic",
+		"name": "魔法"
+	},
+	"Items": {
+		"type": "Menu",
+		"id": "Items",
+		"name": "道具"
+	},
+	"Tentacles": {
+		"type": "Menu",
+		"id": "Tentacles",
+		"name": "触手"
+	},
+	"Order": {
+		"type": "Menu",
+		"id": "Order",
+		"name": "命令"
+	},
+	"Self": {
+		"type": "Menu",
+		"id": "Self",
+		"name": "自慰"
+	},
+	"Other": {
+		"type": "Menu",
+		"id": "Other",
+		"name": "其他"
+	},
+	"reset": {
+		"type": "Touch",
+		"id": "reset",
+		"name": "复位",
+		"mode": 0,
+		"setting": "doStraight"
+	},
+	"t0": {
+		"type": "Touch",
+		"id": "t0",
+		"name": "接吻",
+		"mode": 1.5,
+		"actPart": ["mouth"],
+		"targetPart": ["mouth"],
+		"autokeep": true,
+		"template": "{0}吻上了{1}的嘴唇。",
+		"setting": "doStraight"
+	},
+	"t1": {
+		"type": "Touch",
+		"id": "t1",
+		"name": "亲吻",
+		"mode": 2,
+		"actPart": ["mouth"],
+		"targetPart": [
+			"breast",
+			"penis",
+			"clitoris",
+			"ears",
+			"handL",
+			"handR",
+			"foot",
+			"neck",
+			"butts",
+			"thighs",
+			"abdomen"
+		],
+		"autokeep": false,
+		"template": "{0}亲吻在了{1}的{2}上，轻吮吸舔，试图留下自己的印记。"
+	},
+	"t2": {
+		"type": "Touch",
+		"id": "t2",
+		"name": "抚摸",
+		"mode": 1,
+		"actPart": ["handL", "handR"],
+		"targetPart": [
+			"mouth",
+			"breast",
+			"penis",
+			"clitoris",
+			"vagina",
+			"anal",
+			"ears",
+			"handL",
+			"handR",
+			"foot",
+			"neck",
+			"butts",
+			"thighs",
+			"abdomen"
+		],
+		"autokeep": false,
+		"template": "{0}的手轻抚着{1}的{2}。"
+	},
+	"t3": {
+		"type": "Touch",
+		"id": "t3",
+		"name": "揉捏",
+		"mode": 1.5,
+		"actPart": ["handL", "handR"],
+		"targetPart": ["breast", "penis", "clitoris", "ears", "butts"],
+		"autokeep": false,
+		"template": "{0}揉捏着{1}的{2}。"
+	},
+	"t4": {
+		"type": "Touch",
+		"id": "t4",
+		"name": "吸舔",
+		"mode": 2,
+		"actPart": ["mouth"],
+		"targetPart": [
+			"penis",
+			"clitoris",
+			"vagina",
+			"anal",
+			"ears",
+			"handL",
+			"handR",
+			"foot",
+			"neck",
+			"butts",
+			"nipple",
+			"thighs",
+			"abdomen"
+		],
+		"autokeep": false,
+		"template": "{0}吸住了{1}的{2}，在上面用舌头反复舔舐着。"
+	},
+	"t5": {
+		"type": "Touch",
+		"id": "t5",
+		"name": "吸咬",
+		"mode": 3,
+		"actPart": ["mouth"],
+		"targetPart": ["penis", "clitoris", "ears", "handL", "handR", "foot", "neck", "butts", "nipple", "thighs"],
+		"autokeep": false,
+		"template": "{0}含住{1}的{2}，吸吮轻咬着。"
+	},
+	"t6": {
+		"type": "Touch",
+		"id": "t6",
+		"name": "逗弄",
+		"mode": 2,
+		"actPart": ["handL", "handR"],
+		"targetPart": ["penis", "clitoris", "vagina", "anal", "ears", "nipple"],
+		"autokeep": false,
+		"template": "{0}反复逗弄着{1}的{2}。"
+	},
+	"t7": {
+		"type": "Touch",
+		"id": "t7",
+		"name": "指交",
+		"mode": 3,
+		"actPart": ["handL", "handR"],
+		"targetPart": ["mouth", "vagina", "anal", "urin"],
+		"autokeep": false,
+		"template": "{0}的手指浅浅插入{1}的{2}，在入口附近摩擦着。"
+	},
+	"t8": {
+		"type": "Touch",
+		"id": "t8",
+		"name": "性交",
+		"mode": 2.5,
+		"actPart": ["penis"],
+		"targetPart": ["vagina", "anal"],
+		"autokeep": false
+	},
+	"t9": {
+		"type": "Touch",
+		"id": "t9",
+		"name": "抽插",
+		"mode": 3,
+		"actPart": ["penis"],
+		"targetPart": ["mouth", "vagina", "anal"],
+		"autokeep": true,
+		"template": "{0}活动腰身，在{1}的{2}反复出入着。",
+		"setting": "doStraight"
+	},
+	"t10": {
+		"type": "Touch",
+		"id": "t10",
+		"name": "撸动",
+		"mode": 3,
+		"actPart": ["handL", "handR"],
+		"targetPart": ["penis"],
+		"autokeep": true,
+		"template": "{0}握住{1}的{2}，前后撸动着。"
+	},
+	"t11": {
+		"type": "Touch",
+		"id": "t11",
+		"name": "拳交",
+		"mode": 3,
+		"actPart": ["handL", "handR"],
+		"targetPart": ["vagina", "anal"],
+		"autokeep": false,
+		"template": "{0}的拳头粗暴地捅进了{1}的{2}里面，反复抽插着。"
+	},
+	"t12": {
+		"type": "Touch",
+		"id": "t12",
+		"name": "深入",
+		"mode": 3,
+		"actPart": ["penis"],
+		"targetPart": ["vagina", "anal"],
+		"autokeep": false,
+		"template": "{0}深深插入了{1}的{2}。"
+	},
+	"t13": {
+		"type": "Touch",
+		"id": "t13",
+		"name": "口交",
+		"mode": 3,
+		"actPart": [["(revive:eval)", "undefined"]],
+		"targetPart": ["mouth"],
+		"autokeep": true,
+		"template": "{0}让{1}含住了自己的阴茎。"
+	},
+	"r0": {
+		"type": "Reverse",
+		"id": "r0",
+		"name": "逆口交",
+		"mode": 1,
+		"actPart": ["mouth"],
+		"targetPart": ["handL", "handR", "penis"],
+		"autokeep": true,
+		"template": "{0}用{3}含住了{1}的{2}，用舌头反复舔动。"
+	},
+	"r1": {
+		"type": "Reverse",
+		"id": "r1",
+		"name": "逆性交",
+		"mode": 3,
+		"actPart": ["vagina", "anal"],
+		"targetPart": ["penis"],
+		"autokeep": false
+	},
+	"r2": {
+		"type": "Reverse",
+		"id": "r2",
+		"name": "收紧",
+		"mode": 3,
+		"actPart": ["vagina", "anal"],
+		"targetPart": ["penis", "handL", "handR"],
+		"autokeep": false,
+		"template": "{0}控制自身{3}，紧紧夹住了{1}的{2}。",
+		"setting": "doStraight"
+	},
+	"pose0": {
+		"type": "Pose",
+		"id": "pose0",
+		"name": "正常位",
+		"targetPart": ["vagina", "anal"],
+		"templte": "{0}把身体覆盖在{1}身上，掰开{1}的双腿从正面把阴茎插进了{2}。"
+	},
+	"pose1": {
+		"type": "Pose",
+		"id": "pose1",
+		"name": "背后位",
+		"targetPart": ["vagina", "anal"],
+		"templte": "{0}如同野兽般把{1}按倒在身下，掰开肉瓣从后面进入了{1}的身体。"
+	},
+	"pose2": {
+		"type": "Pose",
+		"id": "pose2",
+		"name": "正座位",
+		"targetPart": ["vagina", "anal"],
+		"templte": "{0}让{1}面对面坐在自己身上，一边亲吻着对方一边让{1}缓缓坐下将自己的阴茎收纳到{2}里。"
+	},
+	"pose3": {
+		"type": "Pose",
+		"id": "pose3",
+		"name": "背座位",
+		"targetPart": ["vagina", "anal"],
+		"templte": "{0}让{1}背对自己跨坐到身上，从背后搂住对方，让其慢慢坐下把{0}的阴茎吞入{2}里。"
+	},
+	"pose4": {
+		"type": "Pose",
+		"id": "pose4",
+		"name": "骑乘位",
+		"targetPart": ["vagina", "anal"],
+		"templte": "{0}让{1}骑在自己身上，一手扶着对方腰身让其以舒适的角度把{0}的阴茎收入{2}中。"
+	},
+	"pose5": {
+		"type": "Pose",
+		"id": "pose5",
+		"name": "侧卧位",
+		"targetPart": ["vagina", "anal"],
+		"templte": "{0}让{1}侧卧躺在自己身边，一手穿过对方腰身，从后面缓缓插入{1}的{2}。"
+	},
+	"pose6": {
+		"type": "Pose",
+		"id": "pose6",
+		"name": "趴卧位",
+		"targetPart": ["vagina", "anal"],
+		"templte": "{0}让{1}趴卧在床上，拿枕头垫高对方小腹后，以俯卧撑的姿势从后方贯穿了{1}的{2}。"
+	},
+	"pose7": {
+		"type": "Pose",
+		"id": "pose7",
+		"name": "站立位",
+		"targetPart": ["vagina", "anal"],
+		"templte": "{0}让{1}站立在自己身前，用手臂支撑对方，从正面把阴茎插入{1}的{2}。"
+	},
+	"pose8": {
+		"type": "Pose",
+		"id": "pose8",
+		"name": "背后立位",
+		"targetPart": ["vagina", "anal"],
+		"templte": "{0}让{1}找个地方站好，然后从背后把阴茎插入{1}的{2}。"
+	},
+	"pose9": {
+		"type": "Pose",
+		"id": "pose9",
+		"name": "抱立位",
+		"targetPart": ["vagina", "anal"]
+	},
+	"pose10": {
+		"type": "Pose",
+		"id": "pose10",
+		"name": "反抱立位",
+		"targetPart": ["vagina", "anal"]
+	},
+	"pose11": {
+		"type": "Pose",
+		"id": "pose11",
+		"name": "屈曲位",
+		"targetPart": ["vagina", "anal"]
+	},
+	"Rotor": {
+		"type": "Item",
+		"id": "Rotor",
+		"name": "跳蛋",
+		"mode": 2,
+		"targetPart": ["vagina", "anal", "nipple", "penis", "clitoris"],
+		"setting": "toy1",
+		"template": "{0}将跳蛋贴在{1}的{2}，刺激着。"
+	},
+	"Vibrator": {
+		"type": "Item",
+		"id": "Vibrator",
+		"name": "震动棒",
+		"mode": 2,
+		"targetPart": ["vagina", "anal"],
+		"setting": "toy2",
+		"template": "{0}将震动棒放进了{1}的{2}。"
+	},
+	"x0": {
+		"type": "Tentacles",
+		"id": "x0",
+		"name": "揉捏(触)",
+		"mode": 2,
+		"targetPart": ["breast", "penis", "clitoris", "nipple"],
+		"template": "触手缠绕在{1}的{2}上，巧妙地反复揉捏给予刺激。",
+		"actPart": ["tentacles"]
+	},
+	"x1": {
+		"type": "Tentacles",
+		"id": "x1",
+		"name": "逗弄(触)",
+		"mode": 2,
+		"targetPart": ["mouth", "penis", "clitoris", "vagina", "anal", "urin", "ears", "nipple"],
+		"template": "蠕动、摩擦、按捏。触手反复逗弄着{1}的{2}，给予极大的刺激。",
+		"actPart": ["tentacles"]
+	},
+	"x2": {
+		"type": "Tentacles",
+		"id": "x2",
+		"name": "吸舔(触)",
+		"mode": 2,
+		"targetPart": ["nipple", "penis", "clitoris"],
+		"template": "吸盘触手吸附在{1}的{2}上，反复吸舔着。",
+		"actPart": ["tentacles"]
+	},
+	"x3": {
+		"type": "Tentacles",
+		"id": "x3",
+		"name": "吸咬(触)",
+		"mode": 2,
+		"targetPart": ["nipple", "penis", "clitoris"],
+		"template": "口器触手含住{1}的{2}，吸吮轻咬着。",
+		"actPart": ["tentacles"]
+	},
+	"x4": {
+		"type": "Tentacles",
+		"id": "x4",
+		"name": "撸动(触)",
+		"mode": 3,
+		"targetPart": ["penis"],
+		"template": "触手缠绕住{1}的{2}，反复撸动着。",
+		"actPart": ["tentacles"]
+	},
+	"x5": {
+		"type": "Tentacles",
+		"id": "x5",
+		"name": "插入(触)",
+		"mode": 2,
+		"targetPart": ["mouth", "vagina", "anal", "urin", "ears"],
+		"template": "触手钻进了{1}敞开的{2}，缓缓往内深入。",
+		"actPart": ["tentacles"]
+	},
+	"x6": {
+		"type": "Tentacles",
+		"id": "x6",
+		"name": "蠕动(触)",
+		"mode": 2,
+		"targetPart": [
+			"mouth",
+			"breast",
+			"penis",
+			"clitoris",
+			"vagina",
+			"anal",
+			"urin",
+			"ears",
+			"neck",
+			"butts",
+			"nipple",
+			"thighs"
+		],
+		"template": "触手在{1}的{2}慢慢蠕动着。",
+		"actPart": ["tentacles"]
+	},
+	"x7": {
+		"type": "Tentacles",
+		"id": "x7",
+		"name": "抽插(触)",
+		"mode": 3,
+		"targetPart": ["mouth", "vagina", "anal", "urin", "ears"],
+		"template": "触手不停在{1}的{2}进出，抽插蠕动着。",
+		"setting": "doStraight",
+		"actPart": ["tentacles"]
+	},
+	"x8": {
+		"type": "Tentacles",
+		"id": "x8",
+		"name": "深入(触)",
+		"mode": 3,
+		"targetPart": ["mouth", "vagina", "anal", "urin"],
+		"template": "触手往{1}的{2}内部发出了进攻，往更深处蠕进。",
+		"actPart": ["tentacles"]
+	},
+	"x9": {
+		"type": "Tentacles",
+		"id": "x9",
+		"name": "抽送(触)",
+		"mode": 3,
+		"targetPart": ["mouth", "vagina", "anal", "urin"],
+		"template": "触手激烈地在{1}的{2}进出着，反复抽送着触身给予莫大的刺激。",
+		"setting": "doStraight",
+		"actPart": ["tentacles"]
+	},
+	"x10": {
+		"type": "Tentacles",
+		"id": "x10",
+		"name": "鞭打(触)",
+		"mode": 3,
+		"targetPart": ["breast", "penis", "clitoris", "anal", "butts", "nipple", "thighs"],
+		"template": "触手甩动触鞭，用巧妙的力度鞭打在{1}的{2}上。",
+		"actPart": ["tentacles"]
+	},
+	"x11": {
+		"type": "Tentacles",
+		"id": "x11",
+		"name": "刺入(触)",
+		"mode": 3,
+		"targetPart": ["penis", "clitoris", "vagina", "anal", "neck", "nipple", "butts"],
+		"template": "触手伸出尖锐的细针，狠狠地刺入了{1}的{2}。",
+		"actPart": ["tentacles"]
+	},
+	"x12": {
+		"type": "Tentacles",
+		"id": "x12",
+		"name": "灌入(触)",
+		"mode": 3,
+		"targetPart": ["mouth", "vagina", "anal"],
+		"template": "触手往{1}的{2}灌入大量的药液。",
+		"actPart": ["tentacles"]
+	},
+	"x13": {
+		"type": "Tentacles",
+		"id": "x13",
+		"name": "注射(触)",
+		"mode": 3,
+		"targetPart": ["breast", "penis", "clitoris", "vagina", "anal", "urin", "neck", "butts", "nipple", "abdomen"],
+		"template": "触手伸出尖锐的针头，刺入{1}的{2}并注入药液。",
+		"actPart": ["tentacles"]
+	},
+	"m0": {
+		"type": "Magic",
+		"id": "m0",
+		"name": "静心咒",
+		"time": 3,
+		"setting": 15
+	},
+	"m1": {
+		"type": "Magic",
+		"id": "m1",
+		"name": "净化术",
+		"time": 5,
+		"setting": 30
+	},
+	"Stream": {
+		"type": "Command",
+		"id": "Stream",
+		"name": "直播",
+		"setting": "alterName"
+	},
+	"Party": {
+		"type": "Command",
+		"id": "Party",
+		"name": "派对",
+		"setting": "alterName"
+	},
+	"Clothes": {
+		"type": "Other",
+		"id": "Clothes",
+		"name": "衣服管理"
+	},
+	"Behavior": {
+		"type": "Other",
+		"id": "Behavior",
+		"name": "行为管理"
+	},
+	"GetNude": {
+		"type": "Other",
+		"id": "GetNude",
+		"name": "一键脱光"
+	},
+	"move": {
+		"type": "System",
+		"id": "move",
+		"name": "移动",
+		"setting": "Map"
+	},
+	"fall": {
+		"type": "System",
+		"id": "fall",
+		"name": "下沉"
+	},
+	"rise": {
+		"type": "System",
+		"id": "rise",
+		"name": "上浮"
+	},
+	"sleep": {
+		"type": "System",
+		"id": "sleep",
+		"name": "睡觉",
+		"setting": "Sleep"
+	},
+	"resetAct": {
+		"type": "System",
+		"id": "resetAct",
+		"name": "清除动作"
+	},
+	"resetAll": {
+		"type": "System",
+		"id": "resetAll",
+		"name": "全部"
+	},
+	"stopTouch": {
+		"type": "System",
+		"id": "stopTouch",
+		"name": "住手"
+	},
+	"resetMode": {
+		"type": "System",
+		"id": "resetMode",
+		"name": "走开"
+	}
+}

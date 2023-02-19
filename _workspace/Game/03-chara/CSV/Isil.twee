@@ -1,0 +1,56 @@
+:: CharaSheet_Isil[csv]
+
+id, Isil,
+name, 伊希露,
+midname, 梅尔,
+surname, 艾西利特,
+
+gender, male,
+species, elvin,
+title, 魔法学者,
+class, scholar,
+
+birthday, 3998, 6, 17,
+
+traits, 纤弱,
+traits, 不耐疼,
+traits, M体质,
+traits, A名器,
+traits, 易伤体质,
+traits, 淡漠,
+traits, 冷静,
+traits, 理智,
+traits, 不过线,
+traits, 性保守,
+traits, 高自尊,
+traits, 低调,
+traits, 坚韧,
+traits, 贞洁
+
+talent, 天才,
+talent, 光属性,
+talent, 水属性,
+talent, 木属性,
+talent, 雌雄莫辩,
+talent, 人气,
+talent, 探究心,
+talent, 高等精灵,
+
+skill, light_shower,
+skill, magica_shield,
+skill, green_grow,
+skill, clear_mind,
+skill, water_bubble,
+skill, ice_arrow,
+skill, clean_body,
+skill, object_control,
+
+stats.STR, 7,
+stats.CON, 8,
+stats.DEX, 12,
+stats.INT, 19,
+stats.WIL, 18,
+stats.PSY, 16,
+stats.ALR, 20,
+
+bodysize, 2,

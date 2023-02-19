@@ -1,10 +1,4 @@
 //beauty=ALR*100+wearbuff+traitbuff
-Chara.onLoad = function () {
-	for (let i in V.chara) {
-		let data = V.chara[i];
-		V.chara[i] = Chara.load(data);
-	}
-};
 
 Fix.beauty = function (chara) {
 	const traitbuff = function (chara) {

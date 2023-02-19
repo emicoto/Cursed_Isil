@@ -1,7 +1,6 @@
 
 :: RegistAllCom[script]
 //批处理多个指令。
-Com.init()
 
 Com.globalFilter = function (id) {
     const com = comdata[id]

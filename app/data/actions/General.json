@@ -1,0 +1,133 @@
+[
+	{
+		"id": "Relax",
+		"name": ["放松", "Relax"],
+		"time": 15,
+		"tags": ["restarea"],
+		"placement": ["sofa", "chair", "bed"],
+		"setting": ["canTrain"],
+		"template": [
+			"<<you>>找了个舒适的地方坐了下来，放松了一下。",
+			"<<you>> found a comfortable place and relaxed for a while."
+		]
+	},
+	{
+		"id": "Walk",
+		"name": ["散步", "Walk"],
+		"time": 15,
+		"tags": ["outdoor"],
+		"template": [
+			"<<you>>在<<location>>散了会步，观赏着<<location>>的风景。",
+			"<<you>> took a walk in <<location>> and enjoyed the scenery."
+		]
+	},
+	{
+		"id": "Plant",
+		"name": ["种植", "Plant"],
+		"time": 30,
+		"tags": ["plantarea"],
+		"template": ["<<you>>在<<location>>种植了一些_plant。", "<<you>> planted some _plant in <<location>>."]
+	},
+	{
+		"id": "Bath",
+		"name": ["洗澡", "Bath"],
+		"time": 30,
+		"tags": ["bathroom", "showers"],
+		"template": ["<<you>>洗了个澡。", "<<you>> took a bath."]
+	},
+	{
+		"id": "Read",
+		"name": ["阅读", "Read"],
+		"time": 60,
+		"tags": ["library", "readingroom"],
+		"placement": ["bookshelf"],
+		"template": [
+			"<<you>>从书架上找了本_book的书，坐下来开始阅读。",
+			"<<you>> found a book about _book and started reading."
+		]
+	},
+	{
+		"type": "General",
+		"id": "Study",
+		"name": ["学习", "Study"],
+		"time": 60,
+		"tags": ["classroom"],
+		"placement": ["desk"],
+		"template": ["<<you>>翻开了教科书，开始学习_major。", "<<you>> opened the textbook and started study _major."]
+	},
+	{
+		"id": "TakeNap",
+		"name": ["午觉", "Take a nap"],
+		"time": 120,
+		"tags": ["bedroom"],
+		"placement": ["bed"],
+		"template": ["<<you>>睡了一觉。", "<<you>> took a nap."]
+	},
+	{
+		"id": "Cook",
+		"name": ["烹饪", "Cook"],
+		"time": 30,
+		"tags": ["kitchen"],
+		"placement": ["stove"],
+		"template": ["<<you>>在厨房烹饪了一顿饭。", "<<you>> cooked a meal in the kitchen."]
+	},
+	{
+		"type": "General",
+		"id": "HomeWork",
+		"name": ["做作业", "Do homework"],
+		"time": 120,
+		"placement": ["desk"],
+		"template": ["<<you>>在家做了一些作业。", "<<you>> did some homework at home."]
+	},
+	{
+		"type": "General",
+		"id": "Shop",
+		"name": ["购物", "Shop"],
+		"time": 10,
+		"tags": ["shop"]
+	},
+	{
+		"type": "General",
+		"id": "Sing",
+		"name": ["唱歌", "Sing"],
+		"time": 5,
+		"setting": ["canTrain"],
+		"template": ["<<you>>唱了一首歌。", "<<you>> sang a song."]
+	},
+	{
+		"type": "General",
+		"id": "Dance",
+		"name": ["跳舞", "Dance"],
+		"time": 10,
+		"tags": ["activity", "stage", "dancefloor"]
+	},
+	{
+		"type": "General",
+		"id": "PlayMusic",
+		"name": ["演奏", "Play music"],
+		"time": 5,
+		"tags": ["Instrument"],
+		"placement": ["piano", "violin", "saxophone"]
+	},
+	{
+		"type": "General",
+		"id": "Fish",
+		"name": ["钓鱼", "Fish"],
+		"time": 30,
+		"tags": ["fishspot"]
+	},
+	{
+		"type": "General",
+		"id": "Gather",
+		"name": ["采集", "Gathering"],
+		"time": 20,
+		"tags": ["resourcespot"]
+	},
+	{
+		"type": "General",
+		"id": "Mine",
+		"name": ["挖矿", "Mining"],
+		"time": 30,
+		"tags": ["mine"]
+	}
+]

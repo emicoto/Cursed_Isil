@@ -15,10 +15,10 @@ const parseArgs = () => {
 	// Extract extra arguments.
 	const [, , ...flags] = process.argv;
 	return [
-		"--output=./public/index.html",
-		"./_workspace/gamecode",
+		"--output=./app/index.html",
+		"./_workspace/Game",
 		"--head=./_workspace/head.html",
-		`--module=./_workspace/modules`,
+		`--module=./_workspace/Core`,
 		...flags,
 	];
 };
@@ -113,7 +113,7 @@ const bundleJS = async (args: string[], serveOptions: IOptions = {}) => {
 	utils.logAction("Compiling scripts...");
 	await bundleJS(args, {
 		port: 8008,
-		root: "./public",
+		root: "./app",
 		live: true,
 	});
 	utils.logAction("Copying files...");

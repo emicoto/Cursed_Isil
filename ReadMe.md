@@ -1,92 +1,118 @@
-# 更新
+# SugarCube + Era edition
 
-2023/1/29
+This is a cross-platform game development tool based on the sugarcube.
 
-把代码都整理了一遍。这下舒服多了。
-把系统功能跟游戏数据剥离，彻底生成器化。
-完善了 map 系统。现在 map 系统支持 rpg 地图更细致的制作了。
+这是一个基于 sugarcube 所改进而来的跨平台游戏开发工具。
 
-2023/1/27
+This version allows you to adapt the steam API and has mod manager, mod API, local file loading, A full process cycle management, multip language support and more.
 
-加入 nwjs 的框架
-现在有个 exe 程式可以直接运行游戏了。
-因为有 nw 的框架，可以有专门的存档文件，也能直接读写本地文件了。
-但实时刷新游戏调试需要额外部署。
-地图系统彻底完工，但还需要优化一下代码。
-下一步就弄道具系统了。
-如果你是通过 git 下载的，你需要到 nwjs 下载 sdk 包，把所有 dll 文件放到根目录下。
+这个版本允许你适配 steam API，并且拥有 mod 管理器，mod API，本地文件加载，一个完整的运行周期管理，多语言支持等功能。
 
-# workspace 内各文件夹说明：
+And it allows you to separate scripts from text files and use certain functions to perform various pre-processing of your scripts, text before sugarcube starts.
 
-- Code
-- gamecode
-- modules
-- public
-- scripts
+并且允许你分离脚本与文本文件，在 sugarcube 启动前就能使用某些功能对你的脚本、文本进行各种预处理。
 
-### Code
+## ProcessEvent
 
-TypeScript 源文件所在的地方。
-如果你对 JS 和 TS 不熟悉，就不用理。
-Code 文件需要安装 node.js 环境才能经过脚本转换。
+The following process events have been added：
 
-### gamecode
+以下是新增的 global 进程事件：
 
-游戏主要代码与文本文件。
-游戏运行需要的东西都在这里了！
+sugarcube:ready -- when sugarcube startup
 
-文件的排序十分重要！加载顺序不对的话就会导致严重错误！
-标了数字优先度的文件和文件夹绝对不能改名字！
+Era:start -- after Era system start in sugarcube module
 
-### modules
+scEra:ready -- when the era system and sugarcube both is ready
 
-js 插件文件。
-需要程序优先读取的资料也会放这里。
-游戏启动时，读取的顺序为 modules > gamecode
+scEra:apply -- after the main modules applied
 
-### public
+module:applied -- when a modules applied successfully, will throw a modules name for linkage other modules apply function.
 
-打包好的游戏本体与 CSS、外部 js 插件和图片资源。
+modules:init -- after all modules finish its initialization. let the game know its time to start next step( init mapsdata, character, player, etc.
 
-### scripts
+modules:loaded -- after all modules loaded. let the game know it's ready to start, then start finish all initialization.
 
-环境脚本文件。如果你不会用 terminal 就不要动它。
+Dialogs.set -- global event. on a dialog event to be set
 
-# gamecode 文件
+:initstory -- afert Story.init() let era system know all the csv, tables, xml data is finish initialization.
 
-- framework
-  文件夹内的是程序主框架需要的设置脚本。绝对不能动也不能改名字！！
+:storyinit -- before wikify :: StoryInit.
 
-- config
-  文件夹内是设置文件。可以对游戏变量、系统设定等进行设置
+:initCharacter -- when a character finish init its data, will throw a chara data for modify
 
-- data
-  文件夹内是游戏资料。包括特征、地图等设定文件。
+:initCreature -- when a creature finish init its data, will throw a creature data for modify.
 
-- javascript
-  文件夹内为 js 脚本文件。
+### local 事件/local evnt:
 
-- gametwee
-  文件夹内为 sugarcube 脚本与界面设计文件。
+$(#dialog).trigger('start') -- local event. on a dialog event had start
 
-- Actions
-  文件夹内是动作指令文件。各指令的设定、脚本、还有文本。
+## File loader
 
-- Command
-  文件夹内是传统指令模式的指令文件。各指令的设定、脚本、还有文本。
+add functional passage tags: csv, xml, table
 
-- CharaSheet
-  角色注册档案。
+添加功能性 passage 标签：csv、xml、table
 
-- Kojo
-  角色事件档案
+you can use twee as csv/table/xml file, then when sugarcube loading all passage, will convert them to a obj or array store at scEra.csv/scEra.table/scEra.xml.
 
-## 系统流程
+你可以使用 twee 作为 csv/table/xml 文件，然后当 sugarcube 加载所有段落时，会将它们转换为 obj 或数组存储在 scEra.csv/scEra.table/scEra.xml。
 
-游戏启动时会按以下顺序加载脚本：
+those obj you can use scEra.csv.get('passage title') to get the data.
 
-1. 挂在 header 中的外挂 js 脚本。如 jquery 这类功能插件。
-2. module 内的 js 脚本。es6+的补充脚本，还有 ts 转换过来的游戏脚本都在这里。
-3. gamecode 内的脚本。按名字排序，从最底层的文件夹开始读取。
-4. 根据 GameSetup.twee 内的脚本，按顺序初始化。
-5. 运行:: Start（也就是 GameStart.twee 文件）进入标题界面。
+这些 obj 你可以使用 scEra.csv.get('passage title')来获取数据。
+
+also you can use Era.loadCSV, Era.parseXML, Era.parseTable those method to load any local file data.
+
+你也可以使用 Era.loadCSV, Era.parseXML, Era.parseTable 这些方法来加载任何本地文件数据。
+
+those function can let you manage game data in easier way.
+
+这些函数可以让你以更简单的方式管理游戏数据。
+
+## Passage Editor
+
+scEra.newPsg(passageTitle, htmltext) -- dymanic add new passage to story
+
+scEra.setPsg(passageTitle, htmltext) -- dymanic set exist passage to story. the html arg will replace all html text of the given passage.
+
+scEra.patchPsg(passageTitle, htmltext) -- dymanic patch html text to the last line of exist passage .
+
+## Dialog System
+
+A flow/bubble style dialog system.
+
+## Species and Creatures/Character
+
+this sysem can allow you customize species/creatures/characters, and allow the game automatically generate values, let you make random chara/creatures in easy way.
+
+also includes management function for manage those species/creatures/character
+
+## Game Map system
+
+a tile/board style map system. includes random generate feature and autopath feature.
+
+## Kojo system
+
+Kojo, means character event and speak out.
+
+this system help you manage chara event and chara feature, like equips preset, schedules, custom action, etc.
+
+also includes auto check the text is still working or not. if has not text output, then kojo system will skip the event or speak out.
+
+## eraCommand System
+
+an era-like text command system.
+
+you can setup the command by csv, then use command to interact to characters or location.
+
+with this system you can make any game like era or text based simulations game.
+
+## Action system
+
+an action type text command system.
+
+this system is more advance and can go much further than eraCommand system.
+
+Players can interact with the placement at lacations, or characters through more detailed manipulation. It also ensures that the operations are not too cumbersome and that many detailed operations can be performed with just one or two clicks.
+
+ths action system allow you build a any game like dol/titis/era.
+even much further, like: add combat command, bind keyboard, bind image to become image interaction game, etc.

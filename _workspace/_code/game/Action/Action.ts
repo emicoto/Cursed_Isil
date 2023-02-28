@@ -25,6 +25,7 @@ export interface Action {
 	effect?: (arg?, ...args) => any;
 	alterName?: (...args) => string;
 	onReady?: (...args) => any;
+	event?: (...args) => any;
 }
 /**
  * @fileoverview Actions
@@ -43,13 +44,16 @@ export class Action {
 
 	public static makeTemplate: (data, mode) => string;
 	public static output: (data, mode) => void;
-	public static able: (id, part, mode) => 0 | 1;
-	public static order: (id, part, mode) => string;
-	public static SelectableParts: (id) => string[];
-	public static getInputType: (id) => string;
-	public static typeFilter: (type) => Action[];
-	public static globalFilter: (type) => 0 | 1;
 
+	public static typeFilter(...types) {
+		return Object.values(Action.data).filter((action) => types.includes(action.type));
+	}
+
+	//-------------------------------------------------------------//
+	//
+	// get and set Action
+	//
+	//-------------------------------------------------------------//
 	public static add(id: string, type: string, obj) {
 		Action.data[id] = new Action(type, obj);
 		return Action.data[id];
@@ -85,6 +89,12 @@ export class Action {
 		}
 		return Action.data[id];
 	}
+
+	//-------------------------------------------------------------//
+	//
+	// Action constructor
+	//
+	//-------------------------------------------------------------//
 	constructor(type, action: any) {
 		this.type = type;
 
@@ -126,9 +136,6 @@ export class Action {
 		this.order = (...arg) => {
 			return 1;
 		};
-		this.effect = (...arg) => {
-			return "";
-		};
 	}
 
 	Check(callback) {
@@ -169,6 +176,10 @@ export class Action {
 	}
 	Set(key: string, value: any) {
 		this[key] = value;
+		return this;
+	}
+	Event(callback) {
+		this.event = callback;
 		return this;
 	}
 }

@@ -66,7 +66,7 @@ Action.reset = function () {
 
 	//缓存最后一个动作。
 	V.lastAction = clone(T.action);
-	V.lastCounter = clone(T.counter);
+	//V.lastCounter = clone(T.counter);
 
 	if (T.action.id !== Tsv[pc].lastAction) {
 		Tsv[pc].lastAction = T.action.id;

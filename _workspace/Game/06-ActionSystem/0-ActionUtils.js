@@ -1,7 +1,3 @@
-Action.typeFilter = function (...types) {
-	return Object.values(Action.data).filter((action) => types.includes(action.type));
-};
-
 /**
  *
  * @param {'cancel' | 'stop'} mode
@@ -41,9 +37,9 @@ Action.order = function (id, part, btn) {
 	T.orderGoal = Action.globalOrder(id) + data.order(part);
 
 	//对方处于无意识状态的话，强行将需求配合值设为0。
-	if (target.uncons()) T.orderGoal = 0;
+	if (Cond.isUncons(V.tc)) T.orderGoal = 0;
 	//有意识但无法动弹，追加强制flag。
-	if (target.unable()) T.forceOrder += 100;
+	if (Cond.isUnable(V.tc)) T.forceOrder += 100;
 
 	return Action.checkOrder(btn);
 };
@@ -51,25 +47,25 @@ Action.order = function (id, part, btn) {
 Action.getInputType = function (actionId, selection) {
 	//判定指令属于什么类型，以便后续处理。
 	if (!actionId) return;
-	const { type, actPart, targetPart, setting, event } = Action.data[actionId];
+	const { type, actPart, targetPart, setting = "", event } = Action.data[actionId];
 
 	if (event) return "event";
 
 	switch (type) {
-		case "体位":
+		case "Pose":
 			return "selectPose";
-		case "接触":
-		case "触手":
-		case "逆位":
-			if (setting?.has("doStraight")) return "oneAction";
+		case "Touch":
+		case "Tentacles":
+		case "Reverse":
+			if (setting.has("doStraight")) return "oneAction";
 			else return "touchAction";
-		case "道具":
+		case "Item":
 			if (actPart || targetPart) return "useEquipItem";
 			else return "useOneTimeItem";
 		default:
 			if ((actPart || targetPart) && !setting?.has("doStraight")) return "OptionalAction";
 
-			if (groupmatch(type, "常规", "交流") || setting?.has("doStraight")) return "oneAction";
+			if (groupmatch(type, "General", "Interact") || setting.has("doStraight")) return "oneAction";
 	}
 
 	return "command";

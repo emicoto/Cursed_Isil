@@ -2,12 +2,12 @@ const selectedActionBtn = function (name) {
 	return `<div class='actions selectAct'>[ ${name} ]</div>`;
 };
 
-const getBtnStyle = function (id, part, state) {
+const getBtnStyle = function (id, part) {
 	const data = Action.data[id];
 	const able = Action.able(id, part, 1);
 	const order = Action.order(id, part, 1);
 	let style = "gray";
-	if (able || groupmatch(data.type, "目录", "交流", "固有", "常规")) {
+	if (able || D.generalType.includes(data.type)) {
 		const select = new SelectCase();
 		select
 			.case("succeed", "gold")
@@ -28,7 +28,7 @@ const createActionBtn = function (currentSelect, actionData, layer) {
 	let option = Action.SelectableParts(id);
 
 	//如果是当前选中的，就清除链接并加上选中标记。
-	if ((currentSelect == id && Cond.hasSelectableParts(option)) || (type == "目录" && T.actionTypeFilter == id)) {
+	if ((currentSelect == id && Cond.hasSelectableParts(option)) || (type == "Menu" && T.actionTypeFilter == id)) {
 		return selectedActionBtn(name);
 	}
 
@@ -43,7 +43,7 @@ const createActionBtn = function (currentSelect, actionData, layer) {
 const createOptionBtn = function (actionId, option, selectType) {
 	//console.log(actionId, option, selectType);
 
-	let name = D.bodyparts[option];
+	let name = D.bodyDict[option];
 	if (selectType == "actor") {
 		name = `用${name}`;
 	}
@@ -64,8 +64,6 @@ const createSystemLinks = function (data) {
 	if (alterName) name = alterName();
 	if (setting) setting = `'${setting}'`;
 	else setting = "";
-
-	//console.log(name, option);
 
 	return `<div class='actions'><<link '[ ${name} ]' ${setting}>>${
 		event ? `<<run Action.data['${id}'].event(); Action.redraw();>>` : ""
@@ -125,13 +123,13 @@ Action.shownext = function (hide) {
 Action.updateMenu = function () {
 	//获取当前动作数据。
 	const selectId = T.select.id;
-	const actionData = Action.data[selectId];
+	//	const actionData = Action.data[selectId];
 
 	//指令排序
-	const layer1 = ["交流", "常规", "目录"];
-	const layer2 = ["逆位", "接触", "道具", "触手", "魔法", "战斗", "命令"];
-	const options = ["体位", "其他"];
-	const systems = Action.typeFilter("固有");
+	const layer1 = ["Interact", "General", "Menu"];
+	const layer2 = ["Reverse", "Touch", "Item", "Tentacles", "Magic", "Combat", "Onani", "Command"];
+	const options = ["Pose", "Other"];
+	const systems = Action.typeFilter("System");
 
 	//可选部位
 	const actorOption = Action.SelectableParts(selectId, 1);
@@ -225,7 +223,7 @@ Action.redraw = function () {
 	V.target = C[tc];
 	V.player = C[pc];
 
-	Ui.delink();
+	Ui.removelink();
 	Action.updateScene();
 	Action.show();
 	Action.updateMenu();

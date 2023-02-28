@@ -1,24 +1,5 @@
 import { Action } from "./Action";
-
 declare var scEra: typeof window.scEra;
-declare var V: typeof window.V;
-
-export const InitActionList = function () {
-	let tables = scEra.table.get("ActionList") as any;
-	for (const type of Object.keys(tables)) {
-		let list = tables[type];
-		//init all the list
-		list.forEach((data) => {
-			if (data.actPart) data.actPart = extendParts(data.actPart);
-			if (data.targetPart) data.targetPart = extendParts(data.targetPart);
-
-			Action.data[data.id] = new Action(type, data);
-		});
-	}
-	console.log("ActionList", Action.data);
-};
-
-export const InitKojoAction = function () {};
 
 const extendParts = function (raw) {
 	let list = "mbpcvauehfnsrgd";
@@ -60,6 +41,23 @@ const extendParts = function (raw) {
 		.flat();
 	return arr;
 };
+
+export const InitActionList = function () {
+	let tables = scEra.table.get("ActionList") as any;
+	for (const type of Object.keys(tables)) {
+		let list = tables[type];
+		//init all the list
+		list.forEach((data) => {
+			if (data.actPart) data.actPart = extendParts(data.actPart);
+			if (data.targetPart) data.targetPart = extendParts(data.targetPart);
+
+			Action.data[data.id] = new Action(type, data);
+		});
+	}
+	console.log("ActionList", Action.data);
+};
+
+export const InitKojoAction = function () {};
 
 export const InitActionMode = function () {
 	//

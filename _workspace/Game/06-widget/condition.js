@@ -78,6 +78,10 @@ Cond.isUncons = function (cid) {
 	return C[cid].state.has("睡眠", "晕厥") || (Cond.baseLt(cid, "stamina", 10) && Cond.baseLt(cid, "sanity", 10));
 };
 
+Cond.isUnable = function (cid) {
+	return C[cid].state.has("拘束", "石化") || !Cond.isEnergetic(this.cid, 30);
+};
+
 Cond.isActive = function (cid) {
 	return (
 		!C[cid].state.has("睡眠", "晕厥", "精神崩溃", "拘束", "石化") &&

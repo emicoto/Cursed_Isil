@@ -9,7 +9,7 @@ Action.onInput = function (actionId, inputType, selection) {
 
 	//先记录玩家的输入。如果id或对象不同，就重置记录。
 	//type 是体位时则无视id的变化。
-	if ((type !== "体位" && T?.select?.id !== actionId) || T?.select?.target !== tc || T?.select?.actor !== pc) {
+	if ((type !== "Pose" && T?.select?.id !== actionId) || T?.select?.target !== tc || T?.select?.actor !== pc) {
 		T.select = {
 			id: actionId,
 			actor: pc,
